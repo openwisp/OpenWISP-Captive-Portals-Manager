@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+  <title><%=t :application_name %></title>
+
+  <%= stylesheet_link_tag 'fluid960/reset' %>
+  <%= stylesheet_link_tag 'fluid960/text' %>
+  <%= stylesheet_link_tag 'fluid960/960' %>
+  <%= stylesheet_link_tag 'fluid960/layout' %>
+  <%= stylesheet_link_tag 'fluid960/nav' %>
+
+  <%= stylesheet_link_tag 'custom' %>
+
+  <!--[if IE 6]><%= stylesheet_link_tag 'fluid960/ie6', 'custom-ie' %><![endif]-->
+  <!--[if IE 7]><%= stylesheet_link_tag 'fluid960/ie', 'custom-ie' %><![endif]-->
+
+  <%= javascript_include_tag :defaults %>
+  <%= javascript_include_tag 'jquery-fluid16' %>
+
+  <%= csrf_meta_tag %>
+</head>
+<body>
+
+<div class="container_16">
+  <div class="grid_16">
+    <table class="branding">
+      <tr>
+        <td style="text-align:left">
+          <h1 id="branding">
+            <%= link_to image_tag("logo_caspur.png", :border => 0, :size => "64x50",
+                                  :alt => t(:extended_application_name),
+                                  :class => "application_logo"), ""
+            %>
+            <%=t :extended_application_name %>
+          </h1>
+        </td>
+        <td style="text-align:right">
+          <%= link_to image_tag("italy_small.jpg", :alt => :italiano, :border => 0, :width => "24"),
+                      :controller => :application, :action => :set_session_locale, :locale => :it %>
+          <%= link_to image_tag("uk_small.jpg", :alt => :english, :border => 0, :width => "24"),
+                      :controller => :application, :action => :set_session_locale, :locale => :en %>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="clear">&nbsp;</div>
+  <div class="grid_16">
+    <ul class="nav main">
+      <% if current_operator %>
+          <li>
+            <%= link_to t(:operations), captive_portals_path %>
+            <ul>
+              <li>
+                <%= link_to t(:list_captive_portals), captive_portals_path %>
+              </li>
+              <li>
+                <%= link_to t(:new_captive_portal), new_captive_portal_path %>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <%= link_to t(:captive_portals), captive_portals_path %>
+            <ul>
+              <% CaptivePortal.all.each do |cp| %>
+                  <li>
+                    <%= link_to h(cp.name), captive_portal_path(cp) %>
+                  </li>
+              <% end %>
+            </ul>
+          </li>
+          <li>
+            <%= link_to t(:logout), operator_logout_path %>
+          </li>
+          <li class="secondary">
+            <%= link_to t(:logged_in_as) + " " + h(current_operator.login),
+                        operator_logout_path,
+                        :confirm => t(:are_you_sure_logout)
+            %>
+          </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="clear"></div>
+  <div class="grid_16">
+    <% if flash[:notice]%>
+        <h2 id="page-notice" style="color: #008000"><%= flash[:notice] %></h2>
+    <% else %>
+        <h2 id="page-notice">&nbsp;</h2>
+    <% end %>
+  </div>
+  <div class="clear"></div>
+
+  <%= yield %>
+
+  <div class="grid_16" id="site_info">
+    <div class="box" style="text-align:center">
+      <p><%=t :extended_application_name %> - <%=t :created_by %>
+        <a href="http://www.caspur.it">CASPUR</a>
+      </p>
+    </div>
+  </div>
+  <div class="clear"></div>
+</div>
+
+</body>
+</html>

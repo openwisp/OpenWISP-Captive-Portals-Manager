@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  host: MyString
+  port: 1
+  shared_secret: MyString
+
+two:
+  host: MyString
+  port: 1
+  shared_secret: MyString

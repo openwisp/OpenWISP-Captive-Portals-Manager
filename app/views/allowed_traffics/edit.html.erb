@@ -1,0 +1,18 @@
+<div class="grid_12 prefix_2 suffix_2">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-editing_allowed_traffic"><%=t :editing_allowed_traffic %></a>
+    </h2>
+    <div class="block" id="editing_allowed_traffic">
+
+      <%= render 'form' %>
+
+      <%= link_to t(:show), captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %> |
+      <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>
+
+

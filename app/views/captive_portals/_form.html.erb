@@ -1,0 +1,128 @@
+<fieldset class="form">
+  <legend><%=t :captive_portal %></legend>
+
+  <%= form_for(@captive_portal) do |cp_form| %>
+      <% if @captive_portal.errors.any? %>
+          <h3 id="error_explanation" class="toggler atStart" style="color: #ff0000">
+            <%= pluralize(@captive_portal.errors.count, "error") %>
+          </h3>
+          <h4 class="toggler atStart">
+            <ul>
+              <% @captive_portal.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </h4>
+      <% end %>
+
+
+      <p>
+        <%= cp_form.label :name %>
+        <%= cp_form.text_field :name %>
+      </p>
+
+      <% if cp_form.object.new_record? %>
+
+          <p>
+            <%= cp_form.label :cp_interface %>
+            <%= cp_form.text_field :cp_interface %>
+          </p>
+          <p>
+            <%= cp_form.label :wan_interface %>
+            <%= cp_form.text_field :wan_interface %>
+          </p>
+      <% end %>
+      <p>
+        <%= cp_form.label :redirection_url %>
+        <%= cp_form.url_field :redirection_url %>
+      </p>
+      <p>
+        <%= cp_form.label :error_url %>
+        <%= cp_form.url_field :error_url %>
+      </p>
+      <p>
+        <%= cp_form.label :local_http_port %>
+        <%= cp_form.number_field :local_http_port, :in => 0...65535 %>
+      </p>
+      <p>
+        <%= cp_form.label :local_https_port %>
+        <%= cp_form.number_field :local_https_port, :in => 0...65535 %>
+      </p>
+      <p>
+        <%= cp_form.label :default_session_timeout %>
+        <%= cp_form.number_field :default_session_timeout, :min => 0 %>
+      </p>
+      <p>
+        <%= cp_form.label :default_idle_timeout %>
+        <%= cp_form.number_field :default_idle_timeout, :min => 0 %>
+      </p>
+      <p>
+        <%= cp_form.label :default_download_bandwidth %>
+        <%= cp_form.number_field :default_download_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+      <p>
+        <%= cp_form.label :default_upload_bandwidth %>
+        <%= cp_form.number_field :default_upload_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+      <p>
+        <%= cp_form.label :total_download_bandwidth %>
+        <%= cp_form.number_field :total_download_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+      <p>
+        <%= cp_form.label :total_upload_bandwidth %>
+        <%= cp_form.number_field :total_upload_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+
+      <fieldset class="subform">
+        <legend><%=t :radius_auth_server %></legend>
+
+        <%= cp_form.fields_for :radius_auth_server do |rauths_form| %>
+            <p>
+              <%= rauths_form.label :host %>
+              <%= rauths_form.text_field :host %>
+            </p>
+            <p>
+              <%= rauths_form.label :shared_secret %>
+              <%= rauths_form.text_field :shared_secret %>
+            </p>
+            <p>
+              <%= rauths_form.label :port %>
+              <%= rauths_form.number_field :port, :in => 0...65535 %>
+            </p>
+            <p>
+              <%= rauths_form.check_box :_destroy %>
+              <%= rauths_form.label :_destroy, t(:remove_configuration) %>
+            </p>
+        <% end %>
+      </fieldset>
+
+      <fieldset class="subform">
+        <legend><%=t :radius_acct_server %></legend>
+
+        <%= cp_form.fields_for :radius_acct_server do |raccts_form| %>
+            <p>
+              <%= raccts_form.label :host %>
+              <%= raccts_form.text_field :host %>
+            </p>
+            <p>
+              <%= raccts_form.label :shared_secret %>
+              <%= raccts_form.text_field :shared_secret %>
+            </p>
+            <p>
+              <%= raccts_form.label :port %>
+              <%= raccts_form.number_field :port, :in => 0...65535 %>
+            </p>
+            <p>
+              <%= raccts_form.check_box :_destroy %>
+              <%= raccts_form.label :_destroy, t(:remove_configuration) %>
+            </p>
+
+        <% end %>
+
+      </fieldset>
+
+      <%= cp_form.submit :class => :button %>
+
+  <% end %>
+
+</fieldset>

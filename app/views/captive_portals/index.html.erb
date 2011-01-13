@@ -1,0 +1,66 @@
+<div class="grid_16">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-listing_captive_portals"><%=t :listing_captive_portals %></a>
+    </h2>
+    <div class="block" id="listing_captive_portals">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <thead>
+        <tr>
+          <th><%=t :actions %></th>
+          <th><%=t :name %></th>
+          <th><%=t :cp_interface %></th>
+          <th><%=t :wan_interface %></th>
+          <th><%=t :local_users %></th>
+          <th><%=t :allowed_traffics %></th>
+          <th><%=t :online_users %></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @captive_portals.each do |captive_portal| %>
+            <tr class="<%= cycle("even", "odd") -%>">
+              <td>
+                <%=
+                    link_to image_tag("edit.png", :border=>0, :size => "16x16", :alt => t(:edit)),
+                            edit_captive_portal_path(captive_portal)
+                %>
+                <%=
+                    link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
+                            captive_portal,
+                            :confirm => t(:are_you_sure), :method => :delete
+                %>
+              </td>
+              <td><%= link_to h(captive_portal.name), captive_portal %></td>
+              <td><%=h captive_portal.cp_interface %></td>
+              <td><%=h captive_portal.wan_interface %></td>
+              <td>
+                <%= link_to h(captive_portal.local_users.count),
+                            captive_portal_local_users_path(captive_portal)
+                %>
+              </td>
+              <td>
+                <%= link_to h(captive_portal.allowed_traffics.count),
+                            captive_portal_allowed_traffics_path(captive_portal)
+                %>
+              </td>
+              <td>
+                <%= link_to h(captive_portal.online_users.count),
+                            captive_portal_online_users_path(captive_portal)
+                %>
+              </td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+
+      <p class="meta">
+        <%= link_to t(:new_captive_portal), new_captive_portal_path %>
+      </p>
+      
+    </div>
+  </div>
+</div>
+<div class="clear"></div>

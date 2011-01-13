@@ -1,0 +1,78 @@
+<div class="grid_16">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-show_online_user"><%=t :show_online_user %></a>
+    </h2>
+    <div class="block" id="show_online_user">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <tbody>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :username %></th>
+          <td><%=h @online_user.username %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :max_upload_bandwidth %></th>
+          <td><%=h @online_user.max_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :max_download_bandwidth %></th>
+          <td><%=h @online_user.max_download_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :radius %></th>
+          <td><%=h @online_user.radius %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :cp_session_token %></th>
+          <td><%=h @online_user.cp_session_token %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :ip_address %></th>
+          <td><%=h @online_user.ip_address %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :mac_address %></th>
+          <td><%=h @online_user.mac_address %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :session_timeout %></th>
+          <td><%=h @online_user.session_timeout %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :idle_timeout %></th>
+          <td><%=h @online_user.idle_timeout %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :uploaded_octets %></th>
+          <td><%=h number_to_human_size(@online_user.uploaded_octets, :precision => 2) %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :downloaded_octets %></th>
+          <td><%=h number_to_human_size(@online_user.downloaded_octets, :precision => 2) %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :uploaded_packets %></th>
+          <td><%=h number_to_human(@online_user.uploaded_packets, :precision => 2) %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :downloaded_packets %></th>
+          <td><%=h number_to_human(@online_user.downloaded_packets, :precision => 2) %></td>
+        </tr>        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :last_activity %></th>
+          <td><%=l @online_user.last_activity %></td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="meta">
+        <%= link_to t(:back), captive_portal_online_users_path(@captive_portal) %>
+      </p>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>
+

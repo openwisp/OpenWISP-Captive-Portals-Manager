@@ -1,0 +1,122 @@
+# Sample localization file for English. Add more files in this directory for other locales.
+# See http://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
+
+en:
+  models_names: &models_names
+    operator_session: "Operator Session"
+    captive_portal: "Captive Portal"
+    radius_auth_server: "RADIUS authentication server"
+    radius_acct_server: "RADIUS accounting server"
+    local_user: "Local user"
+
+  attributes_names: &attributes_names
+    local_users: "Local Users"
+    allowed_traffics: "Firewall Rules"
+    online_users: "Online Users"
+    actions: "Actions"
+    name: "Name"
+    cp_interface: "CP Interface"
+    wan_interface: "WAN Interface"
+    redirection_url: "Redirection URL"
+    error_url: "Error URL"
+    local_http_port: "Local HTTP Port"
+    local_https_port: "Local HTTPS Port"
+    default_download_bandwidth: "Default Download User Bandwidth"
+    default_upload_bandwidth: "Default Upload User Bandwidth"
+    default_session_timeout: "Default User Session Timeout"
+    default_idle_timeout: "Default User Idle Timeout"
+    total_download_bandwidth: "Total CP Download Bandwidth"
+    total_upload_bandwidth: "Total CP Upload Bandwidth"
+    host: "Host"
+    shared_secret: "RADIUS Secret"
+    port: "Port"
+    login: "User Name"
+    username: "User Name"
+    email: "Email"
+    password: "Password"
+    remember_me: "Remember me"
+    max_upload_bandwidth: "Maximum Upload Bandwidth"
+    max_download_bandwidth: "Maximum Download Bandwidth"
+    disabled: "Disabled"
+    ip_address: "IP Address"
+    mac_address: "MAC Address"
+    uploaded_octets: "Sent Bytes"
+    downloaded_octets: "Received Bytes"
+    uploaded_packets: "Sent Packets"
+    downloaded_packets: "Received Packets"
+    last_activity: "Last Activity"
+    radius: "RADIUS"
+    cp_session_token: "Session Identifier"
+    session_timeout: "Session Timeout"
+    idle_timeout: "Idle Timeout"
+    disabled_message: "Disabled Message"
+
+  "yes": "yes"
+  "no": "no"
+  invalid_credentials: "invalid credentials"
+  created_by: "created by"
+  listing_allowed_traffics: "listing allowed traffics"
+  listing_online_users: "listing online users"
+  listing_local_users: "listing local users"
+  remove_configuration: "remove configuration"
+  use_radius: "use RADIUS"
+  show_captive_portal: "captive portal"
+  show_online_user: "online user details"
+  show_local_user: "local user details"
+  list_captive_portals: "list captive portals"
+  new_captive_portal: "new captive portal"
+  new_local_user: "mew local user"
+  listing_captive_portals: "listing captive portals"
+  are_you_sure_logout: "are you sure you want to logout?"
+  logged_in_as: "logged in as"
+  captive_portals: "captive portals"
+  logout: "logout"
+  login: "login"
+  login_successful: "login successful"
+  login_failed: "login failed"
+  login_error: "invalid username or password"
+  logout_successful: "logout successful"
+  are_you_sure: "are you sure?"
+  please_login: "please login"
+  operator_login: "operator login"
+  operations: "operations"
+  edit: "edit"
+  show: "show"
+  back: "back"
+  destroy: "destroy"
+  no_message: "no message"
+  you_must_be_logged_in: "you must be logged in in order to access that section"
+  you_must_be_logged_out: "you must be logged out"
+  application_name: "OWCPM"
+  extended_application_name: "Open WISP Captive Portals Manager"
+  <<: *attributes_names
+  <<: *models_names
+
+  models:
+    <<: *models_names
+
+  attributes:
+    operator_session:
+      <<: *attributes_names
+    captive_portal:
+      <<: *attributes_names
+    radius_auth_server:
+      <<: *attributes_names
+    radius_acct_server:
+      <<: *attributes_names
+
+  messages: &errors_messages
+    login_error: "invalid credential"    
+
+  authlogic:
+    error_messages:
+      <<: *errors_messages
+    models:
+      <<: *models_names
+    attributes:
+      <<: *attributes_names
+
+  helpers:
+    submit:
+      operator_session:
+        create: "login"

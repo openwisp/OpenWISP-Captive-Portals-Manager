@@ -1,0 +1,43 @@
+<div class="grid_12 prefix_2 suffix_2">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-show_local_user"><%=t :show_local_user %></a>
+    </h2>
+    <div class="block" id="show_local_user">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <tbody>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :username %></th>
+          <td><%=h @local_user.username %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :max_upload_bandwidth %></th>
+          <td><%=h @local_user.max_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :max_download_bandwidth %></th>
+          <td><%=h @local_user.max_download_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :disabled %></th>
+          <td><%=t @local_user.disabled ? :yes : :no %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :disabled_message %></th>
+          <td><%=h @local_user.disabled_message %></td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="meta">
+        <%= link_to t(:edit), edit_captive_portal_local_user_path(@captive_portal, @local_user) %> |
+        <%= link_to t(:back), captive_portal_local_users_path(@captive_portal) %>
+      </p>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>

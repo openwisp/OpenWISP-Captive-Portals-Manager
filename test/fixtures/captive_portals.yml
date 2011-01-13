@@ -1,0 +1,33 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  cp_interface: MyString
+  wan_interface: MyString
+  page: MyText
+  redirection_hostname: MyString
+  redirection_protocol: MyString
+  redirection_port: 1
+  local_http_port: 1
+  local_https_port: 1
+  default_down_bandwidth: 1
+  default_up_bandwidth: 1
+  default_session_timeout: 1
+  default_idle_timeout: 1
+  total_up_bandwidth: 1
+  total_down_bandwidth: 1
+
+two:
+  cp_interface: MyString
+  wan_interface: MyString
+  page: MyText
+  redirection_hostname: MyString
+  redirection_protocol: MyString
+  redirection_port: 1
+  local_http_port: 1
+  local_https_port: 1
+  default_down_bandwidth: 1
+  default_up_bandwidth: 1
+  default_session_timeout: 1
+  default_idle_timeout: 1
+  total_up_bandwidth: 1
+  total_down_bandwidth: 1

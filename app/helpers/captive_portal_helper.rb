@@ -1,0 +1,2 @@
+module CaptivePortalHelper
+end

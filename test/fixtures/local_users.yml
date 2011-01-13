@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  username: MyString
+  password: MyString
+  max_upload_bandwidth: 1
+  max_download_bandwidth: 1
+
+two:
+  username: MyString
+  password: MyString
+  max_upload_bandwidth: 1
+  max_download_bandwidth: 1

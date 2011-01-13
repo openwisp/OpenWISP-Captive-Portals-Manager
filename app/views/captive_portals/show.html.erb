@@ -1,0 +1,99 @@
+<div class="grid_12 prefix_2 suffix_2">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-show_captive_portals"><%=t :show_captive_portals %></a>
+    </h2>
+    <div class="block" id="show_captive_portals">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <tbody>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :name %></th>
+          <td><%=h @captive_portal.name %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :cp_interface %></th>
+          <td><%=h @captive_portal.cp_interface %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :wan_interface %></th>
+          <td><%=h @captive_portal.wan_interface %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :redirection_url %></th>
+          <td><%=h @captive_portal.redirection_url %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :error_url %></th>
+          <td><%=h @captive_portal.error_url %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :local_http_port %></th>
+          <td><%=h @captive_portal.local_http_port %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :local_https_port %></th>
+          <td><%=h @captive_portal.local_https_port %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_upload_bandwidth %></th>
+          <td><%=h @captive_portal.total_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_download_bandwidth %></th>
+          <td><%=h @captive_portal.default_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_session_timeout %></th>
+          <td><%=h @captive_portal.default_session_timeout %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_idle_timeout %></th>
+          <td><%=h @captive_portal.default_idle_timeout %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :total_upload_bandwidth %></th>
+          <td><%=h @captive_portal.total_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :total_download_bandwidth %></th>
+          <td><%=h @captive_portal.total_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :local_users %></th>
+          <td>
+            <%= link_to @captive_portal.local_users.count,
+                        captive_portal_local_users_path(@captive_portal)
+            %>
+          </td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :allowed_traffics %></th>
+          <td>
+            <%= link_to @captive_portal.allowed_traffics.count,
+                        captive_portal_allowed_traffics_path(@captive_portal)
+            %>
+          </td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :online_users %></th>
+          <td>
+            <%= link_to @captive_portal.online_users.count,
+                        captive_portal_online_users_path(@captive_portal)
+            %>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="meta">
+          <%= link_to t(:edit), edit_captive_portal_path(@captive_portal) %> |
+          <%= link_to t(:back), captive_portals_path %>
+      </p>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>

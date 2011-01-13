@@ -1,0 +1,13 @@
+<h1>Please login</h1>
+
+<%= form_tag('/login') do -%>
+    <p>
+      <%= label_tag 'username', 'Username:' -%><br/>
+      <%= text_field_tag 'username' %>
+    <p>
+      <%= label_tag 'password', 'Password:' -%><br/>
+      <%= password_field_tag -%>
+    </p>
+    <%= hidden_field_tag 'original_url', @original_url  %>
+    <%= submit_tag 'Login' -%>
+<% end %>

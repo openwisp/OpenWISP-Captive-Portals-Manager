@@ -1,0 +1,190 @@
+== Byte counters
+
+Create 2 different rules for input and OUTPUT:
+
+  iptables -A FORWARD -s <client ip> -m mac --mac-source <client mac> -j MARK --set-mark <user tc UP mark>
+  iptables -A FORWARD -d <client ip> <client mac> -j MARK --set-mark <user tc DOWN mark>
+
+== Layout regole iptables
+
+RAILSCP_PREROUTING_NAT: Services redirect chain (e.g.: DNS FORWARDER)
+
+  # Max mark (32bit) 0xFFFFFFFF
+  # Mark mask:       0xZXXYYYYY
+  # Z     =  2 / 3 (10 / 11 bin)        mark & 0x20000000 == 0x20000000 <=> rails CP marks
+  #          2 --> From client          mark & 0x30000000 == 0x20000000 <=> from clients
+  #          3 --> To client            mark & 0x30000000 == 0x30000000 <=> to clients
+  # XX    =  CP id (255 different)      mark & 0x3FF00000 == 0x3XX00000
+  #                                                       == 0x2XX00000
+  # YYYYY =  Client ID (131071 clients) mark & 0x300FFFFF == 0x300YYYYY <=> from client YYYYY
+  #                                                       == 0x200YYYYY <=> to client YYYYY
+  
+  
+  ## Rules to be create at application start
+  
+  # CP redirection / port forwarding
+  iptables -t nat    -I PREROUTING  1 -j RAILSCP_PREROUTING_NAT
+  # Filtering
+  iptables -t filter -I FORWARD     1 -j RAILSCP_FORWARDING_FILTER
+  # NAT / Masquerade
+  iptables -t nat    -I POSTROUTING 1 -j RAILSCP_POSTROUTING_NAT
+
+  ## CP redirection / port forwarding
+  iptables -N RAILSCP_PREROUTING_NAT
+  # For each defined CP
+  iptables -A RAILSCP_PREROUTING_NAT -i "$CPInterface" -j "RAILSCP_DNAT_$CPId"
+  iptables -A RAILSCP_PREROUTING_NAT -i "$CPInterface" -j "RAILSCP_AUTHED_$CPId"
+  
+  # If the packet is marked by railscp, skip redirections
+  iptables -N RAILSCP_PREROUTING_NAT
+  # For each defined CP
+  iptables -A RAILSCP_PREROUTING_NAT -i "$CPInterface" -m connmark --mark 0x20000000/0x20000000 -j RETURN
+  iptables -A RAILSCP_PREROUTING_NAT -i "$CPInterface" -j RAILSCP_REDIR
+
+  # Redirection rules
+  # For each defined CP
+  iptables -N "RAILSCP_REDIR_$CPId" 
+  iptables -F "RAILSCP_REDIR_$CPId" 
+  iptables -A "RAILSCP_REDIR_$CPId"   -p tcp --dport 80  -j DNAT --to-destination 127.0.0.1:<port>
+  iptables -A "RAILSCP_REDIR_$CPId"   -p tcp --dport 443 -j DNAT --to-destination 127.0.0.1:<port ssl>
+
+  # Force DNS requestst to be served by the local forwarder
+  # For each defined CP
+  iptables -N "RAILSCP_DNAT_$CPId"
+  iptables -F "RAILSCP_DNAT_$CPId"
+  iptables -A "RAILSCP_DNAT_$CPId"    -p udp --dport 53  -j DNAT --to-destination 127.0.0.1:53
+  iptables -A "RAILSCP_DNAT_$CPId"    -p tcp --dport 53  -j DNAT --to-destination 127.0.0.1:53
+
+  # Authenticated users goes here! Note the --mac-source option
+  # For each defined CP
+  iptables -N "RAILSCP_AUTHED_$CPId" 
+  iptables -F "RAILSCP_AUTHED_$CPId" 
+  iptables -A "RAILSCP_AUTHED_$CPId"  -s <client ip> -m mac --mac-source <client mac> -j MARK --set-mark 0xHHHHHHHH
+  iptables -A "RAILSCP_AUTHED_$CPId"  -d <client ip> <client mac> -j MARK --set-mark 0xJJJJJJJJ
+
+  ## Filtering
+  iptables -N RAILSCP_FORWARDING_FILTER
+  iptables -F RAILSCP_FORWARDING_FILTER 
+  # For each defined CP
+  iptables -A RAILSCP_FORWARDING_FILTER -i "$CPInterface" -m connmark --mark 0x20000000/0x20000000 -j RETURN
+  iptables -A RAILSCP_FORWARDING_FILTER -i "$CPInterface" -j DROP
+
+  ## NAT / Masquerade
+  # For each defined CP
+  iptables -N RAILSCP_POSTROUTING_NAT
+  iptables -A RAILSCP_POSTROUTING_NAT -i "$CPInterface" -j RETURN
+
+
+  ## Cleaning rules
+  iptables -F RAILSCP_PREROUTING_NAT
+  iptables -F RAILSCP_FORWARDING_FILTER
+  iptables -F RAILSCP_POSTROUTING_NAT
+  
+  
+  # Above commands should be run as shell/ruby/whatever scripts chmod'd to 0510 and chown'd to root.www-data
+  
+== Radius Accounting/Auth
+
+called station id = nas mac address  <--- MAC of first eth interface!
+calling station id  client mac address
+
+  switch($radiusvendor) {
+
+      case 'cisco':
+      $calledstationid = $clientmac;
+      $callingstationid = $clientip;
+      break;
+
+      default:
+      $calledstationid = $nas_mac;
+      $callingstationid = $clientmac;
+  }
+
+
+
+== Obtaining a mac address from an IP address
+ 
+2 ways
+
+1. via SNMP 
+
+  require 'snmp'
+  
+  ip_address = "194.242.230.6"
+  
+  snmp_server_ip = "localhost"
+  snmp_community = "public"
+  snmp_version = :SNMPv2c
+  
+  begin
+    manager = SNMP::Manager.new(  :Host => snmp_server_ip, 
+                                  :Port => 161,
+                                  :Community => snmp_community,
+                                  :Version => :SNMPv2c,
+                                  :Timeout => 1, 
+                                  :Retries => 2,
+                                  :MibModules => ["RFC1213-MIB"])
+
+    response = manager.get("RFC1213-MIB::atPhysAddress.2.1.#{ip_address}")
+    if (response.error_status == :noError) and (response.varbind_list[0].value != SNMP::NoSuchInstance)
+      mac_address = response.varbind_list[0].value.unpack("H2"*6).join(":")
+    else
+      mac_address = nil
+    end
+  rescue
+    mac_address = nil
+  end
+  
+  puts mac_address
+
+=== CONS
+ - require 'snmpd' running on directly a connected machine
+ - slower than ARP approach
+
+=== PROS
+ - calling process doesn't need to run on a machine directly connected to the host with the IP we're using
+ - multiplatform (as long as the platform can run snmpd and supports 'RFC1213-MIB' mib )
+
+
+2. via ARP
+
+  ip_address = "194.242.230.6"
+  arp_command = "arp -n #{ip_address}"
+  regexp = /\A.+\s+ether\s+(([0-9a-f]{2}:){5}[0-9a-f]{2})\s/
+  
+  
+  mac_address = nil
+  open("|"+arp_command).each do |line|
+    if line =~ regexp
+      mac_address = $1
+      break
+    end
+  end
+  
+  puts mac_address
+  
+
+=== CONS
+ - calling process has to run on a machine directly connected to the host with the IP we're using
+ - linux only (although we can use different command and regexp for different platforms...)
+
+=== PROS
+ - no extra software required
+ - faster than SNMP approach
+ 
+
+== Autenticazione e house keeping utenze
+
+
+  1) Access-Request
+  2) Accounting START
+ 
+  n) Polling:
+n+1) Accounting Interim-Update
+n+2) Access-Request
+
+  Se fallisce:
+    Accounting STOP
+    
+    http://portmasters.com/tech/docs/radius/accounting.html
+    

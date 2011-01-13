@@ -1,0 +1,56 @@
+<div class="grid_16">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-listing_local_users"><%=t :listing_local_users %></a>
+    </h2>
+    <div class="block" id="listing_local_users">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <thead>
+        <tr>
+          <th><%=t :actions %></th>
+          <th><%=t :username %></th>
+          <th><%=t :max_upload_bandwidth %></th>
+          <th><%=t :max_download_bandwidth %></th>
+          <th><%=t :disabled %></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @local_users.each do |local_user| %>
+            <tr class="<%= cycle("even", "odd") -%>">
+              <td>
+                <%=
+                    link_to image_tag("edit.png", :border=>0, :size => "16x16", :alt => t(:edit)),
+                            edit_captive_portal_local_user_path(@captive_portal, local_user)
+                %>
+                <%=
+                    link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
+                            captive_portal_local_user_path(@captive_portal, local_user),
+                            :confirm => t(:are_you_sure), :method => :delete
+                %>
+              </td>
+              <td>
+                <%= link_to h(local_user.username),
+                            captive_portal_local_user_path(@captive_portal, local_user)
+                %>
+              </td>
+              <td><%=h local_user.max_upload_bandwidth %></td>
+              <td><%=h local_user.max_download_bandwidth %></td>
+              <td><%=t local_user.disabled ? :yes : :no %></td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+
+      <p class="meta">
+        <%= link_to t(:new_local_user), new_captive_portal_local_user_path(@captive_portal) %>
+      </p>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>
+
+

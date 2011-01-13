@@ -1,0 +1,48 @@
+<div class="grid_12 prefix_2 suffix_2">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-show_captive_portals"><%=t :show_captive_portals %></a>
+    </h2>
+    <div class="block" id="show_captive_portals">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <tbody>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :protocol %></th>
+          <td><%=h @allowed_traffic.protocol %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :source_mac_address %></th>
+          <td><%=h @allowed_traffic.source_mac_address %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :source_host %></th>
+          <td><%=h @allowed_traffic.source_host %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :source_port %></th>
+          <td><%=h @allowed_traffic.source_port %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :destination_host %></th>
+          <td><%=h @allowed_traffic.destination_host %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :destination_port %></th>
+          <td><%=h @allowed_traffic.destination_port %></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+          <td><%= link_to t(:edit), edit_captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %></td>
+          <td><%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %></td>
+        </tr>
+        </tfoot>
+      </table>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>

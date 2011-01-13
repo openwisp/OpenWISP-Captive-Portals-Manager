@@ -1,0 +1,66 @@
+<div class="grid_16">
+  <div class="box">
+    <h2>
+      <a href="#" id="toggle-listing_online_users"><%=t :listing_online_users %></a>
+    </h2>
+    <div class="block" id="listing_online_users">
+
+      <p class="meta" id="notice"><%= notice %>&nbsp;</p>
+
+      <table>
+        <thead>
+        <tr>
+          <th><%=t :actions %></th>
+          <th><%=t :username %></th>
+          <th><%=t :ip_address %></th>
+          <th><%=t :mac_address %></th>
+          <th><%=t :uploaded_octets %></th>
+          <th><%=t :downloaded_octets %></th>
+          <th><%=t :uploaded_packets %></th>
+          <th><%=t :downloaded_packets %></th>
+          <th><%=t :last_activity %></th>
+        </tr>
+        </thead>
+        <tbody>
+        <% @online_users.each do |online_user| %>
+            <tr class="<%= cycle("even", "odd") -%>">
+              <td>
+                <% if !online_user.RADIUS_user? %>
+                    <% local_user = @captive_portal.local_users.find_by_username(online_user.username) %>
+                    <% if !local_user.nil? %>
+                        <%= link_to image_tag("notes.png", :border=>0, :size => "16x16", :alt => t(:edit)),
+                                    captive_portal_local_user_path(@captive_portal, local_user)
+                        %>
+                    <% end %>
+                <% end %>
+                <%=
+                    link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
+                            captive_portal_online_user_path(@captive_portal, online_user),
+                            :confirm => t(:are_you_sure), :method => :delete
+                %>
+              </td>
+              <td>
+                <%=
+                    link_to h(online_user.username), captive_portal_online_user_path(@captive_portal, online_user)
+                %>
+              </td>
+              <td><%=h online_user.ip_address %></td>
+              <td><%=h online_user.mac_address %></td>
+              <td><%=h number_to_human_size(online_user.uploaded_octets) %></td>
+              <td><%=h number_to_human_size(online_user.downloaded_octets) %></td>
+              <td><%=h number_to_human(online_user.uploaded_packets) %></td>
+              <td><%=h number_to_human(online_user.downloaded_packets) %></td>
+              <td><%=l online_user.last_activity %></td>
+            </tr>
+        <% end %>
+        </tbody>
+      </table>
+
+      <p class="meta">
+        &nbsp;
+      </p>
+
+    </div>
+  </div>
+</div>
+<div class="clear"></div>

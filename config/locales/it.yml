@@ -1,0 +1,311 @@
+it:
+  models_names: &models_names
+    operator_session: "Sessione Operatore"
+    captive_portal: "Captive Portal"
+    radius_auth_server: "Server RADIUS autenticazione"
+    radius_acct_server: "Server RADIUS accounting"
+    local_user: "Utente locale"
+
+  attributes_names: &attributes_names
+    local_users: "Utenti Locali"
+    allowed_traffics: "Eccezioni Firewall"
+    online_users: "Utenti Online"
+    actions: "Azioni"
+    name: "Nome"
+    cp_interface: "Interfaccia CP"
+    wan_interface: "Interfaccia WAN"
+    redirection_url: "URL Redirezione"
+    error_url: "URL Errore"
+    local_http_port: "Port HTTP Locale"
+    local_https_port: "Port HTTPS Locale"
+    default_download_bandwidth: "Default Banda Utente Download"
+    default_upload_bandwidth: "Default Banda Utente Upoad"
+    default_session_timeout: "Default Timeout Sessione Utente"
+    default_idle_timeout: "Default Timeout Inattività Utente"
+    total_download_bandwidth: "Banda Totale Captive Portal Download"
+    total_upload_bandwidth: "Banda Totale Captive Portal Upload"
+    host: "Host"
+    shared_secret: "Segreto RADIUS"
+    port: "Port"
+    login: "Nome Utente"
+    username: "Nome Utente"
+    email: "Email"
+    password: "Password"
+    remember_me: "Ricordami"
+    max_upload_bandwidth: "Banda Massima Upload"
+    max_download_bandwidth: "Banda Massima Download"
+    disabled: "Disabilitato"
+    ip_address: "Indirizzo IP"
+    mac_address: "Indirizzo MAC"
+    uploaded_octets: "Byte Inviati"
+    downloaded_octets: "Byte Ricevuti"
+    uploaded_packets: "Pacchetti Inviati"
+    downloaded_packets: "Pacchetti Ricevuti"
+    last_activity: "Ultima Attività"
+    radius: "RADIUS"
+    cp_session_token: "Identificatore di sessione"
+    session_timeout: "Timeout sessione"
+    idle_timeout: "Timeout inattività"
+    disabled_message: "Messaggio Disabilitazione"
+
+  "yes": "si"
+  "no": "no"
+  invalid_credentials: "credenziali non valide"
+  created_by: "creato da"
+  listing_allowed_traffics: "elenco eccezioni firewall"
+  listing_online_users: "elenco utenti online"
+  listing_local_users: "elenco utenti locali"
+  remove_configuration: "elimina configurazione"
+  use_radius: "utilizza RADIUS"
+  show_captive_portal: "captive portal"
+  show_online_user: "dettagli utente online"
+  show_local_user: "dettagli local user"
+  list_captive_portals: "elenco captive portal"
+  new_captive_portal: "nuovo captive portal"
+  new_local_user: "nuovo utente locale"
+  listing_captive_portals: "elenco dei captive portal"
+  are_you_sure_logout: "sei sicuro di voler effettuare il logout?"  
+  logged_in_as: "autenticato come"
+  captive_portals: "captive portal"
+  logout: "logout"
+  login: "login"
+  login_successful: "login riuscito"
+  login_failed: "login fallito"
+  login_error: "username o password errati"
+  logout_successful: "logout riuscito"
+  are_you_sure: "sei sicuro?"
+  please_login: "autenticati, prego"
+  operator_login: "accesso operatore"
+  operations: "operazioni"
+  edit: "modifica"
+  show: "mostra"
+  back: "indietro"
+  destroy: "elimina"
+  no_message: "nessun messaggio"
+  you_must_be_logged_in: "devi effettuare il login per accedere a quella sezione"
+  you_must_be_logged_out: "prima devi effettuare il logout"
+  application_name: "OWCPM"
+  extended_application_name: "Open WISP Captive Portals Manager"
+  <<: *attributes_names
+  <<: *models_names
+
+  number:
+    format:
+      delimiter: ""
+      precision: 2
+      significant: false
+      strip_insignificant_zeros: false
+      separator: "."
+
+    currency:
+      format:
+        format: "%n %u"
+        unit: "€"
+        separator: "."
+        delimiter: ","
+        precision: 2
+        significant: false
+        strip_insignificant_zeros: false
+
+    percentage:
+      format:
+        delimiter: ""
+        # precision:
+
+    precision:
+      format:
+        # separator:
+        delimiter: ""
+        # precision:
+
+    human:
+      format:
+        # separator:
+        delimiter: ""
+        precision: 1
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one:   "Byte"
+            other: "Byte"
+          kb: "Kb"
+          mb: "Mb"
+          gb: "Gb"
+          tb: "Tb"
+      decimal_units:
+        format: "%n %u"
+        units:
+          unit: ""
+          thousand: "Mila"
+          million: "Milioni"
+          billion: "Bilioni"
+          trillion: "Trilioni"
+          quadrillion: "Quadrilioni"
+
+  date:
+    formats:
+      default: "%d-%m-%Y"
+      short: "%d %b"
+      long: "%d %B %Y"
+
+    day_names: [Domenica, Lunedì, Martedì, Mercoledì, Giovedì, Venerdì, Sabato]
+    abbr_day_names: [Dom, Lun, Mar, Mer, Gio, Ven, Sab]
+
+    month_names: [~, Gennaio, Febbraio, Marzo, Aprile, Maggio, Giugno, Luglio, Agosto, Settembre, Ottobre, Novembre, Dicembre]
+    abbr_month_names: [~, Gen, Feb, Mar, Apr, Mag, Giu, Lug, Ago, Set, Ott, Nov, Dic]
+    order: [ :day, :month, :year ]
+
+  time:
+    formats:
+      default: "%a %d %b %Y, %H:%M:%S %z"
+      short: "%d %b %H:%M"
+      long: "%d %B %Y %H:%M"
+
+    am: 'del mattino'
+    pm: 'della sera'
+
+  datetime:
+    distance_in_words:
+      half_a_minute: "mezzo minuto"
+      less_than_x_seconds:
+        one:  "meno di un secondo"
+        other: "meno di %{count} secondi"
+      x_seconds:
+        one:  "1 secondo"
+        other: "%{count} secondi"
+      less_than_x_minutes:
+        one:  "meno di un minuto"
+        other: "meno di %{count} minuti"
+      x_minutes:
+        one:  "1 minuto"
+        other: "%{count} minuti"
+      about_x_hours:
+        one:  "circa un'ora"
+        other: "circa %{count} ore"
+      x_days:
+        one:  "1 giorno"
+        other: "%{count} giorni"
+      about_x_months:
+        one:  "circa un mese"
+        other: "circa %{count} mesi"
+      x_months:
+        one:  "1 mese"
+        other: "%{count} mesi"
+      about_x_years:
+        one:  "circa un anno"
+        other: "circa %{count} anni"
+      over_x_years:
+        one:  "oltre un anno"
+        other: "oltre %{count} anni"
+    prompts:
+      year:   "Anno"
+      month:  "Mese"
+      day:    "Giorno"
+      hour:   "Ora"
+      minute: "Minuto"
+      second: "Secondi"
+
+  support:
+    array:
+      words_connector: ", "
+      two_words_connector: " e "
+      last_word_connector: ", e "
+
+    select:
+      prompt: "Per favore, seleziona"
+
+  helpers:
+    select:
+      prompt: "Per favore, seleziona"
+
+    submit:
+      create: 'Crea %{model}'
+      update: 'Aggiorna %{model}'
+      submit: 'Invia %{model}'
+
+  errors:
+      format: "%{attribute} %{message}"
+
+      messages: &errors_messages
+        inclusion: "non è incluso nella lista"
+        exclusion: "è riservato"
+        invalid: "non è valido"
+        confirmation: "non coincide con la conferma"
+        accepted: "deve essere accettata"
+        empty: "non può essere vuoto"
+        blank: "non può essere lasciato in bianco"
+        too_long:
+          one: "è troppo lungo (il massimo è 1 carattere)"
+          other: "è troppo lungo (il massimo è %{count} caratteri)"
+        too_short:
+          one:  "è troppo corto (il minimo è 1 carattere)"
+          other:  "è troppo corto (il minimo è %{count} caratteri)"
+        wrong_length:
+          one: "è della lunghezza sbagliata (deve essere di 1 carattere)"
+          other: "è della lunghezza sbagliata (deve essere di %{count} caratteri)"
+        not_a_number: "non è un numero"
+        greater_than: "deve essere superiore a %{count}"
+        greater_than_or_equal_to: "deve essere superiore o uguale a %{count}"
+        equal_to: "deve essere uguale a %{count}"
+        less_than: "deve essere meno di %{count}"
+        less_than_or_equal_to: "deve essere meno o uguale a %{count}"
+        odd: "deve essere dispari"
+        even: "deve essere pari"
+        # Extras
+        login_blank: "il nome utente deve essere specificato"
+        login_not_found: "il nome utente non è valido"
+        login_invalid: "per il nome utente utilizza solo lettere numeri, spazi e .-_@"
+        consecutive_failed_logins_limit_exceeded: "limite di tentativi errati superato, account disabilitato"
+        email_invalid: "non sembra un indirizzo e-mail"
+        password_blank: "la password deve essere specificata"
+        password_invalid: "la password non è valida"
+        not_active: "l'account non è attivo"
+        not_approved: "l'account non è approvato"
+        no_authentication_details: "non hai fornito alcun dettaglio per l'autenticazione"
+        is_not_valid: "non è valida"
+        login_error: "credenziali non valide"
+
+  activerecord:
+    errors:
+      template:
+        header:
+          one: "Non posso salvare questo %{model}: 1 errore"
+          other: "Non posso salvare questo %{model}: %{count} errori."
+        body: "Per favore ricontrolla i seguenti campi:"
+
+      messages:
+        taken: "è già in uso"
+        record_invalid: "Validazione fallita: %{errors}"
+        <<: *errors_messages
+
+      full_messages:
+        format: "%{attribute}%{message}"
+
+    models:
+      <<: *models_names
+
+    attributes:
+      operator_session:
+        <<: *attributes_names
+      captive_portal:
+        <<: *attributes_names
+      radius_auth_server:
+        <<: *attributes_names
+      radius_acct_server:
+        <<: *attributes_names
+
+  authlogic:
+    error_messages:
+      <<: *errors_messages
+    models:
+      <<: *models_names
+    attributes:
+      <<: *attributes_names
+
+  helpers:
+    submit:
+      operator_session:
+        create: "accedi"

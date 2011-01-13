@@ -1,0 +1,29 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  username: MyString
+  cp_session_token: MyString
+  ip_address: MyString
+  mac_address: MyString
+  session_timeout: 1
+  idle_timeout: 1
+  uploaded_octet: 1
+  downloaded_octet: 1
+  last_activity: 2010-12-21 12:22:32
+  max_upload_bandwidth: 1
+  max_download_bandwidth: 1
+  radius: false
+
+two:
+  username: MyString
+  cp_session_token: MyString
+  ip_address: MyString
+  mac_address: MyString
+  session_timeout: 1
+  idle_timeout: 1
+  uploaded_octet: 1
+  downloaded_octet: 1
+  last_activity: 2010-12-21 12:22:32
+  max_upload_bandwidth: 1
+  max_download_bandwidth: 1
+  radius: false

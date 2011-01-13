@@ -1,0 +1,17 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  protocol: MyString
+  source_mac_address: MyString
+  source_host: MyString
+  souorce_port: 1
+  destination_host: MyString
+  destination_port: 1
+
+two:
+  protocol: MyString
+  source_mac_address: MyString
+  source_host: MyString
+  souorce_port: 1
+  destination_host: MyString
+  destination_port: 1

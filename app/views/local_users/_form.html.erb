@@ -1,0 +1,47 @@
+<fieldset class="form">
+  <legend><%=t :local_user %></legend>
+
+  <%= form_for([@captive_portal, @local_user]) do |f| %>
+      <% if @local_user.errors.any? %>
+          <h3 id="error_explanation" class="toggler atStart" style="color: #ff0000">
+            <%= pluralize(@local_user.errors.count, "error") %>
+          </h3>
+          <h4 class="toggler atStart">
+            <ul>
+              <% @local_user.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+              <% end %>
+            </ul>
+          </h4>
+      <% end %>
+
+      <p>
+        <%= f.label :username %>
+        <%= f.text_field :username %>
+      </p>
+      <p>
+        <%= f.label :password %>
+        <%= f.password_field :password %>
+      </p>
+      <p>
+        <%= f.label :max_upload_bandwidth %>
+        <%= f.number_field :max_upload_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+      <p>
+        <%= f.label :max_download_bandwidth %>
+        <%= f.number_field :max_download_bandwidth, :step => 1024, :min => 0 %>
+      </p>
+      <p>
+        <%= f.label :disabled %>
+        <%= f.check_box :disabled %>
+      </p>
+      <p>
+        <%= f.label :disabled_message %>
+        <%= f.text_field :disabled_message %>
+      </p>
+
+      <%= f.submit :class => :button %>
+
+  <% end %>
+
+</fieldset>

@@ -1,0 +1,188 @@
+.date select {
+  width:15%;
+  margin-left:5px;
+}
+
+fieldset textarea {
+  width:98%;
+  margin-left:5px;
+}
+
+input:focus {
+  outline: green solid thin;
+}
+
+select:focus {
+  outline: green solid thin;
+}
+
+textarea:focus {
+  outline: green solid thin;
+}
+
+h4 {
+  text-align:center;
+}
+
+fieldset p div {
+  width:98%;
+  margin-left:5px;
+}
+
+fieldset p textarea {
+  width:98%;
+  margin-left:5px;
+}
+
+fieldset p label {
+  width:98%;
+  margin-left:5px;
+}
+
+fieldset p input {
+  width:98%;
+  margin-left:5px;
+}
+
+fieldset input {
+  width:98%;
+  margin-left:5px;
+}
+
+fieldset p select {
+  width:99%;
+  margin-left:5px;
+}
+
+th, td {
+  text-align:center;
+}
+
+td label {
+  font-weight:bold;
+  font-style:italic;
+}
+
+tr.labels_row td {
+  background-color:lightgray;
+}
+
+th.sortup img.arrow_up {
+  display:inline;
+}
+
+th.sortdown img.arrow_up {
+  display:none;
+}
+
+th.nosort img.arrow_up {
+  display:none;
+}
+
+th.sortup img.arrow_down {
+  display:none;
+}
+
+th.sortdown img.arrow_down {
+  display:inline;
+}
+
+th.nosort img.arrow_down {
+  display:none;
+}
+
+div.simple_captcha_image {
+  text-align:center;
+}
+
+div.simple_captcha_wave {
+  text-align:center;
+}
+
+div.simple_captcha_label {
+  text-align:center;
+}
+
+div.simple_captcha_field {
+  text-align:center;
+}
+
+table.branding tr td {
+  background:#aaa;
+  margin:0;
+  border:0;
+}
+
+tr:hover td {
+  background-color: #ffffee;
+}
+
+fieldset.form * {
+	margin-bottom:1em;
+	margin-top:0pt;
+}
+fieldset.form * label {
+	float:left;
+	line-height:2em;
+	margin-right:3%;
+	text-align:right;
+	width:37%;
+}
+fieldset.form * input {
+	width:53%;
+}
+fieldset.form * select {
+	width:53%;
+}
+
+fieldset.form * input.button {
+    width:50%;
+	margin-left:25%;
+}
+
+fieldset.subform * {
+	margin-bottom:1em;
+	margin-top:0pt;
+}
+fieldset.subform * label {
+	float:left;
+	line-height:2em;
+	margin-right:3%;
+	text-align:right;
+	width:32%;
+}
+fieldset.subform * input {
+	width:60%;
+}
+fieldset.subform input.button {
+	margin-left:35%;
+}
+
+div.field_with_errors input {
+    border: 3px #ff0000 solid;
+}
+
+div.field_with_errors label {
+    color: #ff0000;
+}
+
+div.text_with_errors {
+    border: 3px #ff0000 solid;
+}
+
+p.meta {
+	color:#666;
+	border-top:1px dotted #999;
+	border-bottom:1px dotted #999;
+	padding:.3em 0;
+	margin-bottom:.8em;
+    text-align:center;
+}
+
+h2#page-notice {
+	font-weight:normal;
+    font-size:14px;
+	padding:.5em;
+	margin:0 0 10px 0;
+	border-bottom:1px solid #ccc;
+}
