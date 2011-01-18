@@ -43,6 +43,9 @@ class RadiusAcctServer < RadiusServer
                                        {
                                            'NAS-IP-Address' => nas_ip_address,
                                            'NAS-Identifier' => captive_portal.name,
+                                           'Framed-IP-Address' => request[:ip],
+                                           'Calling-Station-Id' => request[:mac],
+                                           'Called-Station-Id' => captive_portal.cp_interface,
                                            'Acct-Status-Type' => 'Start',
                                            'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local'
                                        }
