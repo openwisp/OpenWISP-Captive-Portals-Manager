@@ -1,5 +1,5 @@
 #noinspection RubyResolve
-require 'digest/sha1'
+require 'digest/md5'
 
 class OnlineUser < ActiveRecord::Base
 
@@ -29,7 +29,7 @@ class OnlineUser < ActiveRecord::Base
 
   before_create {
       # Generates the cp_session_token. Where applicable this id it's used also as a unique RADIUS session id.
-    self.cp_session_token = Digest::SHA1.hexdigest(self.username + self.password + self.ip_address +
+    self.cp_session_token = Digest::MD5.hexdigest(self.username + self.password + self.ip_address +
                                                        self.mac_address + Time.new.to_s)
   }
 
