@@ -5,7 +5,6 @@ class OnlineUser < ActiveRecord::Base
 
   belongs_to :captive_portal
 
-  validates_uniqueness_of :username, :scope => :captive_portal_id
   # TODO: validate password format (?? How ?? We have to be consistent with others class password attribute)
   validates_presence_of :password
   validates_uniqueness_of :cp_session_token, :scope => :captive_portal_id
