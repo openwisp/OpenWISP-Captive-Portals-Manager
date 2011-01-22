@@ -50,6 +50,7 @@ en:
     session_timeout: "Session Timeout"
     idle_timeout: "Idle Timeout"
     disabled_message: "Disabled Message"
+    allow_concurrent_login: "Allow concurrent login"
 
   "yes": "yes"
   "no": "no"
@@ -89,6 +90,7 @@ en:
   you_must_be_logged_out: "you must be logged out"
   application_name: "OWCPM"
   extended_application_name: "Open WISP Captive Portals Manager"
+  concurrent_login_not_allowed: "concurrent login not allowed"
   <<: *attributes_names
   <<: *models_names
 

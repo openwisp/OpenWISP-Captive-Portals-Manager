@@ -26,6 +26,9 @@ class LocalUser < ActiveRecord::Base
     elsif user.disabled?
       reply[:authenticated] = false
       reply[:message] = user.disabled_message
+    elsif !user.allow_concurrent_login? and !OnlineUser.find_by_username(user.username).nil?
+      reply[:authenticated] = false
+      reply[:message] = I18n.t(:concurrent_login_not_allowed)
     else
       reply[:authenticated] = true
       reply[:message] = ""

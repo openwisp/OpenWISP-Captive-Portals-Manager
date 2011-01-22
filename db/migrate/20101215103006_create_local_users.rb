@@ -7,7 +7,8 @@ class CreateLocalUsers < ActiveRecord::Migration
       t.integer :max_download_bandwidth,  :null => true
       t.boolean :disabled,                :null => false, :default => FALSE
       t.string  :disabled_message,        :null => true, :default =>""
-
+      t.boolean :allow_concurrent_login,  :null => false, :default => FALSE
+      
       t.belongs_to :captive_portal
 
       t.timestamps

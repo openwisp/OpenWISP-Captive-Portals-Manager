@@ -40,6 +40,11 @@
         <%= f.text_field :disabled_message %>
       </p>
 
+      <p>
+        <%= f.label :allow_concurrent_login %>
+        <%= f.check_box :allow_concurrent_login %>
+      </p>
+
       <%= f.submit :class => :button %>
 
   <% end %>
