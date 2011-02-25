@@ -35,7 +35,13 @@ class RadiusAcctServer < RadiusServer
     nas_ip_address = InetUtils.get_source_address(host)
 
     begin
-      req = Radiustar::Request.new("#{self.host}:#{self.port}", { :dict => @@dictionary })
+      req = Radiustar::Request.new("#{self.host}:#{self.port}",
+                                   {
+                                       :dict => @@dictionary,
+                                       :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
+                                       :retries_number => DEFAULT_REQUEST_RETRIES
+                                   }
+      )
       reply = req.accounting_start(request[:username],
                                    self.shared_secret,
                                    request[:sessionid],
@@ -73,7 +79,13 @@ class RadiusAcctServer < RadiusServer
     nas_ip_address = InetUtils.get_source_address(host)
 
     begin
-      req = Radiustar::Request.new("#{self.host}:#{self.port}", { :dict => @@dictionary })
+      req = Radiustar::Request.new("#{self.host}:#{self.port}",
+                                   {
+                                       :dict => @@dictionary,
+                                       :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
+                                       :retries_number => DEFAULT_REQUEST_RETRIES
+                                   }
+      )
       reply = req.accounting_update(request[:username],
                                     self.shared_secret,
                                     request[:sessionid],
@@ -117,7 +129,13 @@ class RadiusAcctServer < RadiusServer
     nas_ip_address = InetUtils.get_source_address(host)
 
     begin
-      req = Radiustar::Request.new("#{self.host}:#{self.port}", { :dict => @@dictionary })
+      req = Radiustar::Request.new("#{self.host}:#{self.port}",
+                                   {
+                                       :dict => @@dictionary,
+                                       :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
+                                       :retries_number => DEFAULT_REQUEST_RETRIES
+                                   }
+      )
       reply = req.accounting_stop(request[:username],
                                   self.shared_secret,
                                   request[:sessionid],

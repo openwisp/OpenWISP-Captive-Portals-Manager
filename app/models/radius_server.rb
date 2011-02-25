@@ -6,6 +6,9 @@ class RadiusServer < ActiveRecord::Base
 
   @@dictionary = Radiustar::Dictionary.new(DICTIONARY_DIR)
 
+  DEFAULT_REQUEST_TIMEOUT = 2 # Seconds
+  DEFAULT_REQUEST_RETRIES = 3
+
   validates_numericality_of :port, :greater_than => 0, :less_than_or_equal_to => 65535
   validates_format_of :host, :with => /\A[a-zA-Z0-9:\-\.]+\Z/
   # From FreeRadius Proxy.conf:

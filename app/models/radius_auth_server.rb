@@ -28,9 +28,15 @@ class RadiusAuthServer < RadiusServer
     request[:mac] || raise("BUG: Missing 'mac'")
 
     nas_ip_address = InetUtils.get_source_address(host)
-    
+
     begin
-      req = Radiustar::Request.new("#{host}:#{port}", { :dict => @@dictionary })
+      req = Radiustar::Request.new("#{host}:#{port}",
+                                   {
+                                       :dict => @@dictionary,
+                                       :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
+                                       :retries_number => DEFAULT_REQUEST_RETRIES
+                                   }
+      )
       reply = req.authenticate(request[:username],
                                request[:password],
                                self.shared_secret,
