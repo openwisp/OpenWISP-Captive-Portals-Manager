@@ -79,7 +79,7 @@ class OsCaptivePortal
 
   # Adds a new captive portal
   def start
-    
+
     @sync.lock(:EX)
 
     #TO DO: ip6tables rules!
@@ -90,6 +90,7 @@ class OsCaptivePortal
         # creating_cp_chains
     "#{IPTABLES} -t nat    -N '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -N '_DNAT_#{@cp_interface}'",
+    "#{IPTABLES} -t nat    -N '_XCPT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -N '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -N '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -N '_FOUT_#{@cp_interface}'",
@@ -101,8 +102,11 @@ class OsCaptivePortal
     # creating_dns_redirections
     "#{IPTABLES} -t nat -A '_DNAT_#{@cp_interface}'  -p udp --dport 53  -j DNAT --to-destination '#{cp_ip}:#{DNS_PORT}'",
     "#{IPTABLES} -t nat -A '_DNAT_#{@cp_interface}'  -p tcp --dport 53  -j DNAT --to-destination '#{cp_ip}:#{DNS_PORT}'",
-    # creating_auth_users_rules
+    # creating_redirection_rules
     "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_DNAT_#{@cp_interface}'",
+    # creating_exceptions_rules
+    "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_XCPT_#{@cp_interface}'",
+    # creating_auth_users_rules
     "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_NAUT_#{@cp_interface}'",
     # creating_accounting_rules
     "#{IPTABLES} -t mangle -A _PRER_MAN -i '#{@cp_interface}' -j '_MUP_#{@cp_interface}'",
@@ -147,6 +151,7 @@ class OsCaptivePortal
         # flushing_chains
     "#{IPTABLES} -t nat    -F '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -F '_DNAT_#{@cp_interface}'",
+    "#{IPTABLES} -t nat    -F '_XCPT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -F '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -F '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -F '_FOUT_#{@cp_interface}'",
@@ -154,6 +159,7 @@ class OsCaptivePortal
     "#{IPTABLES} -t mangle -F '_MDN_#{@cp_interface}'",
     # deleting_rules
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_DNAT_#{@cp_interface}'",
+    "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_XCPT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -m connmark --mark '#{MARK}' -j RETURN",
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_REDIR_#{@cp_interface}'",
@@ -167,6 +173,7 @@ class OsCaptivePortal
     # destroying_chains
     "#{IPTABLES} -t nat    -X '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -X '_DNAT_#{@cp_interface}'",
+    "#{IPTABLES} -t nat    -X '_XCPT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -X '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -X '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -X '_FOUT_#{@cp_interface}'",
@@ -178,6 +185,16 @@ class OsCaptivePortal
 
   ensure
     @sync.unlock
+  end
+
+  # Add an exception to firewall rules
+  def add_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+
+  end
+
+  # Removes an exception from firewall rules
+  def remove_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+
   end
 
   # Allows a client through the captive portal

@@ -121,6 +121,16 @@ class OsCaptivePortal
 
   end
 
+  # Add an exception to firewall rules
+  def add_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+    not_implemented
+  end
+
+  # Removes an exception from firewall rules
+  def remove_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+    not_implemented
+  end
+
   # Allows a client through the captive portal
   def add_user(client_address, client_mac_address, options = {})
     not_implemented
