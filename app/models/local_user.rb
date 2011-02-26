@@ -4,6 +4,7 @@ class LocalUser < ActiveRecord::Base
 
   validates_format_of :username, :with => /\A[0-9a-zA-Z:_\.\s\+\-]+\Z/
   validates_length_of :username, :within => 6..32
+  validates_uniqueness_of :username, :scope => [ :captive_portal_id ]
 
   validates_format_of :password, :with => /\A[0-9a-zA-Z:_\.\s\+\-]+\Z/
   validates_length_of :password, :within => 8..32
@@ -17,29 +18,9 @@ class LocalUser < ActiveRecord::Base
 
   attr_readonly :username
 
-  def self.authenticate(username, password)
-    user = where("username = ? AND password = ?", username, password).first
-    reply = Hash.new
-    if user.nil?
-      reply[:authenticated] = nil
-      reply[:message] = I18n.t(:invalid_credentials)
-    elsif user.disabled?
-      reply[:authenticated] = false
-      reply[:message] = user.disabled_message
-    elsif !user.allow_concurrent_login? and !OnlineUser.find_by_username(user.username).nil?
-      reply[:authenticated] = false
-      reply[:message] = I18n.t(:concurrent_login_not_allowed)
-    else
-      reply[:authenticated] = true
-      reply[:message] = ""
-    end
-
-    if reply[:authenticated]
-      reply[:max_upload_bandwidth] = user.max_upload_bandwidth
-      reply[:max_download_bandwidth] = user.max_download_bandwidth
-    end
-
-    return reply
+  # Simple as can be :-D
+  def check_password(password)
+    self.password == password
   end
 
 end

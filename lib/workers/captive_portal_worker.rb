@@ -14,7 +14,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
       puts "[#{Time.now()}] Backgroundrb worker stopped"
     rescue SystemExit
-      # Dirty workaround ... 
+      # Dirty workaround ...
       puts "Exit exception caught..."
       retry
     rescue Exception => e
@@ -23,11 +23,11 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   end
 
-  public 
+  public
 
   def create(args = nil)
 
-    # TO DO: select the appropriate class based on the O.S. type and version
+    # Automatically select the appropriate class for the operating system in use
     @@os_firewall = OsControl.get_os_control
 
     at_exit {
@@ -42,32 +42,155 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
       puts "[#{Time.now()}] Setting up captive portal '#{cp.name}' for interface #{cp.cp_interface}"
 
       add_cp(
-          {
-              :cp_interface => cp.cp_interface,
-              :wan_interface => cp.wan_interface,
-              :local_http_port => cp.local_http_port,
-              :local_https_port => cp.local_https_port,
-              :total_upload_bandwidth => cp.total_upload_bandwidth,
-              :total_download_bandwidth => cp.total_download_bandwidth,
-              :total_upload_bandwidth => cp.total_upload_bandwidth,
-              :total_download_bandwidth => cp.total_download_bandwidth
-          }
+          :cp_interface => cp.cp_interface,
+          :wan_interface => cp.wan_interface,
+          :local_http_port => cp.local_http_port,
+          :local_https_port => cp.local_https_port,
+          :total_upload_bandwidth => cp.total_upload_bandwidth,
+          :total_download_bandwidth => cp.total_download_bandwidth,
+          :total_upload_bandwidth => cp.total_upload_bandwidth,
+          :total_download_bandwidth => cp.total_download_bandwidth
       )
       cp.online_users.each do |ou|
         puts "[#{Time.now()}] Adding user '#{ou.username}'"
 
         add_user(
-            {  :cp_interface => cp.cp_interface,
-               :address => ou.ip_address,
-               :mac => ou.mac_address,
-               :max_upload_bandwidth => ou.max_upload_bandwidth,
-               :max_download_bandwidth => ou.max_download_bandwidth
-            }
+            :cp_interface => cp.cp_interface,
+            :address => ou.ip_address,
+            :mac => ou.mac_address,
+            :max_upload_bandwidth => ou.max_upload_bandwidth,
+            :max_download_bandwidth => ou.max_download_bandwidth
         )
       end
       puts "[#{Time.now()}] captive portal '#{cp.name}' for interface #{cp.cp_interface} added"
     end
 
+  end
+
+  def stop
+
+    @@os_firewall.stop
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem stopping captive portal firewalling infrastructure! (#{e})"
+  end
+
+  def start
+
+    @@os_firewall.start
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem starting captive portal firewalling infrastructure!"
+  end
+
+  def add_cp(options =  {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+    options[:wan_interface] || raise("BUG: Missing 'wan_interface'")
+    options[:local_http_port] || raise("BUG: Missing 'local_http_port'")
+    options[:local_https_port] || raise("BUG: Missing 'local_https_port'")
+    # options[:total_upload_bandwidth]
+    # options[:total_download_bandwidth]
+    # options[:default_upload_bandwidth]
+    # options[:default_download_bandwidth]
+
+    os_cp = @@os_firewall.add_captive_portal(
+        options[:cp_interface], options[:wan_interface], options[:local_http_port], options[:local_https_port],
+        {
+            :total_upload_bandwidth => options[:total_upload_bandwidth],
+            :total_download_bandwidth => options[:total_download_bandwidth],
+            :default_upload_bandwidth => options[:default_upload_bandwidth],
+            :default_download_bandwidth => options[:default_download_bandwidth]
+        }
+    )
+    os_cp.start
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem adding captive portal for interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def remove_cp(options =  {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+
+    os_cp = @@os_firewall.remove_captive_portal(options[:cp_interface])
+    os_cp.stop
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem removing captive portal for interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def add_user(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+    options[:address] || raise("BUG: Missing 'ip'")
+    options[:mac] || raise("BUG: Missing 'mac'")
+    # options[:max_upload_bandwidth]
+    # options[:max_download_bandwidth]
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.add_user(options[:address], options[:mac],
+                   {
+                       :max_upload_bandwidth => options[:max_upload_bandwidth],
+                       :max_download_bandwidth => options[:max_download_bandwidth]
+                   }
+    )
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem adding user for captive portal on interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def remove_user(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+    options[:address] || raise("BUG: Missing 'ip'")
+    options[:mac] || raise("BUG: Missing 'mac'")
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.remove_user(options[:address], options[:mac])
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem removing user for captive portal on interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def get_user_bytes_counters(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+    options[:address] || raise("BUG: Missing 'address'")
+    options[:mac] || raise("BUG: Missing 'mac'")
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.get_user_bytes_counters(options[:address])
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem getting user bytes counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def get_user_packets_counters(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+    options[:address] || raise("BUG: Missing 'ip'")
+    options[:mac] || raise("BUG: Missing 'mac'")
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.get_user_packets_counters(options[:address])
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem getting user packets counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def get_host_mac_address(options = {})
+    options[:address] || raise("BUG: Missing 'address'")
+
+    mac = @@os_firewall.get_host_mac_address(options[:address])
+    return mac
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem getting MAC address for host '#{options[:address]}' (#{e})"
+  end
+
+  def get_interface(options = {})
+    options[:address] || raise("BUG: Missing 'address'")
+
+    int = @@os_firewall.get_interface(options[:address])
+    return int
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem getting interface for address '#{options[:address]}' (#{e})"
   end
 
   def captive_portals_upkeep
@@ -90,7 +213,53 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
       end
       puts "[#{Time.now()}] Processing online users for cp '#{cp.name}'"
       begin
-        cp.online_users_upkeep
+        cp.online_users.each do |online_user|
+
+          to_be_disconnected = false
+          reason = nil
+
+          if online_user.inactive?
+            to_be_disconnected = true
+            reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Idle_timeout]
+            puts "[#{Time.now()}] Inactive user detected for cp '#{cp.name}': '#{online_user.username}'"
+          elsif online_user.expired?
+            to_be_disconnected = true
+            reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Session_timeout]
+            puts "[#{Time.now()}] Session timeout hit by '#{online_user.username}' for cp '#{cp.name}'"
+          elsif online_user.RADIUS_user?
+            reply = cp.radius_auth_server.authenticate(
+                :username => online_user.username,
+                :password => online_user.password,
+                :ip => online_user.ip_address,
+                :mac => online_user.mac_address
+            )
+            to_be_disconnected = !reply[:authenticated]
+            if to_be_disconnected
+              puts "[#{Time.now()}] User '#{online_user.username}' lost can't stay logged in anymore for cp '#{cp.name}'"
+              reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:User_Error]
+            end
+          end
+
+          if to_be_disconnected
+            cp.deauthenticate_user(online_user, reason)
+            next
+          else
+            unless cp.radius_acct_server.nil?
+              cp.radius_acct_server.accounting_update(
+                  :username => online_user.username,
+                  :sessionid => online_user.cp_session_token,
+                  :session_time => online_user.session_time_interval,
+                  :session_uploaded_octets => online_user.uploaded_octets,
+                  :session_uploaded_packets => online_user.uploaded_packets,
+                  :session_downloaded_octets => online_user.downloaded_octets,
+                  :session_downloaded_packets => online_user.downloaded_packets,
+                  :ip => online_user.ip_address,
+                  :mac => online_user.mac_address,
+                  :radius => online_user.RADIUS_user?
+              )
+            end
+          end
+        end
       rescue Exception => e
         puts "[#{Time.now()}] Exception! (#{e})"
       end
@@ -98,154 +267,57 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     end
   end
 
-  def stop
-
-    begin
-      @@os_firewall.stop
-    rescue Exception => e
-      puts "[#{Time.now()}] Problem stopping captive portal firewalling infrastructure! (#{e})"
-    end
-
-  end
-
-  def start
-
-    begin
-      @@os_firewall.start
-    rescue Exception => e
-      puts "[#{Time.now()}] Problem starting captive portal firewalling infrastructure!"
-    end
-
-  end
-
-  def add_cp(options =  {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-    options[:wan_interface] || raise("BUG: Missing 'wan_interface'")
-    options[:local_http_port] || raise("BUG: Missing 'local_http_port'")
-    options[:local_https_port] || raise("BUG: Missing 'local_https_port'")
-    # options[:total_upload_bandwidth]
-    # options[:total_download_bandwidth]
-    # options[:default_upload_bandwidth]
-    # options[:default_download_bandwidth]
-
-    begin
-      os_cp = @@os_firewall.add_captive_portal(
-          options[:cp_interface], options[:wan_interface], options[:local_http_port], options[:local_https_port],
-          {
-              :total_upload_bandwidth => options[:total_upload_bandwidth],
-              :total_download_bandwidth => options[:total_download_bandwidth],
-              :default_upload_bandwidth => options[:default_upload_bandwidth],
-              :default_download_bandwidth => options[:default_download_bandwidth]
-          }
-      )
-      os_cp.start
-    rescue Exception => e
-      puts "Problem adding captive portal for interface #{options[:cp_interface]}! (#{e})"
-    end
-  end
-
-  def remove_cp(options =  {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-
-    begin
-      os_cp = @@os_firewall.remove_captive_portal(options[:cp_interface])
-      os_cp.stop
-    rescue Exception => e
-      puts "Problem removing captive portal for interface #{options[:cp_interface]}! (#{e})"
-    end
-
-  end
-
-  def add_user(options = {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-    options[:address] || raise("BUG: Missing 'ip'")
+  def accounting_start(options = {})
+    options[:acct_server_id] || raise("BUG: Missing 'acct_server_id'")
+    options[:username]  || raise("BUG: Missing 'username'")
+    options[:sessionid]  || raise("BUG: Missing 'sessionid'")
+    options[:ip] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
-    # options[:max_upload_bandwidth]
-    # options[:max_download_bandwidth]
+    options[:radius] || raise("BUG: Missing 'radius'")
 
-    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    radius_acct_server = RadiusAcctServer.find(options[:acct_server_id])
+    radius_acct_server.accounting_start(
+        :username =>  options[:username],
+        :sessionid =>  options[:sessionid],
+        :ip =>  options[:ip],
+        :mac =>  options[:mac],
+        :radius =>  options[:radius]
+    )
 
-    begin
-      os_cp.add_user(options[:address], options[:mac],
-                     {
-                         :max_upload_bandwidth => options[:max_upload_bandwidth],
-                         :max_download_bandwidth => options[:max_download_bandwidth]
-                     }
-      )
-    rescue Exception => e
-      puts "Problem adding user for captive portal on interface #{options[:cp_interface]}! (#{e})"
-    end
-
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem sending accounting start RADIUS message for '#{options[:username]}-#{options[:ip]}-#{options[:mac]}' (#{e})"
   end
 
-  def remove_user(options = {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-    options[:address] || raise("BUG: Missing 'ip'")
+  def accounting_stop(options = {})
+    options[:acct_server_id] || raise("BUG: Missing 'acct_server_id'")
+    options[:username]  || raise("BUG: Missing 'username'")
+    options[:sessionid]  || raise("BUG: Missing 'sessionid'")
+    options[:ip] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
+    options[:radius] || raise("BUG: Missing 'radius'")
+    options[:session_time] || raise("BUG: Missing 'session_time'")
+    options[:session_uploaded_octets] || raise("BUG: Missing 'session_uploaded_octets'")
+    options[:session_uploaded_packets] || raise("BUG: Missing 'session_uploaded_packets'")
+    options[:session_downloaded_octets] || raise("BUG: Missing 'session_downloaded_octets'")
+    options[:session_downloaded_packets] || raise("BUG: Missing 'session_downloaded_packets'")
 
-    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    radius_acct_server = RadiusAcctServer.find(options[:acct_server_id])
+    radius_acct_server.accounting_stop(
+        :username =>  options[:username],
+        :sessionid =>  options[:sessionid],
+        :ip =>  options[:ip],
+        :mac =>  options[:mac],
+        :radius =>  options[:radius],
+        :session_time =>  options[:session_time],
+        :session_uploaded_octets =>  options[:session_uploaded_octets],
+        :session_uploaded_packets =>  options[:session_uploaded_packets],
+        :session_downloaded_octets =>  options[:session_downloaded_octets],
+        :session_downloaded_packets =>  options[:session_downloaded_packets],
+        :termination_cause =>  options[:termination_cause]
+    )
 
-    begin
-      os_cp.remove_user(options[:address], options[:mac])
-    rescue Exception => e
-      puts "Problem removing user for captive portal on interface #{options[:cp_interface]}! (#{e})"
-    end
-
-  end
-
-  def get_user_bytes_counters(options = {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-    options[:address] || raise("BUG: Missing 'address'")
-    options[:mac] || raise("BUG: Missing 'mac'")
-
-    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-
-    begin
-      os_cp.get_user_bytes_counters(options[:address])
-    rescue Exception => e
-      puts "Problem getting user bytes counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
-    end
-
-  end
-
-  def get_user_packets_counters(options = {})
-    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
-    options[:address] || raise("BUG: Missing 'ip'")
-    options[:mac] || raise("BUG: Missing 'mac'")
-
-    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-
-    begin
-      os_cp.get_user_packets_counters(options[:address])
-    rescue Exception => e
-      puts "Problem getting user packets counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
-    end
-
-  end
-
-  def get_host_mac_address(options = {})
-    options[:address] || raise("BUG: Missing 'address'")
-
-    begin
-      mac = @@os_firewall.get_host_mac_address(options[:address])
-    rescue Exception => e
-      puts "Problem getting MAC address for host '#{options[:address]}' (#{e})"
-    end
-
-    mac
-  end
-
-  def get_interface(options = {})
-    options[:address] || raise("BUG: Missing 'address'")
-
-    begin
-      int = @@os_firewall.get_interface(options[:address])
-    rescue Exception => e
-      puts "Problem getting interface for address '#{options[:address]}' (#{e})"
-    end
-
-    int
-
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem sending accounting stop RADIUS message for '#{options[:username]}-#{options[:ip]}-#{options[:mac]}' (#{e})"
   end
 
 end

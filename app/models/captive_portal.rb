@@ -109,9 +109,46 @@ class CaptivePortal < ActiveRecord::Base
   end
 
   def authenticate_user(username, password, client_ip, client_mac)
+    # TO DO: Radius request offload ... (sync for auth, async for acct)
     radius = false
-    reply = LocalUser.authenticate(username, password)
-    if reply[:authenticated].nil? and !radius_auth_server.nil?
+    reply = Hash.new
+
+    # First look in local user
+    local_user = local_users.where(:username => username).first
+    if !local_user.nil?
+      if local_user.check_password(password)
+        # Password is valid, check if the user can log in
+
+        ## Is the user disabled?
+        if local_user.disabled?
+          reply[:authenticated] = false
+          reply[:message] = local_user.disabled_message
+        end
+
+        ## Is the user already logged in and multiple login are not allowed for him?
+        if reply[:authenticated].nil? and !local_user.allow_concurrent_login? and
+            !online_users.where(:username => username).nil?
+          reply[:authenticated] = false
+          reply[:message] = I18n.t(:concurrent_login_not_allowed)
+        end
+
+        ## Is a good guy, grant him/her access
+        if reply[:authenticated].nil?
+          reply[:authenticated] = true
+          reply[:message] = ""
+          reply[:max_upload_bandwidth] = local_user.max_upload_bandwidth
+          reply[:max_download_bandwidth] = local_user.max_download_bandwidth
+        end
+
+      else
+        # Invalid password
+        reply[:authenticated] = false
+        reply[:message] = I18n.t(:invalid_credentials)
+      end
+    end
+
+    # Then, if the user is still not auth'ed, ask a RADIUS server (if defined)
+    if (reply[:authenticated].nil? or !reply[:authenticated]) and !radius_auth_server.nil?
       radius = true
       reply = radius_auth_server.authenticate(
           {
@@ -127,9 +164,9 @@ class CaptivePortal < ActiveRecord::Base
       end
     end
 
-    if reply[:authenticated]
-      # Add user to the online users
-      user = online_users.build(
+    if !reply[:authenticated].nil? and reply[:authenticated]
+      # Access granted, add user to the online users
+      online_user = online_users.build(
           :username => username,
           :password => password,
           :radius => radius,
@@ -141,107 +178,62 @@ class CaptivePortal < ActiveRecord::Base
           :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
       )
       begin
-        user.save!
+        online_user.save!
       rescue Exception => e
-        return [ nil , "Cannot save user, internal error (#{e})" ]
+        [ nil , "Cannot save user, internal error (#{e})" ]
       end
-      
+
       unless self.radius_acct_server.nil?
-        radius_acct_server.accounting_start(
-            {
-                :username => user.username,
-                :sessionid => user.cp_session_token,
-                :ip => user.ip_address,
-                :mac => user.mac_address,
-                :radius => user.RADIUS_user?
+        worker = MiddleMan.worker(:captive_portal_worker)
+        worker.async_accounting_start(
+            :args => {
+                :acct_server_id => self.radius_acct_server.id,
+                :username => online_user.username,
+                :sessionid => online_user.cp_session_token,
+                :ip => online_user.ip_address,
+                :mac => online_user.mac_address,
+                :radius => online_user.RADIUS_user?
             }
         )
       end
-      [ user.cp_session_token, reply[:message] ]
+      [ online_user.cp_session_token, reply[:message] ]
     else
-      [ nil, reply[:message]]
+      # Login failed!
+      [ nil, reply[:message] || I18n.t(:invalid_credentials) ]
     end
   end
 
-  def deauthenticate_user(user, reason)
-    unless user.nil?
-      ##  Commented out to permit the use of a RADIUS accounting server even
-      ##  if we have no RADIUS authentication server...
-      if !radius_acct_server.nil?
+  # The following functions are intended to be offloaded (i.e. should always be called from a worker)
+  # DO NOT start a *synchronous* worker job inside the following functions!.
 
-        radius_acct_server.accounting_stop(
-            {
-                :username => user.username,
-                :sessionid => user.cp_session_token,
-                :ip => user.ip_address,
-                :mac => user.mac_address,
-                :radius => user.RADIUS_user?,
-                :session_time => user.session_time_interval,
-                :session_uploaded_octets => user.uploaded_octets,
-                :session_uploaded_packets => user.uploaded_packets,
-                :session_downloaded_octets => user.downloaded_octets,
-                :session_downloaded_packets => user.downloaded_packets,
-                :termination_cause => reason
-            }
-        )
-      end
-
-      user.destroy
+  def deauthenticate_user(online_user, reason)
+    unless radius_acct_server.nil?
+      # Use a RADIUS accounting server even if we have no RADIUS auth server
+      worker = MiddleMan.worker(:captive_portal_worker)
+      worker.async_accounting_stop(
+          :args => {
+              :acct_server_id => self.radius_acct_server.id,
+              :username => online_user.username,
+              :sessionid => online_user.cp_session_token,
+              :ip => online_user.ip_address,
+              :mac => online_user.mac_address,
+              :radius => online_user.RADIUS_user?,
+              :session_time => online_user.session_time_interval,
+              :session_uploaded_octets => online_user.uploaded_octets,
+              :session_uploaded_packets => online_user.uploaded_packets,
+              :session_downloaded_octets => online_user.downloaded_octets,
+              :session_downloaded_packets => online_user.downloaded_packets,
+              :termination_cause => reason
+          }
+      )
     end
+  ensure
+    online_user.destroy
   end
 
   def deauthenticate_online_users(reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Forced_logout])
-    self.online_users.each do |user|
-      deauthenticate_user(user, reason)
-    end
-  end
-
-  def online_users_upkeep
-    self.online_users.each do |user|
-
-      to_be_disconnected = false
-      reason = nil
-
-      if user.inactive?
-        to_be_disconnected = true
-        reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Idle_timeout]
-      elsif user.expired?
-        to_be_disconnected = true
-        reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Session_timeout]
-      elsif user.RADIUS_user?
-        reply = self.radius_auth_server.authenticate(
-            {
-                :username => user.username,
-                :password => user.password,
-                :ip => user.ip_address,
-                :mac => user.mac_address
-            }
-        )
-        to_be_disconnected = !reply[:authenticated]
-        reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:User_Error] if to_be_disconnected
-      end
-
-      if to_be_disconnected
-        self.deauthenticate_user(user, reason)
-        next
-      else
-        unless self.radius_acct_server.nil?
-          self.radius_acct_server.accounting_update(
-              {
-                  :username => user.username,
-                  :sessionid => user.cp_session_token,
-                  :session_time => user.session_time_interval,
-                  :session_uploaded_octets => user.uploaded_octets,
-                  :session_uploaded_packets => user.uploaded_packets,
-                  :session_downloaded_octets => user.downloaded_octets,
-                  :session_downloaded_packets => user.downloaded_packets,
-                  :ip => user.ip_address,
-                  :mac => user.mac_address,
-                  :radius => user.RADIUS_user?
-              }
-          )
-        end
-      end
+    self.online_users.each do |online_user|
+      deauthenticate_user(online_user, reason)
     end
   end
 
