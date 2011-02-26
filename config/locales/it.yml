@@ -7,6 +7,12 @@ it:
     local_user: "Utente locale"
 
   attributes_names: &attributes_names
+    protocol: "Protocollo"
+    source_mac_address: "MAC Address Sorgente"
+    source_host: "Host Sorgente"
+    source_port: "Port Sorgente"
+    destination_host: "Host Destinazione"
+    destination_port: "Port Destinazione"
     local_users: "Utenti Locali"
     allowed_traffics: "Eccezioni Firewall"
     online_users: "Utenti Online"
@@ -64,6 +70,7 @@ it:
   list_captive_portals: "elenco captive portal"
   new_captive_portal: "nuovo captive portal"
   new_local_user: "nuovo utente locale"
+  new_allowed_traffic: "nuova eccezione firewall"
   listing_captive_portals: "elenco dei captive portal"
   are_you_sure_logout: "sei sicuro di voler effettuare il logout?"  
   logged_in_as: "autenticato come"

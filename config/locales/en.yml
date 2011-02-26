@@ -10,6 +10,12 @@ en:
     local_user: "Local user"
 
   attributes_names: &attributes_names
+    protocol: "Protocol"
+    source_mac_address: "Source MAC Address"
+    source_host: "Source Host"
+    source_port: "Source Port"
+    destination_host: "Destination Host"
+    destination_port: "Destination Port"
     local_users: "Local Users"
     allowed_traffics: "Firewall Rules"
     online_users: "Online Users"
@@ -66,7 +72,8 @@ en:
   show_local_user: "local user details"
   list_captive_portals: "list captive portals"
   new_captive_portal: "new captive portal"
-  new_local_user: "mew local user"
+  new_local_user: "new local user"
+  new_allowed_traffic: "new allowed traffic"
   listing_captive_portals: "listing captive portals"
   are_you_sure_logout: "are you sure you want to logout?"
   logged_in_as: "logged in as"
