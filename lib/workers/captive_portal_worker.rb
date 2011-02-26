@@ -273,7 +273,6 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:sessionid]  || raise("BUG: Missing 'sessionid'")
     options[:ip] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
-    options[:radius] || raise("BUG: Missing 'radius'")
 
     radius_acct_server = RadiusAcctServer.find(options[:acct_server_id])
     radius_acct_server.accounting_start(
@@ -294,7 +293,6 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:sessionid]  || raise("BUG: Missing 'sessionid'")
     options[:ip] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
-    options[:radius] || raise("BUG: Missing 'radius'")
     options[:session_time] || raise("BUG: Missing 'session_time'")
     options[:session_uploaded_octets] || raise("BUG: Missing 'session_uploaded_octets'")
     options[:session_uploaded_packets] || raise("BUG: Missing 'session_uploaded_packets'")
