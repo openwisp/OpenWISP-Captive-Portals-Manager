@@ -138,6 +138,9 @@ class CaptivePortal < ActiveRecord::Base
           reply[:message] = ""
           reply[:max_upload_bandwidth] = local_user.max_upload_bandwidth
           reply[:max_download_bandwidth] = local_user.max_download_bandwidth
+          # TO DO: add timeouts to LocalUser model
+          reply[:idle_timeout] = self.default_idle_timeout
+          reply[:session_timeout] = self.default_session_timeout
         end
 
       else
