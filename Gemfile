@@ -43,6 +43,10 @@ group :development, :test do
   gem 'sqlite3-ruby', :require => 'sqlite3'
 end
 
+group :production do
+  gem "mysql"
+end
+
 # TODO: there is a bug in bundler that prevent us to use exception_notifier as a gem
 # E.N. is now installed as a plugin
 #group :production do
