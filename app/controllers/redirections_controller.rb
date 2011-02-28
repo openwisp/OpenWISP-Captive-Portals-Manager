@@ -1,6 +1,8 @@
 class RedirectionsController < ApplicationController
   before_filter :load_captive_portal
 
+  protect_from_forgery :except => [ :login, :logout ]
+
   protected
 
   def load_captive_portal

@@ -1,12 +1,12 @@
 class CaptivePortal < ActiveRecord::Base
 
-  has_many :local_users
-  has_many :online_users
-  has_many :allowed_traffics
-  has_one :radius_auth_server
+  has_many :local_users, :dependent => :destroy
+  has_many :online_users, :dependent => :destroy
+  has_many :allowed_traffics, :dependent => :destroy
+  has_one :radius_auth_server, :dependent => :destroy
   accepts_nested_attributes_for :radius_auth_server, :allow_destroy => true,
                                 :reject_if => proc { |attributes| attributes[:host].blank? }
-  has_one :radius_acct_server
+  has_one :radius_acct_server, :dependent => :destroy
   accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
                                 :reject_if => proc { |attributes| attributes[:host].blank? }
 
