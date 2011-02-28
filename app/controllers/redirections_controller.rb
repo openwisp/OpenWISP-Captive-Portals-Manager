@@ -41,7 +41,7 @@ class RedirectionsController < ApplicationController
 
   def login
     original_url = params[:original_url].nil? ? CaptivePortal::DEFAULT_URL :
-        URI.escape(params[:original_url])
+        URI.unescape(params[:original_url])
 
     if params[:username].nil? or params[:password].nil? or
         params[:username].blank? or params[:password].blank?
