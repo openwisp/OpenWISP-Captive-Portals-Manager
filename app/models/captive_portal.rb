@@ -127,7 +127,7 @@ class CaptivePortal < ActiveRecord::Base
 
         ## Is the user already logged in and multiple login are not allowed for him?
         if reply[:authenticated].nil? and !local_user.allow_concurrent_login? and
-            !online_users.where(:username => username).nil?
+            online_users.count(:conditions => {:username => username}) > 0
           reply[:authenticated] = false
           reply[:message] = I18n.t(:concurrent_login_not_allowed)
         end
@@ -151,7 +151,7 @@ class CaptivePortal < ActiveRecord::Base
     end
 
     # Then, if the user is still not auth'ed, ask a RADIUS server (if defined)
-    if (reply[:authenticated].nil? or !reply[:authenticated]) and !radius_auth_server.nil?
+    if reply[:authenticated].nil? and !radius_auth_server.nil?
       radius = true
       reply = radius_auth_server.authenticate(
           {
