@@ -122,12 +122,12 @@ class OsCaptivePortal
   end
 
   # Add an exception to firewall rules
-  def add_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+  def add_allowed_traffic(options = {})
     not_implemented
   end
 
   # Removes an exception from firewall rules
-  def remove_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+  def remove_allowed_traffic(options = {})
     not_implemented
   end
 

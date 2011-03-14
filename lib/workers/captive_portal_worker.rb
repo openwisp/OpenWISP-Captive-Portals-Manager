@@ -15,7 +15,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
       puts "[#{Time.now()}] Backgroundrb worker stopped"
     rescue SystemExit
       # Dirty workaround ...
-      puts "Exit exception caught..."
+      puts "[#{Time.now()}] Exiting, exception caught..."
       retry
     rescue Exception => e
       puts "[#{Time.now()}] Backgroundrb worker finalization failed! (#{e})"
@@ -51,6 +51,23 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           :total_upload_bandwidth => cp.total_upload_bandwidth,
           :total_download_bandwidth => cp.total_download_bandwidth
       )
+
+      puts "[#{Time.now()}] Setting up allowed traffic for '#{cp.name}' - interface #{cp.cp_interface}"
+      cp.allowed_traffics.each do |at|
+        puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
+
+        add_allowed_traffic(
+            :cp_interface => cp.cp_interface,
+            :source_mac => at.source_mac,
+            :source_host => at.source_host,
+            :destination_host => at.destination_host,
+            :protocol => at.protocol,
+            :source_port => at.source_port,
+            :destination_port => at.destination_port
+        )
+      end
+
+      puts "[#{Time.now()}] Setting up online users for '#{cp.name}' - interface #{cp.cp_interface}"
       cp.online_users.each do |ou|
         puts "[#{Time.now()}] Adding user '#{ou.username}'"
 
@@ -62,6 +79,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
             :max_download_bandwidth => ou.max_download_bandwidth
         )
       end
+
       puts "[#{Time.now()}] captive portal '#{cp.name}' for interface #{cp.cp_interface} added"
     end
 
@@ -116,6 +134,40 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem removing captive portal for interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def add_allowed_traffic(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.add_allowed_traffic(
+        :source_mac => options[:source_mac],
+        :source_host => options[:source_host],
+        :destination_host => options[:destination_host],
+        :protocol => options[:protocol],
+        :source_port => options[:source_port],
+        :destination_port => options[:destination_port]
+    )
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem adding exception for captive portal on interface #{options[:cp_interface]}! (#{e})"
+  end
+
+  def remove_allowed_traffic(options = {})
+    options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
+
+    os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
+    os_cp.remove_allowed_traffic(
+        :source_mac => options[:source_mac],
+        :source_host => options[:source_host],
+        :destination_host => options[:destination_host],
+        :protocol => options[:protocol],
+        :source_port => options[:source_port],
+        :destination_port => options[:destination_port]
+    )
+
+  rescue Exception => e
+    puts "[#{Time.now()}] Problem removing exception for captive portal on interface #{options[:cp_interface]}! (#{e})"
   end
 
   def add_user(options = {})

@@ -187,14 +187,72 @@ class OsCaptivePortal
     @sync.unlock
   end
 
-  # Add an exception to firewall rules
-  def add_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+  # Creates/Removes an iptables rule parameters for allowed traffic
+  def add_remove_allowed_traffic(action = :add, options = {})
+
+    # Determine source host type (if any)
+    if options[:source_host].nil?
+      source_host_type = nil
+    else
+      begin
+        source_host_type = IPAddr.new(options[:source_host]).is_ipv4? ? :ipv4 : :ipv6
+      rescue
+        # If the previous fails with an exception, assume source_host is an hostname
+        source_host_type = :hostname
+      end
+    end
+
+    # Determine destination host type (if any)
+    if options[:destination_host].nil?
+      destination_host_type = nil
+    else
+      begin
+        destination_host_type = IPAddr.new(options[:destination_host]).is_ipv4? ? :ipv4 : :ipv6
+      rescue
+        # If the previous fails with an exception, assume destination_host is an hostname
+        destination_host_type = :hostname
+      end
+    end
+
+    if !source_host_type.nil? and !destination_host_type.nil? and
+        source_host_type != :hostname and destination_host_type != :hostname and
+        source_host_type != destination_host_type
+      raise("BUG: source and destination host must belong to the same family (#{options[:source_host]} is " +
+                "'#{source_host_type}' and #{options[:destination_host]} is '#{destination_host_type}')")
+    end
+
+    if source_host_type == :ipv4 or destination_host_type == :ipv4 or
+        (source_host_type == :hostname and destination_host_type == :hostname)
+      # IPv4 rule
+      ipv4_exception_rule =  "#{IPTABLES} -t nat " + (action == :add ? "-I" : "-D") + " '_XCPT_#{@cp_interface}' -i '#{@cp_interface}'"
+      ipv4_exception_rule += " -m mac --mac-source '#{options[:source_mac]}'" unless options[:source_mac].nil?
+      ipv4_exception_rule += " -s #{options[:source_host]}" unless options[:source_host].nil?
+      ipv4_exception_rule += " -d #{options[:destination_host]}" unless options[:destination_host].nil?
+      ipv4_exception_rule += " -p #{options[:protocol]}" unless options[:protocol].nil?
+      ipv4_exception_rule += " --sport #{options[:source_port]}" unless options[:source_port].nil? or options[:protocol].nil?
+      ipv4_exception_rule += " --dport #{options[:destination_port]}" unless options[:destination_port].nil? or options[:protocol].nil?
+      ipv4_exception_rule += " -j CONNMARK --set-mark '#{MARK}'"
+
+      execute_actions([ipv4_exception_rule])
+
+    end
+
+    if source_host_type == :ipv6 or destination_host_type == :ipv6 or
+        (source_host_type == :hostname and destination_host_type == :hostname)
+      # TO DO: IPv6 rule
+      not_implemented
+    end
 
   end
 
-  # Removes an exception from firewall rules
-  def remove_exception(protocol, source_mac, source_host, source_port, destination_host, destination_port)
+  # Add an iptables rule for allowed traffic
+  def add_allowed_traffic(options = {})
+    add_remove_exception(:add, options)
+  end
 
+  # Removes an iptables rule for allowed traffic
+  def remove_allowed_traffic(options = {})
+    add_remove_exception(:remove, options)
   end
 
   # Allows a client through the captive portal
@@ -277,7 +335,7 @@ class OsCaptivePortal
 
     @sync.lock(:SH)
 
-    ret = [0,0]
+    ret = [0, 0]
     if is_ipv4_address?(client_address)
       up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MUP_#{@cp_interface}' | grep '#{client_address}'])
       dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MDN_#{@cp_interface}' | grep '#{client_address}'])
@@ -300,7 +358,7 @@ class OsCaptivePortal
 
     @sync.lock(:SH)
 
-    ret = [0,0]
+    ret = [0, 0]
     if is_ipv4_address?(client_address)
       up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MUP_#{@cp_interface}' | grep '#{client_address}'])
       dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MDN_#{@cp_interface}' | grep '#{client_address}'])
