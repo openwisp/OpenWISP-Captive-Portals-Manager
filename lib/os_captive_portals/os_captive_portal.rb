@@ -79,7 +79,7 @@ class OsCaptivePortal
   private
 
   def not_implemented
-    puts "[WARNING] virtual method not implemented: '#{caller.first}'"
+    puts "[WARNING] Missing (not implemented) code @ '#{caller.first}'"
   end
 
   public

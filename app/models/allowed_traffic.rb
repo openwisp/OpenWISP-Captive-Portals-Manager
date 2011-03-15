@@ -14,7 +14,7 @@ class AllowedTraffic < ActiveRecord::Base
 
   after_create {
     worker = MiddleMan.worker(:captive_portal_worker)
-    worker.add_allowed_traffic(
+    worker.async_add_allowed_traffic(
         :args => {
             :cp_interface => self.captive_portal.cp_interface,
             :source_mac => self.source_mac_address,

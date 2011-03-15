@@ -191,7 +191,7 @@ class OsCaptivePortal
   def add_remove_allowed_traffic(action = :add, options = {})
 
     # Determine source host type (if any)
-    if options[:source_host].nil?
+    if options[:source_host].blank?
       source_host_type = nil
     else
       begin
@@ -203,7 +203,7 @@ class OsCaptivePortal
     end
 
     # Determine destination host type (if any)
-    if options[:destination_host].nil?
+    if options[:destination_host].blank?
       destination_host_type = nil
     else
       begin
@@ -221,24 +221,22 @@ class OsCaptivePortal
                 "'#{source_host_type}' and #{options[:destination_host]} is '#{destination_host_type}')")
     end
 
-    if source_host_type == :ipv4 or destination_host_type == :ipv4 or
-        (source_host_type == :hostname and destination_host_type == :hostname)
+    if !(source_host_type == :ipv6 or destination_host_type == :ipv6)
       # IPv4 rule
-      ipv4_exception_rule =  "#{IPTABLES} -t nat " + (action == :add ? "-I" : "-D") + " '_XCPT_#{@cp_interface}' -i '#{@cp_interface}'"
-      ipv4_exception_rule += " -m mac --mac-source '#{options[:source_mac]}'" unless options[:source_mac].nil?
-      ipv4_exception_rule += " -s #{options[:source_host]}" unless options[:source_host].nil?
-      ipv4_exception_rule += " -d #{options[:destination_host]}" unless options[:destination_host].nil?
-      ipv4_exception_rule += " -p #{options[:protocol]}" unless options[:protocol].nil?
-      ipv4_exception_rule += " --sport #{options[:source_port]}" unless options[:source_port].nil? or options[:protocol].nil?
-      ipv4_exception_rule += " --dport #{options[:destination_port]}" unless options[:destination_port].nil? or options[:protocol].nil?
+      ipv4_exception_rule =  "#{IPTABLES} -t nat " + (action == :add ? "-A" : "-D") + " '_XCPT_#{@cp_interface}' -i '#{@cp_interface}'"
+      ipv4_exception_rule += " -m mac --mac-source '#{options[:source_mac]}'" unless options[:source_mac].blank?
+      ipv4_exception_rule += " -s #{options[:source_host]}" unless options[:source_host].blank?
+      ipv4_exception_rule += " -d #{options[:destination_host]}" unless options[:destination_host].blank?
+      ipv4_exception_rule += " -p #{options[:protocol]}" unless options[:protocol].blank?
+      ipv4_exception_rule += " --sport #{options[:source_port]}" unless options[:source_port].blank? or options[:protocol].blank?
+      ipv4_exception_rule += " --dport #{options[:destination_port]}" unless options[:destination_port].blank? or options[:protocol].blank?
       ipv4_exception_rule += " -j CONNMARK --set-mark '#{MARK}'"
 
       execute_actions([ipv4_exception_rule])
 
     end
 
-    if source_host_type == :ipv6 or destination_host_type == :ipv6 or
-        (source_host_type == :hostname and destination_host_type == :hostname)
+    if !(source_host_type == :ipv4 and destination_host_type == :ipv4)
       # TO DO: IPv6 rule
       not_implemented
     end
@@ -247,12 +245,12 @@ class OsCaptivePortal
 
   # Add an iptables rule for allowed traffic
   def add_allowed_traffic(options = {})
-    add_remove_exception(:add, options)
+    add_remove_allowed_traffic(:add, options)
   end
 
   # Removes an iptables rule for allowed traffic
   def remove_allowed_traffic(options = {})
-    add_remove_exception(:remove, options)
+    add_remove_allowed_traffic(:remove, options)
   end
 
   # Allows a client through the captive portal

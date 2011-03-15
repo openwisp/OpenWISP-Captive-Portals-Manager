@@ -54,11 +54,11 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
       puts "[#{Time.now()}] Setting up allowed traffic for '#{cp.name}' - interface #{cp.cp_interface}"
       cp.allowed_traffics.each do |at|
-        puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
+        puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac_address}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
 
         add_allowed_traffic(
             :cp_interface => cp.cp_interface,
-            :source_mac => at.source_mac,
+            :source_mac => at.source_mac_address,
             :source_host => at.source_host,
             :destination_host => at.destination_host,
             :protocol => at.protocol,
