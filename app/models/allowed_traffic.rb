@@ -27,6 +27,33 @@ class AllowedTraffic < ActiveRecord::Base
     )
   }
 
+  before_update {
+    old_allowed_traffic = AllowedTraffic.find( self.id )
+    worker = MiddleMan.worker(:captive_portal_worker)
+    worker.async_remove_allowed_traffic(
+        :args => {
+            :cp_interface => old_allowed_traffic.captive_portal.cp_interface,
+            :source_mac => old_allowed_traffic.source_mac_address,
+            :source_host => old_allowed_traffic.source_host,
+            :destination_host => old_allowed_traffic.destination_host,
+            :protocol => old_allowed_traffic.protocol,
+            :source_port => old_allowed_traffic.source_port,
+            :destination_port => old_allowed_traffic.destination_port
+        }
+    )
+    worker.async_add_allowed_traffic(
+        :args => {
+            :cp_interface => self.captive_portal.cp_interface,
+            :source_mac => self.source_mac_address,
+            :source_host => self.source_host,
+            :destination_host => self.destination_host,
+            :protocol => self.protocol,
+            :source_port => self.source_port,
+            :destination_port => self.destination_port
+        }
+    )
+  }
+
   before_destroy {
       # This could be invoked from a worker, so we must use async_ here to avoid deadlocks
     worker = MiddleMan.worker(:captive_portal_worker)
