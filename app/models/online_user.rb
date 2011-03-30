@@ -7,7 +7,6 @@ class OnlineUser < ActiveRecord::Base
 
   # TODO: validate password format (?? How ?? We have to be consistent with others class password attribute)
   validates_presence_of :password
-  validates_uniqueness_of :cp_session_token
 
   validates_inclusion_of :radius, :in => [ true, false ]
 
@@ -26,10 +25,14 @@ class OnlineUser < ActiveRecord::Base
   validates_format_of :ip_address,
                       :with => /\A((([0-9])|([1-9][0-9])|(1[0-9][0-9])|(2[0-4][0-9])|(25[0-5]))\.){3}([0-9])|([1-9][0-9])|(1[0-9][0-9])|(2[0-4][0-9])|(25[0-5])\Z/
 
+  validates_uniqueness_of :ip_address
+  validates_uniqueness_of :mac_address
+  validates_uniqueness_of :cp_session_token
+
   before_create {
       # Generates the cp_session_token. Where applicable this id it's used also as a unique RADIUS session id.
     self.cp_session_token = (Digest::MD5.hexdigest(self.username + self.password + self.ip_address +
-                                                       self.mac_address + Time.new.to_s))[0..16]
+                                                       self.mac_address))[0..16]
   }
 
   after_create {
@@ -78,7 +81,7 @@ class OnlineUser < ActiveRecord::Base
       unless self.save
         logger.error("Failed to update activity of user '#{self.username}'")
         logger.error("...forcing the update of '#{self.username}' acrivity")
-        salf.save false
+        self.save false
       end
     else
       false
