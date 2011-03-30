@@ -7,7 +7,7 @@ class OnlineUser < ActiveRecord::Base
 
   # TODO: validate password format (?? How ?? We have to be consistent with others class password attribute)
   validates_presence_of :password
-  validates_uniqueness_of :cp_session_token, :scope => :captive_portal_id
+  validates_uniqueness_of :cp_session_token
 
   validates_inclusion_of :radius, :in => [ true, false ]
 
@@ -75,7 +75,11 @@ class OnlineUser < ActiveRecord::Base
       self.uploaded_packets = uploaded_packets
       self.downloaded_packets = downloaded_packets
       self.last_activity = Time.new
-      self.save!
+      unless self.save
+        logger.error("Failed to update activity of user '#{self.username}'")
+        logger.error("...forcing the update of '#{self.username}' acrivity")
+        salf.save false
+      end
     else
       false
     end
