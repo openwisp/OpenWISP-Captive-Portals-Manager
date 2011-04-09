@@ -31,7 +31,7 @@ class OnlineUser < ActiveRecord::Base
 
   before_create {
       # Generates the cp_session_token. Where applicable this id it's used also as a unique RADIUS session id.
-    self.cp_session_token = (Digest::MD5.hexdigest(self.username + self.password + self.ip_address +
+    self.cp_session_token = (Digest::MD5.hexdigest(Time.new.to_s + self.username + self.password + self.ip_address +
                                                        self.mac_address))[0..16]
   }
 
