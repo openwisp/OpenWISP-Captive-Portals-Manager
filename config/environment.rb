@@ -16,7 +16,7 @@ end
 require 'custom_logger'
 
 Railscp::Application.config.log_level = Rails.env=='production' ?
-    ActiveSupport::BufferedLogger::Severity::INFO :
+    ActiveSupport::BufferedLogger::Severity::WARN :
     ActiveSupport::BufferedLogger::Severity::DEBUG
 
 # TODO: find a more reliable path for logging
@@ -24,4 +24,4 @@ Railscp::Application.config.logger = CustomLogger.new(Railscp::Application.confi
                                                       Railscp::Application.config.log_level)
 
 Rails.logger.level = Railscp::Application.config.log_level
-Rails.logger = Railscp::Application.config.logger
+Rails.logger = Railscp::Application.config.logger 
