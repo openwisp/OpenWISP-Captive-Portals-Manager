@@ -1,5 +1,7 @@
 module OsUtils
 
+  IP = "/sbin/ip"
+
   public
 
   # Test to see if a string contains a valid linux interface name
@@ -12,7 +14,7 @@ module OsUtils
     mac = nil
 
     if IPAddr.new(address).ipv4? or IPAddr.new(address).ipv6?
-      res = /lladdr\s+(([0-9a-fA-F]{1,2}:){5}[0-9a-fA-F]{1,2})\s+/.match(%x[ip neighbor show #{address}])
+      res = /lladdr\s+(([0-9a-fA-F]{1,2}:){5}[0-9a-fA-F]{1,2})\s+/.match(%x[#{IP} neighbor show #{address}])
       mac = res[1] unless res.nil?
     end
 
@@ -24,7 +26,7 @@ module OsUtils
     interface = nil
 
     if IPAddr.new(address).ipv4? or IPAddr.new(address).ipv6?
-      res = /dev\s+([a-zA-Z_][a-zA-Z0-9_\.\-]*)\s+src/.match(%x[ip route get #{address}])
+      res = /dev\s+([a-zA-Z_][a-zA-Z0-9_\.\-]*)\s+src/.match(%x[#{IP} route get #{address}])
       interface = res[1] unless res.nil?
     end
 
@@ -35,7 +37,7 @@ module OsUtils
   def get_interface_ipv4_address(interface)
     ipv4_address = nil
     if is_interface_name?(interface)
-      res = /\s+inet\s+([0-9a-fA-F:\.]+)\/\d+\s+/.match(%x[ip -f inet addr show #{interface} | grep "scope global" | head -1])
+      res = /\s+inet\s+([0-9a-fA-F:\.]+)\/\d+\s+/.match(%x[#{IP} -f inet addr show #{interface} | grep "scope global" | head -1])
       ipv4_address = res[1] unless res.nil?
     end
 
@@ -46,7 +48,7 @@ module OsUtils
   def get_interface_ipv6_address(interface)
     ipv6_address = nil
     if is_interface_name?(interface)
-      res = /inet6\s+([0-9a-fA-F:]+)\/\d+\s+scope/.match(%x[ip -f inet6 addr show #{interface} | grep "scope global | head -1"])
+      res = /inet6\s+([0-9a-fA-F:]+)\/\d+\s+scope/.match(%x[#{IP} -f inet6 addr show #{interface} | grep "scope global | head -1"])
       ipv6_address = res[1] unless res.nil?
     end
 
