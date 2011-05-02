@@ -114,10 +114,6 @@ class OnlineUser < ActiveRecord::Base
     self.session_time_interval > self.session_timeout
   end
 
-  def last_activity
-    read_attribute(:last_activity)
-  end
-
   def refresh!
     uploaded_octets, downloaded_octets = octets_counters
     uploaded_packets, downloaded_packets = packets_counters
