@@ -95,6 +95,7 @@ it:
   application_name: "OWCPM"
   extended_application_name: "Open WISP Captive Portals Manager"
   concurrent_login_not_allowed: "login concorrenti non permessi"
+  editing_captive_portal: "Modifica captive portal"
   <<: *attributes_names
   <<: *models_names
 
