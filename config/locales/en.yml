@@ -130,3 +130,7 @@ en:
     submit:
       operator_session:
         create: "login"
+
+  time:
+    formats:
+      default: "%a %d %b %Y, %H:%M:%S"
