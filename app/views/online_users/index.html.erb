@@ -3,6 +3,12 @@
     <h2>
       <a href="#" id="toggle-listing_online_users"><%=t :listing_online_users %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:back), captive_portal_path(@captive_portal) %>
+      </li>
+    </ul>
+    
     <div class="block" id="listing_online_users">
 
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>

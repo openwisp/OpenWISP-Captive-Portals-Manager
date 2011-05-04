@@ -3,6 +3,12 @@
     <h2>
       <a href="#" id="toggle-show_online_user"><%=t :show_online_user %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:back), captive_portal_online_users_path(@captive_portal) %>
+      </li>
+    </ul>
+    
     <div class="block" id="show_online_user">
 
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>
@@ -66,10 +72,6 @@
         </tr>
         </tbody>
       </table>
-
-      <p class="meta">
-        <%= link_to t(:back), captive_portal_online_users_path(@captive_portal) %>
-      </p>
 
     </div>
   </div>

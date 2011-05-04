@@ -50,22 +50,7 @@
     <ul class="nav main">
       <% if current_operator %>
           <li>
-            <%= link_to t(:operations), captive_portals_path %>
-            <ul>
-              <li>
-                <%= link_to t(:new_captive_portal), new_captive_portal_path %>
-              </li>
-            </ul>
-          </li>
-          <li>
             <%= link_to t(:captive_portals), captive_portals_path %>
-            <ul>
-              <% CaptivePortal.all.each do |cp| %>
-                  <li>
-                    <%= link_to h(cp.name), captive_portal_path(cp) %>
-                  </li>
-              <% end %>
-            </ul>
           </li>
           <li>
             <%= link_to t(:logout), operator_logout_path %>

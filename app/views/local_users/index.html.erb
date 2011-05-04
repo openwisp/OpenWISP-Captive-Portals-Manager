@@ -1,22 +1,22 @@
 <div class="grid_16">
-  <ul class="nav main">
-    <li>
-      <%= link_to t(:local_users), '#' %>
-      <ul>
-        <li>
-          <%= link_to t(:new_local_user), new_captive_portal_local_user_path(@captive_portal) %>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <%= link_to t(:back), captive_portal_path(@captive_portal) %>
-    </li>
-  </ul>
-
   <div class="box">
     <h2>
       <a href="#" id="toggle-listing_local_users"><%=t :listing_local_users %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:local_users), '#' %>
+        <ul>
+          <li>
+            <%= link_to t(:new), new_captive_portal_local_user_path(@captive_portal) %>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <%= link_to t(:back), captive_portal_path(@captive_portal) %>
+      </li>
+    </ul>
+
     <div class="block" id="listing_local_users">
 
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>

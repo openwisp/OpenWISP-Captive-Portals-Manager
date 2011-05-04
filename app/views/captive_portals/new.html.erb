@@ -1,14 +1,14 @@
 <div class="grid_16">
-  <ul class="nav main">
-    <li>
-      <%= link_to t(:back), captive_portals_path %>
-    </li>
-  </ul>
-  
   <div class="box">
     <h2>
       <a href="#" id="toggle-new_captive_portal"><%=t :new_captive_portal %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:back), captive_portals_path %>
+      </li>
+    </ul>
+
     <div class="block" id="new_captive_portal">
 
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>

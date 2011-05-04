@@ -1,22 +1,22 @@
 <div class="grid_16">
-  <ul class="nav main">
-    <li>
-      <%= link_to t(:allowed_traffics), '#' %>
-      <ul>
-        <li>
-          <%= link_to t(:new), new_captive_portal_allowed_traffic_path(@captive_portal)  %>
-        </li>
-      </ul>
-    </li>
-    <li>
-      <%= link_to t(:back), captive_portal_path(@captive_portal) %>
-    </li>
-  </ul>
-
   <div class="box">
     <h2>
       <a href="#" id="toggle-listing_allowed_traffics"><%=t :listing_allowed_traffics %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:allowed_traffics), '#' %>
+        <ul>
+          <li>
+            <%= link_to t(:new), new_captive_portal_allowed_traffic_path(@captive_portal)  %>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <%= link_to t(:back), captive_portal_path(@captive_portal) %>
+      </li>
+    </ul>
+
     <div class="block" id="listing_allowed_traffics">
 
       <table>
@@ -37,7 +37,7 @@
               <td>
                 <%=
                     link_to image_tag("show.png", :border=>0, :size => "16x16", :alt => t(:show)),
-                            captive_portal_allowed_traffic_path(@captive_porta, allowed_traffic)
+                            captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic)
                 %>
                 <%=
                     link_to image_tag("edit.png", :border=>0, :size => "16x16", :alt => t(:edit)),
@@ -45,7 +45,7 @@
                 %>
                 <%=
                     link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
-                            captive_portal_allowed_traffic_path(@captive_porta, allowed_traffic),
+                            captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic),
                             :confirm => t(:are_you_sure), :method => :delete
                 %>
               </td>

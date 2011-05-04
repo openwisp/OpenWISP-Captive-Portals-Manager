@@ -1,22 +1,22 @@
 <div class="grid_16">
-  <ul class="nav main">
-    <li>
-      <%= link_to t(:allowed_traffic), '#' %>
-      <ul>
-        <li>
-          <%= link_to t(:show), captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %> 
-        </li>
-      </ul>
-    </li>
-    <li>
-      <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
-    </li>
-  </ul>
-  
   <div class="box">
     <h2>
       <a href="#" id="toggle-editing_allowed_traffic"><%=t :editing_allowed_traffic %></a>
     </h2>
+    <ul class="nav main">
+      <li>
+        <%= link_to t(:allowed_traffic), '#' %>
+        <ul>
+          <li>
+            <%= link_to t(:show), captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %> 
+          </li>
+        </ul>
+      </li>
+      <li>
+        <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
+      </li>
+    </ul>
+
     <div class="block" id="editing_allowed_traffic">
 
       <%= render 'form' %>
