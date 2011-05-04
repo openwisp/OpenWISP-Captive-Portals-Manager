@@ -85,7 +85,7 @@ it:
   please_login: "autenticati, prego"
   operator_login: "accesso operatore"
   operations: "operazioni"
-  new: "new"
+  new: "crea"
   edit: "modifica"
   show: "mostra"
   back: "indietro"
