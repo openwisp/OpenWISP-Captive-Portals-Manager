@@ -36,15 +36,15 @@
             <tr class="<%= cycle("even", "odd") -%>">
               <td>
                 <%=
-                    link_to image_tag("show.png", :border=>0, :size => "16x16", :alt => t(:show)),
+                    link_to image_tag("show.png", :border => 0, :size => "16x16", :alt => t(:show)),
                             captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic)
                 %>
                 <%=
-                    link_to image_tag("edit.png", :border=>0, :size => "16x16", :alt => t(:edit)),
-                            edit_captive_portal_allowed_tradffic_path(@captive_portal, allowed_traffic)
+                    link_to image_tag("edit.png", :border => 0, :size => "16x16", :alt => t(:edit)),
+                            edit_captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic)
                 %>
                 <%=
-                    link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
+                    link_to image_tag("delete.png", :border => 0, :size => "16x16", :alt => t(:destroy)),
                             captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic),
                             :confirm => t(:are_you_sure), :method => :delete
                 %>
