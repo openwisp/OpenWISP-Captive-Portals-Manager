@@ -1,4 +1,18 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:local_user), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:show), captive_portal_local_user_path(@captive_portal, @local_user) %> 
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back),captive_portal_local_users_path(@captive_portal) %>
+    </li>
+  </ul>
+
   <div class="box">
     <h2>
       <a href="#" id="toggle-editing_local_user"><%=t :editing_local_user %></a>
@@ -8,11 +22,6 @@
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>
 
       <%= render 'form' %>
-
-      <p class="meta">
-        <%= link_to t(:show), captive_portal_local_user_path(@captive_portal, @local_user) %> |
-        <%= link_to t(:back), :back %>
-      </p>
 
     </div>
   </div>

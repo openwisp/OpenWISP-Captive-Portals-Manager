@@ -1,4 +1,21 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:captive_portal), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:edit), edit_captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %>
+        </li>
+        <li>
+          <%= link_to t(:destroy), captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic), :confirm => t(:are_you_sure), :method => :delete %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
+    </li>
+  </ul>
+  
   <div class="box">
     <h2>
       <a href="#" id="toggle-show_captive_portals"><%=t :show_captive_portals %></a>
@@ -35,13 +52,8 @@
         </tr>
         </tbody>
         <tfoot>
-        <tr>
-          <td><%= link_to t(:edit), edit_captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %></td>
-          <td><%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %></td>
-        </tr>
         </tfoot>
       </table>
-
     </div>
   </div>
 </div>

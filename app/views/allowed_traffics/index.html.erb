@@ -1,4 +1,18 @@
 <div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:allowed_traffics), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:new), new_captive_portal_allowed_traffic_path(@captive_portal)  %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), captive_portal_path(@captive_portal) %>
+    </li>
+  </ul>
+
   <div class="box">
     <h2>
       <a href="#" id="toggle-listing_allowed_traffics"><%=t :listing_allowed_traffics %></a>
@@ -8,48 +22,43 @@
       <table>
         <thead>
         <tr>
+          <th><%=t :actions %></th>
           <th><%=t :protocol %></th>
           <th><%=t :source_mac_address %></th>
           <th><%=t :source_host %></th>
           <th><%=t :source_port %></th>
           <th><%=t :destination_host %></th>
           <th><%=t :destination_port %></th>
-          <th colspan="3"><%=t :actions %></th>
         </tr>
         </thead>
         <tbody>
         <% @allowed_traffics.each do |allowed_traffic| %>
             <tr class="<%= cycle("even", "odd") -%>">
+              <td>
+                <%=
+                    link_to image_tag("show.png", :border=>0, :size => "16x16", :alt => t(:show)),
+                            captive_portal_allowed_traffic_path(@captive_porta, allowed_traffic)
+                %>
+                <%=
+                    link_to image_tag("edit.png", :border=>0, :size => "16x16", :alt => t(:edit)),
+                            edit_captive_portal_allowed_tradffic_path(@captive_portal, allowed_traffic)
+                %>
+                <%=
+                    link_to image_tag("delete.png", :border=>0, :size => "16x16", :alt => t(:destroy)),
+                            captive_portal_allowed_traffic_path(@captive_porta, allowed_traffic),
+                            :confirm => t(:are_you_sure), :method => :delete
+                %>
+              </td>
               <td><%=h allowed_traffic.protocol %></td>
               <td><%=h allowed_traffic.source_mac_address %></td>
               <td><%=h allowed_traffic.source_host %></td>
               <td><%=h allowed_traffic.source_port %></td>
               <td><%=h allowed_traffic.destination_host %></td>
               <td><%=h allowed_traffic.destination_port %></td>
-              <td>
-                <%= link_to t(:show),
-                            captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic)
-                %>
-              </td>
-              <td>
-                <%= link_to t(:edit), edit_captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic) %>
-              </td>
-              <td>
-                <%= link_to t(:destroy),
-                            captive_portal_allowed_traffic_path(@captive_portal, allowed_traffic),
-                            :confirm => t(:are_you_sure),
-                            :method => :delete
-                %>
-              </td>
             </tr>
         <% end %>
         </tbody>
         <tfoot>
-        <tr>
-          <td colspan="9">
-            <%= link_to t(:new_allowed_traffic), new_captive_portal_allowed_traffic_path(@captive_portal) %>
-          </td>
-        </tr>
         </tfoot>
       </table>
       

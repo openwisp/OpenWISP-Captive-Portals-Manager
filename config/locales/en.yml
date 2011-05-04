@@ -99,6 +99,7 @@ en:
   extended_application_name: "Open WISP Captive Portals Manager"
   concurrent_login_not_allowed: "concurrent login not allowed"
   editing_captive_portal: "Editing captive portal"
+  show_captive_portal: "Captive portal"
   <<: *attributes_names
   <<: *models_names
 
@@ -130,7 +131,3 @@ en:
     submit:
       operator_session:
         create: "login"
-
-  time:
-    formats:
-      default: "%a %d %b %Y, %H:%M:%S"

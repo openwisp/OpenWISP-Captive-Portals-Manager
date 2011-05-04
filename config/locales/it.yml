@@ -96,6 +96,7 @@ it:
   extended_application_name: "Open WISP Captive Portals Manager"
   concurrent_login_not_allowed: "login concorrenti non permessi"
   editing_captive_portal: "Modifica captive portal"
+  show_captive_portal: "Captive portal"
   <<: *attributes_names
   <<: *models_names
 
@@ -170,7 +171,7 @@ it:
 
   time:
     formats:
-      default: "%a %d %b %Y, %H:%M:%S"
+      default: "%a %d %b %Y, %H:%M:%S %z"
       short: "%d %b %H:%M"
       long: "%d %B %Y %H:%M"
 

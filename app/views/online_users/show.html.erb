@@ -62,7 +62,7 @@
           <td><%=h number_to_human(@online_user.downloaded_packets, :precision => 2) %></td>
         </tr>        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :last_activity %></th>
-          <td><%=l @online_user.last_activity %></td>
+          <td><%= l(@online_user.last_activity, :format => :short) %></td>
         </tr>
         </tbody>
       </table>

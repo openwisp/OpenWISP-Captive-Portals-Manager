@@ -1,4 +1,10 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
+    </li>
+  </ul>
+  
   <div class="box">
     <h2>
       <a href="#" id="toggle-new_allowed_traffic"><%=t :new_allowed_traffic %></a>
@@ -8,8 +14,6 @@
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>
 
       <%= render 'form' %>
-
-      <%= link_to t(:back), captive_portal_allowed_traffics_path(@captive_portal) %>
 
     </div>
   </div>

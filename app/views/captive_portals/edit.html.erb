@@ -1,4 +1,18 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:captive_portal), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:show), @captive_portal %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), captive_portals_path %>
+    </li>
+  </ul>
+  
   <div class="box">
     <h2>
       <a href="#" id="toggle-editing_captive_portal"><%=t :editing_captive_portal %></a>
@@ -8,10 +22,6 @@
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>
 
       <%= render 'form' %>
-
-      <p class="meta">
-        <%= link_to t(:show), @captive_portal %> | <%= link_to t(:back), :back %>
-      </p>
       
     </div>
   </div>

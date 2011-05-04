@@ -1,4 +1,21 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:captive_portal), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:edit), edit_captive_portal_local_user_path(@captive_portal, @local_user) %>
+        </li>
+        <li>
+          <%= link_to t(:destroy), captive_portal_local_user_path(@captive_portal, @local_user), :confirm => t(:are_you_sure), :method => :delete %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), captive_portal_local_users_path(@captive_portal) %>
+    </li>
+  </ul>
+  
   <div class="box">
     <h2>
       <a href="#" id="toggle-show_local_user"><%=t :show_local_user %></a>
@@ -31,11 +48,6 @@
         </tr>
         </tbody>
       </table>
-
-      <p class="meta">
-        <%= link_to t(:edit), edit_captive_portal_local_user_path(@captive_portal, @local_user) %> |
-        <%= link_to t(:back), captive_portal_local_users_path(@captive_portal) %>
-      </p>
 
     </div>
   </div>

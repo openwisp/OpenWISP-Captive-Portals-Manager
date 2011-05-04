@@ -1,4 +1,18 @@
 <div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:captive_portals), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:new), new_captive_portal_path %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), :back %>
+    </li>
+  </ul>
+  
   <div class="box">
     <h2>
       <a href="#" id="toggle-listing_captive_portals"><%=t :listing_captive_portals %></a>
@@ -55,11 +69,6 @@
         <% end %>
         </tbody>
       </table>
-
-      <p class="meta">
-        <%= link_to t(:new_captive_portal), new_captive_portal_path %>
-      </p>
-      
     </div>
   </div>
 </div>

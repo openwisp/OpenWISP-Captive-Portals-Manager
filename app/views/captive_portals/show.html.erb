@@ -1,9 +1,56 @@
-<div class="grid_12 prefix_2 suffix_2">
+<div class="grid_16">
+  <ul class="nav main">
+    <li>
+      <%= link_to t(:captive_portal), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:edit), edit_captive_portal_path(@captive_portal) %>
+        </li>
+        <li>
+          <%= link_to t(:destroy), captive_portal_path(@captive_portal), :confirm => t(:are_you_sure), :method => :delete %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:local_users), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:list), captive_portal_local_users_path(@captive_portal) %>
+        </li>
+        <li>
+          <%= link_to t(:add), new_captive_portal_local_user_path(@captive_portal) %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:allowed_traffics), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:list), captive_portal_allowed_traffics_path(@captive_portal) %>
+        </li>
+        <li>
+          <%= link_to t(:add), new_captive_portal_allowed_traffic_path(@captive_portal) %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:online_users), '#' %>
+      <ul>
+        <li>
+          <%= link_to t(:list), captive_portal_online_users_path(@captive_portal) %>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <%= link_to t(:back), captive_portals_path %>
+    </li>
+  </ul>
+
   <div class="box">
     <h2>
-      <a href="#" id="toggle-show_captive_portals"><%=t :show_captive_portals %></a>
+      <a href="#" id="toggle-show_captive_portal"><%=t :show_captive_portal %></a>
     </h2>
-    <div class="block" id="show_captive_portals">
+    <div class="block" id="show_captive_portal">
 
       <p class="meta" id="notice"><%= notice %>&nbsp;</p>
 
@@ -61,38 +108,8 @@
           <th><%=t :total_download_bandwidth %></th>
           <td><%=h @captive_portal.total_upload_bandwidth %></td>
         </tr>
-        <tr class="<%= cycle("even", "odd") -%>">
-          <th><%=t :local_users %></th>
-          <td>
-            <%= link_to @captive_portal.local_users.count,
-                        captive_portal_local_users_path(@captive_portal)
-            %>
-          </td>
-        </tr>
-        <tr class="<%= cycle("even", "odd") -%>">
-          <th><%=t :allowed_traffics %></th>
-          <td>
-            <%= link_to @captive_portal.allowed_traffics.count,
-                        captive_portal_allowed_traffics_path(@captive_portal)
-            %>
-          </td>
-        </tr>
-        <tr class="<%= cycle("even", "odd") -%>">
-          <th><%=t :online_users %></th>
-          <td>
-            <%= link_to @captive_portal.online_users.count,
-                        captive_portal_online_users_path(@captive_portal)
-            %>
-          </td>
-        </tr>
         </tbody>
       </table>
-
-      <p class="meta">
-          <%= link_to t(:edit), edit_captive_portal_path(@captive_portal) %> |
-          <%= link_to t(:back), captive_portals_path %>
-      </p>
-
     </div>
   </div>
 </div>
