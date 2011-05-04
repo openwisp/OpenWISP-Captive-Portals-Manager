@@ -100,6 +100,7 @@ en:
   concurrent_login_not_allowed: "concurrent login not allowed"
   editing_captive_portal: "Editing captive portal"
   show_captive_portal: "Captive portal"
+  list: "list"
   <<: *attributes_names
   <<: *models_names
 

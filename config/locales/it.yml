@@ -74,7 +74,7 @@ it:
   listing_captive_portals: "elenco dei captive portal"
   are_you_sure_logout: "sei sicuro di voler effettuare il logout?"  
   logged_in_as: "autenticato come"
-  captive_portals: "captive portal"
+  captive_portals: "captive portals"
   logout: "logout"
   login: "login"
   login_successful: "login riuscito"
@@ -97,6 +97,7 @@ it:
   concurrent_login_not_allowed: "login concorrenti non permessi"
   editing_captive_portal: "Modifica captive portal"
   show_captive_portal: "Captive portal"
+  list: "elenca"
   <<: *attributes_names
   <<: *models_names
 
