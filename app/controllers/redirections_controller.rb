@@ -1,9 +1,19 @@
 class RedirectionsController < ApplicationController
+  before_filter :set_headers
   before_filter :load_captive_portal
 
   protect_from_forgery :except => [ :login, :logout ]
 
   protected
+
+  def set_headers
+    # Prevents Keep-Alive and caching for CP error, redirect, login and logout 
+    # HTTP Keep-Alive and Caching can interfere with aforemonsioned operations
+    response.headers["Connection"] = "close"
+    response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
+  end
 
   def load_captive_portal
     worker = BackgrounDRb::Railtie::MiddleMan.worker(:captive_portal_worker)
