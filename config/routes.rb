@@ -77,8 +77,6 @@ Railscp::Application.routes.draw do
         :as => :error, :method => :get
   match 'login' => 'redirections#login', :as => :login, :method => :post
   match 'logout' => 'redirections#logout', :as => :logout, :method => :get
-  match 'logout_popup' => 'redirections#logout_popup', 
-        :as => :logout_popup, :method => :get
 
   match '/' => "redirections#redirect"
   match '*path' => "redirections#redirect"
