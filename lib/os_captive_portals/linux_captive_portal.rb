@@ -63,6 +63,7 @@ module IpTablesUtils
   def execute_actions(actions, options = {})
     options[:blind] ||= false
     actions.each do |action|
+      action << " >/dev/null 2>&1" if options[:blind]
       unless system(action)
         raise "#{caller[2]} - problem executing action: '#{action}'" unless options[:blind]
       end
@@ -92,12 +93,12 @@ class OsCaptivePortal
         # creating_cp_chains
     "#{IPTABLES} -t nat    -N '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -N '_DNAT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -N '_XCPT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -N '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -N '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -N '_FOUT_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -N '_MUP_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -N '_MDN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -N '_XCPT_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -N '_XCPT_OUT_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -N '_AUTH_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -N '_AUTH_OUT_#{@cp_interface}'",
     # creating_http_redirections
     "#{IPTABLES} -t nat -A '_REDIR_#{@cp_interface}' -p tcp --dport 80  -j DNAT --to-destination '#{cp_ip}:#{@local_http_port}'",
     "#{IPTABLES} -t nat -A '_REDIR_#{@cp_interface}' -p tcp --dport 443 -j DNAT --to-destination '#{cp_ip}:#{@local_https_port}'",
@@ -106,18 +107,17 @@ class OsCaptivePortal
     "#{IPTABLES} -t nat -A '_DNAT_#{@cp_interface}'  -p tcp --dport 53  -j DNAT --to-destination '#{cp_ip}:#{DNS_PORT}'",
     # creating_redirection_rules
     "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_DNAT_#{@cp_interface}'",
-    # creating_exceptions_rules
-    "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_XCPT_#{@cp_interface}'",
     # creating_auth_users_rules
-    "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_NAUT_#{@cp_interface}'",
-    # creating_accounting_rules
-    "#{IPTABLES} -t mangle -A _PRER_MAN -i '#{@cp_interface}' -j '_MUP_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -A _POSR_MAN -o '#{@cp_interface}' -j '_MDN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -A _PRER_MAN -i '#{@cp_interface}' -j '_AUTH_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -A _POSR_MAN -o '#{@cp_interface}' -j '_AUTH_OUT_#{@cp_interface}'",
+    # creating_exceptions_rules
+    "#{IPTABLES} -t mangle -A _PRER_MAN -i '#{@cp_interface}' -j '_XCPT_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -A _POSR_MAN -o '#{@cp_interface}' -j '_XCPT_OUT_#{@cp_interface}'",
     # creating_main_filtering
-    "#{IPTABLES} -t filter -A _FORW_FIL -i '#{@cp_interface}' -o '#{@wan_interface}' -m connmark --mark '#{MARK}' -j RETURN",
+    "#{IPTABLES} -t filter -A _FORW_FIL -i '#{@cp_interface}' -o '#{@wan_interface}' -m mark --mark '#{MARK}' -j RETURN",
     "#{IPTABLES} -t filter -A _FORW_FIL -i '#{@cp_interface}' -j DROP",
     # creating_redirection_skip_rules
-    "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -m connmark --mark '#{MARK}' -j RETURN",
+    "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -m mark --mark '#{MARK}' -j RETURN",
     "#{IPTABLES} -t nat    -A _PRER_NAT -i '#{@cp_interface}' -j '_REDIR_#{@cp_interface}'",
     # creating_filtering
     "#{IPTABLES} -t filter -A _INPU_FIL -i '#{@cp_interface}' -j '_FINP_#{@cp_interface}'",
@@ -151,36 +151,36 @@ class OsCaptivePortal
 
     destroy_actions = [
         # flushing_chains
+    "#{IPTABLES} -t mangle -F '_XCPT_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -F '_XCPT_OUT_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -F '_AUTH_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -F '_AUTH_OUT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -F '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -F '_DNAT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -F '_XCPT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -F '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -F '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -F '_FOUT_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -F '_MUP_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -F '_MDN_#{@cp_interface}'",
     # deleting_rules
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_DNAT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_XCPT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_NAUT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -m connmark --mark '#{MARK}' -j RETURN",
+    "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -m mark --mark '#{MARK}' -j RETURN",
     "#{IPTABLES} -t nat    -D _PRER_NAT -i '#{@cp_interface}' -j '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -D _POSR_NAT -i '#{@cp_interface}' -j RETURN",
     "#{IPTABLES} -t filter -D _INPU_FIL -i '#{@cp_interface}' -j '_FINP_#{@cp_interface}'",
     "#{IPTABLES} -t filter -D _OUTP_FIL -o '#{@cp_interface}' -j '_FOUT_#{@cp_interface}'",
-    "#{IPTABLES} -t filter -D _FORW_FIL -i '#{@cp_interface}' -o '#{@wan_interface}' -m connmark --mark '#{MARK}' -j RETURN",
+    "#{IPTABLES} -t filter -D _FORW_FIL -i '#{@cp_interface}' -o '#{@wan_interface}' -m mark --mark '#{MARK}' -j RETURN",
     "#{IPTABLES} -t filter -D _FORW_FIL -i '#{@cp_interface}' -j DROP",
-    "#{IPTABLES} -t mangle -D _PRER_MAN -i '#{@cp_interface}' -j '_MUP_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -D _POSR_MAN -o '#{@cp_interface}' -j '_MDN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -D _PRER_MAN -i '#{@cp_interface}' -j '_AUTH_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -D _POSR_MAN -o '#{@cp_interface}' -j '_AUTH_OUT_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -D _PRER_MAN -i '#{@cp_interface}' -j '_XCPT_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -D _POSR_MAN -o '#{@cp_interface}' -j '_XCPT_OUT_#{@cp_interface}'",
     # destroying_chains
+    "#{IPTABLES} -t mangle -X '_XCPT_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -X '_XCPT_OUT_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -X '_AUTH_IN_#{@cp_interface}'",
+    "#{IPTABLES} -t mangle -X '_AUTH_OUT_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -X '_REDIR_#{@cp_interface}'",
     "#{IPTABLES} -t nat    -X '_DNAT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -X '_XCPT_#{@cp_interface}'",
-    "#{IPTABLES} -t nat    -X '_NAUT_#{@cp_interface}'",
     "#{IPTABLES} -t filter -X '_FINP_#{@cp_interface}'",
-    "#{IPTABLES} -t filter -X '_FOUT_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -X '_MUP_#{@cp_interface}'",
-    "#{IPTABLES} -t mangle -X '_MDN_#{@cp_interface}'"
+    "#{IPTABLES} -t filter -X '_FOUT_#{@cp_interface}'"
     ]
 
     execute_actions(destroy_actions)
@@ -225,14 +225,14 @@ class OsCaptivePortal
 
     if !(source_host_type == :ipv6 or destination_host_type == :ipv6)
       # IPv4 rule
-      ipv4_exception_rule =  "#{IPTABLES} -t nat " + (action == :add ? "-A" : "-D") + " '_XCPT_#{@cp_interface}' -i '#{@cp_interface}'"
+      ipv4_exception_rule =  "#{IPTABLES} -t mangle " + (action == :add ? "-A" : "-D") + " '_XCPT_IN_#{@cp_interface}' -i '#{@cp_interface}'"
       ipv4_exception_rule += " -m mac --mac-source '#{options[:source_mac]}'" unless options[:source_mac].blank?
       ipv4_exception_rule += " -s #{options[:source_host]}" unless options[:source_host].blank?
       ipv4_exception_rule += " -d #{options[:destination_host]}" unless options[:destination_host].blank?
       ipv4_exception_rule += " -p #{options[:protocol]}" unless options[:protocol].blank?
       ipv4_exception_rule += " --sport #{options[:source_port]}" unless options[:source_port].blank? or options[:protocol].blank?
       ipv4_exception_rule += " --dport #{options[:destination_port]}" unless options[:destination_port].blank? or options[:protocol].blank?
-      ipv4_exception_rule += " -j CONNMARK --set-mark '#{MARK}'"
+      ipv4_exception_rule += " -j MARK --set-mark '#{MARK}'"
 
       execute_actions([ipv4_exception_rule])
 
@@ -273,16 +273,13 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       paranoid_remove_user_actions = [
           # paranoid_rules
-      "#{IPTABLES} -t nat    -D '_NAUT_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j CONNMARK --set-mark '#{MARK}'",
-      "#{IPTABLES} -t mangle -D '_MUP_#{@cp_interface}'  -s '#{client_address}' -m connmark --mark '#{MARK}'",
-      "#{IPTABLES} -t mangle -D '_MDN_#{@cp_interface}'  -d '#{client_address}' -m connmark --mark '#{MARK}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{MARK}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{MARK}'",
       ]
       add_user_actions = [
           # adding_user_marking_rule
-      "#{IPTABLES} -t nat    -A '_NAUT_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j CONNMARK --set-mark '#{MARK}'",
-      # creating_accounting_user_rules
-      "#{IPTABLES} -t mangle -A '_MUP_#{@cp_interface}'  -s '#{client_address}' -m connmark --mark '#{MARK}'",
-      "#{IPTABLES} -t mangle -A '_MDN_#{@cp_interface}'  -d '#{client_address}' -m connmark --mark '#{MARK}'"
+        "#{IPTABLES} -t mangle -A '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{MARK}'",
+        "#{IPTABLES} -t mangle -A '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{MARK}'",
       ]
 
     elsif is_ipv6_address?(client_address)
@@ -311,10 +308,8 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       remove_user_actions = [
           # removing_user_marking_rule
-      "#{IPTABLES} -t nat    -D '_NAUT_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j CONNMARK --set-mark '#{MARK}'",
-      # removing_accounting_user_rules
-      "#{IPTABLES} -t mangle -D '_MUP_#{@cp_interface}'  -s '#{client_address}' -m connmark --mark '#{MARK}'",
-      "#{IPTABLES} -t mangle -D '_MDN_#{@cp_interface}'  -d '#{client_address}' -m connmark --mark '#{MARK}'"
+        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{MARK}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{MARK}'",
       ]
 
     elsif is_ipv6_address?(client_address)
@@ -337,8 +332,8 @@ class OsCaptivePortal
 
     ret = [0, 0]
     if is_ipv4_address?(client_address)
-      up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MUP_#{@cp_interface}' | grep '#{client_address}'])
-      dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MDN_#{@cp_interface}' | grep '#{client_address}'])
+      up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_IN_#{@cp_interface}' | grep '#{client_address}'])
+      dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_OUT_#{@cp_interface}' | grep '#{client_address}'])
       ret = [up_match[2].to_i, dn_match[2].to_i]
     elsif is_ipv6_address?(client_address)
       #TO DO: ip6tables rules!
@@ -360,8 +355,8 @@ class OsCaptivePortal
 
     ret = [0, 0]
     if is_ipv4_address?(client_address)
-      up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MUP_#{@cp_interface}' | grep '#{client_address}'])
-      dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_MDN_#{@cp_interface}' | grep '#{client_address}'])
+      up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_IN_#{@cp_interface}' | grep '#{client_address}'])
+      dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_OUT_#{@cp_interface}' | grep '#{client_address}'])
       ret = [up_match[1].to_i, dn_match[1].to_i]
     elsif is_ipv6_address?(client_address)
       #TO DO: ip6tables rules!
