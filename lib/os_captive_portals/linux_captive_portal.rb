@@ -92,7 +92,7 @@ class OsCaptivePortal
     #  1:1 is the first htb class id
     #  1:2 is default htb class id
     
-    (client_id % MARK_USER_MOD) + 3
+    (client_id % MARK_USER_MOD) + 3 + MARK
   end
   
   public
