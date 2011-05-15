@@ -111,7 +111,7 @@ class OsCaptivePortal
   def remove_mark_for_client(mac)
     if idx = @marks.index(mac)
       @marks[idx] = nil
-      return idx
+      return idx + MARK + 3
     else
       return nil
     end
