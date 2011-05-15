@@ -16,7 +16,7 @@ class RedirectionsController < ApplicationController
   end
 
   def load_captive_portal
-    worker = BackgrounDRb::Railtie::MiddleMan.worker(:captive_portal_worker)
+    worker = MiddleMan.worker(:captive_portal_worker)
 
     @client_ip = request.remote_ip
     @interface = worker.get_interface(
