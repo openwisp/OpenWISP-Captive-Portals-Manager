@@ -53,6 +53,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           :cp_interface => cp.cp_interface,
           :address => ou.ip_address,
           :mac => ou.mac_address,
+          :client_id => ou.id,
           :max_upload_bandwidth => ou.max_upload_bandwidth,
           :max_download_bandwidth => ou.max_download_bandwidth
       )
