@@ -77,12 +77,12 @@ class OsCaptivePortal
   include OsUtils
   include IpTablesUtils
 
-  MARK          = 0x10000
-  MARK_MASK     = 0x10000
+  MARK          = 0x1000
+  MARK_MASK     = 0x1000
 
   private
   
-  MARK_USER_MOD = 0x0FFFC
+  MARK_USER_MOD = 0x0FFC
 
   def get_mark_from_client_id(client_id)
     # this mark is used for both classid and iptables mark target/match
