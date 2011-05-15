@@ -25,7 +25,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   public
 
-  def bootstrap_cp(args)
+  def bootstrap_cp(args = {})
     args[:cp_id] || raise("BUG: Missing 'cp_id'")
     
     cp = CaptivePortal.find(args[:cp_id]) || raise("BUG: Can't find a CP with id '#{args[:cp_id]}'")

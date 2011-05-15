@@ -77,7 +77,11 @@ class CaptivePortal < ActiveRecord::Base
               :local_https_port => local_https_port
           }
       )
-      worker.bootstrap_cp(:args => { :cp => self.id })
+      worker.bootstrap_cp(
+        :args => { 
+          :cp_id => self.id 
+        }
+      )
     end
   }
 
