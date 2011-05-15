@@ -352,7 +352,7 @@ class OsCaptivePortal
     execute_actions(firewall_paranoid_remove_user_actions, :blind => true)
     execute_actions(firewall_add_user_actions)
 
-    unless @total_upload_bandwidth.blank?
+    unless @total_upload_bandwidth.blank? or @upload_bandwidth.blank?
       shaping_up_paranoid_remove_user_actions = [
         # upload class, qdisc and filter
         "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{@upload_bandwidth}kbit ceil #{@upload_bandwidth}kbit burst 20k prio 1",
@@ -370,7 +370,7 @@ class OsCaptivePortal
       execute_actions(shaping_up_add_user_actions)
     end
 
-    unless @total_download_bandwidth.blank?
+    unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_paranoid_remove_user_actions = [
         # dowload class, qdisc and filter
         "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{@download_bandwidth}kbit ceil #{@download_bandwidth}kbit burst 20k prio 1",
@@ -421,7 +421,7 @@ class OsCaptivePortal
 
     execute_actions(firewall_remove_user_actions)
 
-    unless @total_upload_bandwidth.blank?
+    unless @total_upload_bandwidth.blank? or @upload_bandwidth.blank?
       shaping_up_paranoid_remove_user_actions = [
         # upload class, qdisc and filter
         "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{@upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit burst 20k prio 1",
@@ -439,7 +439,7 @@ class OsCaptivePortal
       execute_actions(shaping_up_add_user_actions)
     end
 
-    unless @total_download_bandwidth.blank?
+    unless @total_download_bandwidth.blank? or download_bandwidth.blank?
        shaping_down_paranoid_remove_user_actions = [
          # dowload class, qdisc and filter
          "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{@download_bandwidth}kbit ceil #{@total_download_bandwidth}kbit burst 20k prio 1",
