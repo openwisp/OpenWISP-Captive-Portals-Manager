@@ -87,7 +87,7 @@ class OsCaptivePortal
   def get_mark_from_client_id(client_id)
     # this mark is used for both classid and iptables mark target/match
     # 0, 1, 2 are reserved:
-    #  0x10000000 is used to mark the unclasified traffic
+    #  0x1000 is used to mark the unclasified traffic
     #  1:0 is the root tc handle
     #  1:1 is the first htb class id
     #  1:2 is default htb class id
