@@ -132,12 +132,12 @@ class OsCaptivePortal
   end
 
   # Allows a client through the captive portal
-  def add_user(client_address, client_mac_address, options = {})
+  def add_user(client_address, client_mac_address, client_id, options = {})
     not_implemented
   end
 
   # Removes a client
-  def remove_user(client_address, client_mac_address)
+  def remove_user(client_address, client_mac_address, client_id, options = {})
     not_implemented
   end
 

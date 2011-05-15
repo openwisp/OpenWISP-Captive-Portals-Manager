@@ -182,11 +182,12 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
     options[:address] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
+    options[:id] || raise("BUG: Missing 'id'")
     # options[:max_upload_bandwidth]
     # options[:max_download_bandwidth]
 
     os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-    os_cp.add_user(options[:address], options[:mac],
+    os_cp.add_user(options[:address], options[:mac], options[:id],
                    {
                        :max_upload_bandwidth => options[:max_upload_bandwidth],
                        :max_download_bandwidth => options[:max_download_bandwidth]
@@ -201,9 +202,17 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
     options[:address] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
+    options[:id] || raise("BUG: Missing 'id'")
+    # options[:max_upload_bandwidth]
+    # options[:max_download_bandwidth]
 
     os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-    os_cp.remove_user(options[:address], options[:mac])
+    os_cp.remove_user(options[:address], options[:mac], options[:id],
+                   {
+                       :max_upload_bandwidth => options[:max_upload_bandwidth],
+                       :max_download_bandwidth => options[:max_download_bandwidth]
+                   }
+    )
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem removing user for captive portal on interface #{options[:cp_interface]}! (#{e})"
