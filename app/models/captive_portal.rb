@@ -46,7 +46,11 @@ class CaptivePortal < ActiveRecord::Base
             :cp_interface => cp_interface,
             :wan_interface => wan_interface,
             :local_http_port => local_http_port,
-            :local_https_port => local_https_port
+            :local_https_port => local_https_port,
+            :total_upload_bandwidth => total_upload_bandwidth,
+            :total_download_bandwidth => total_download_bandwidth,
+            :default_upload_bandwidth => default_upload_bandwidth,
+            :default_download_bandwidth => default_download_bandwidth
         }
     )
   }
@@ -74,7 +78,11 @@ class CaptivePortal < ActiveRecord::Base
               :cp_interface => cp_interface,
               :wan_interface => wan_interface,
               :local_http_port => local_http_port,
-              :local_https_port => local_https_port
+              :local_https_port => local_https_port,
+              :total_upload_bandwidth => total_upload_bandwidth,
+              :total_download_bandwidth => total_download_bandwidth,
+              :default_upload_bandwidth => default_upload_bandwidth,
+              :default_download_bandwidth => default_download_bandwidth
           }
       )
       worker.bootstrap_cp(
