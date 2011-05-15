@@ -77,17 +77,17 @@ class OsCaptivePortal
   include OsUtils
   include IpTablesUtils
 
-  MARK          = 0x1000
-  MARK_MASK     = 0x1000
+  MARK          = 0x10000
+  MARK_MASK     = 0x10000
 
   private
   
-  MARK_MAX = 0x0FFC
+  MARK_MAX = 0xFFFC
 
   def create_mark_for_client(mac)
     # This function calculate a number used for both classid and iptables mark target/match
     # 0, 1, 2 are reserved:
-    #  0x1000 is used to mark the unclasified traffic
+    #  MARK (0x10000) is used to mark the unclasified traffic
     #  1:0 is the root tc handle
     #  1:1 is the first htb class id
     #  1:2 is default htb class id
@@ -96,12 +96,12 @@ class OsCaptivePortal
     end
      
     if idx = @marks.index(mac)
-      return idx + MARK + 3
+      return idx + 3
     end
     
     if idx = @marks.index(nil)
       @marks[idx] = mac
-      return idx + MARK + 3
+      return idx + 3
     else
       return nil
     end
@@ -111,7 +111,7 @@ class OsCaptivePortal
   def remove_mark_for_client(mac)
     if idx = @marks.index(mac)
       @marks[idx] = nil
-      return idx + MARK + 3
+      return idx + 3
     else
       return nil
     end
@@ -356,13 +356,13 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       firewall_paranoid_remove_user_actions = [
           # paranoid_rules
-        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark}'",
-        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark + MARK}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark + MARK}'",
       ]
       firewall_add_user_actions = [
           # adding_user_marking_rule
-        "#{IPTABLES} -t mangle -A '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark}'",
-        "#{IPTABLES} -t mangle -A '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark}'",
+        "#{IPTABLES} -t mangle -A '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark + MARK}'",
+        "#{IPTABLES} -t mangle -A '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark + MARK}'",
       ]
 
     elsif is_ipv6_address?(client_address)
@@ -378,7 +378,7 @@ class OsCaptivePortal
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
       shaping_up_paranoid_remove_user_actions = [
         # upload class, qdisc and filter
-        "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+        "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
         "#{TC} qdisc  del dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
         "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
       ]
@@ -386,7 +386,7 @@ class OsCaptivePortal
         # upload class, qdisc and filter
         "#{TC} class  add dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
         "#{TC} qdisc  add dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-        "#{TC} filter add dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+        "#{TC} filter add dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
       ]
       
       execute_actions(shaping_up_paranoid_remove_user_actions, :blind => true)
@@ -396,7 +396,7 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_paranoid_remove_user_actions = [
         # dowload class, qdisc and filter
-        "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+        "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
         "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
         "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
       ]
@@ -404,7 +404,7 @@ class OsCaptivePortal
         # dowload class, qdisc and filter
         "#{TC} class  add dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
         "#{TC} qdisc  add dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-        "#{TC} filter add dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+        "#{TC} filter add dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
       ]
       
       execute_actions(shaping_down_paranoid_remove_user_actions, :blind => true)
@@ -431,8 +431,8 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       firewall_remove_user_actions = [
           # removing_user_marking_rule
-        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark}'",
-        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_IN_#{@cp_interface}' -s '#{client_address}' -m mac --mac-source '#{client_mac_address}' -j MARK --set-mark '#{mark + MARK}'",
+        "#{IPTABLES} -t mangle -D '_AUTH_OUT_#{@cp_interface}' -d '#{client_address}' -j MARK --set-mark '#{mark + MARK}'",
       ]
 
     elsif is_ipv6_address?(client_address)
@@ -447,7 +447,7 @@ class OsCaptivePortal
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
       shaping_up_remove_user_actions = [
         # upload class, qdisc and filter
-        "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+        "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
         "#{TC} qdisc  del dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
         "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
       ]
@@ -458,7 +458,7 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
        shaping_down_remove_user_actions = [
          # dowload class, qdisc and filter
-         "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark} fw classid 1:#{mark}",
+         "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
          "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
          "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
        ]
