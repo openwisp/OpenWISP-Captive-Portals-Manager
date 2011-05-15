@@ -238,6 +238,7 @@ class OsCaptivePortal
     end
 
     unless @total_download_bandwidth.blank?
+      shaping_down_destroy_actions = [
       # root handle and class for clients download
       "#{TC} qdisc del dev '#{@wan_interface}' root handle 1: htb default 2 r2q 6",
       ]
