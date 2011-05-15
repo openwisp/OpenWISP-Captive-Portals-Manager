@@ -53,7 +53,6 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           :cp_interface => cp.cp_interface,
           :address => ou.ip_address,
           :mac => ou.mac_address,
-          :client_id => ou.id,
           :max_upload_bandwidth => ou.max_upload_bandwidth,
           :max_download_bandwidth => ou.max_download_bandwidth
       )
@@ -183,12 +182,11 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
     options[:address] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
-    options[:client_id] || raise("BUG: Missing 'client_id'")
     # options[:max_upload_bandwidth]
     # options[:max_download_bandwidth]
 
     os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-    os_cp.add_user(options[:address], options[:mac], options[:client_id],
+    os_cp.add_user(options[:address], options[:mac],
                    {
                        :max_upload_bandwidth => options[:max_upload_bandwidth],
                        :max_download_bandwidth => options[:max_download_bandwidth]
@@ -203,12 +201,11 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:cp_interface] || raise("BUG: Missing 'cp_interface'")
     options[:address] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
-    options[:client_id] || raise("BUG: Missing 'client_id'")
     # options[:max_upload_bandwidth]
     # options[:max_download_bandwidth]
 
     os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-    os_cp.remove_user(options[:address], options[:mac], options[:client_id],
+    os_cp.remove_user(options[:address], options[:mac],
                    {
                        :max_upload_bandwidth => options[:max_upload_bandwidth],
                        :max_download_bandwidth => options[:max_download_bandwidth]

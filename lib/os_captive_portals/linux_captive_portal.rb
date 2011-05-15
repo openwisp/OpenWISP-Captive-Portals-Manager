@@ -82,17 +82,40 @@ class OsCaptivePortal
 
   private
   
-  MARK_USER_MOD = 0x0FFC
+  MARK_MAX = 0x0FFC
 
-  def get_mark_from_client_id(client_id)
-    # this mark is used for both classid and iptables mark target/match
+  def create_mark_for_client(mac)
+    # This function calculate a number used for both classid and iptables mark target/match
     # 0, 1, 2 are reserved:
     #  0x1000 is used to mark the unclasified traffic
     #  1:0 is the root tc handle
     #  1:1 is the first htb class id
     #  1:2 is default htb class id
+    unless @marks
+      @marks = Array.new(MARK_MAX)
+    end
+     
+    if idx = @marks.index(mac)
+      return idx + MARK + 3
+    end
     
-    (client_id % MARK_USER_MOD) + 3 + MARK
+    if idx = @marks.index(nil)
+      @marks[idx] = mac
+      return idx + MARK + 3
+    else
+      return nil
+    end
+
+  end
+
+  def remove_mark_for_client(mac)
+    if idx = @marks.index(mac)
+      @marks[idx] = nil
+      return idx
+    else
+      return nil
+    end
+    
   end
   
   public
@@ -317,18 +340,18 @@ class OsCaptivePortal
   end
 
   # Allows a client through the captive portal
-  def add_user(client_address, client_mac_address, client_id, options = {})
+  def add_user(client_address, client_mac_address, options = {})
     raise("BUG: Invalid mac address '#{client_mac_address}'") unless is_mac_address?(client_mac_address)
-    raise("BUG: Invalid numeric id '#{client_id}'") unless (Integer(client_id) != nil rescue false)
 
     upload_bandwidth   = options[:max_upload_bandwidth] || @default_upload_bandwidth
     download_bandwidth = options[:max_download_bandwidth] || @default_download_bandwidth
-    mark = get_mark_from_client_id(client_id)
+
+    firewall_paranoid_remove_user_actions = []
+    firewall_add_user_actions = []
 
     @sync.lock(:EX)
     
-    firewall_paranoid_remove_user_actions = []
-    firewall_add_user_actions = []
+    mark = create_mark_for_client(client_mac_address)|| raise("FATAL: cannot add user with mac '#{client_mac_address}'. Users limit reached?")
 
     if is_ipv4_address?(client_address)
       firewall_paranoid_remove_user_actions = [
@@ -393,18 +416,18 @@ class OsCaptivePortal
   end
 
   # Removes a client
-  def remove_user(client_address, client_mac_address, client_id, options = {})
+  def remove_user(client_address, client_mac_address, options = {})
     raise("BUG: Invalid mac address '#{client_mac_address}'") unless is_mac_address?(client_mac_address)
-    raise("BUG: Invalid numeric id '#{client_id}'") unless (Integer(client_id) != nil rescue false)
-
+    
     upload_bandwidth   = options[:max_upload_bandwidth] || @default_upload_bandwidth
     download_bandwidth = options[:max_download_bandwidth] || @default_download_bandwidth
-    mark = get_mark_from_client_id(client_id)
-
-    @sync.lock(:EX)
 
     firewall_remove_user_actions = []
 
+    @sync.lock(:EX)
+
+    mark = remove_mark_for_client(client_mac_address) || raise("BUG: mac address not found '#{client_mac_address}'")
+    
     if is_ipv4_address?(client_address)
       firewall_remove_user_actions = [
           # removing_user_marking_rule

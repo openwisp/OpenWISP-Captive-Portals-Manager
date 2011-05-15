@@ -43,7 +43,6 @@ class OnlineUser < ActiveRecord::Base
             :cp_interface => self.captive_portal.cp_interface,
             :address => self.ip_address,
             :mac => self.mac_address,
-            :client_id => self.id,
             :max_upload_bandwidth => self.max_upload_bandwidth,
             :max_download_bandwidth => self.max_download_bandwidth
         }
@@ -59,7 +58,6 @@ class OnlineUser < ActiveRecord::Base
             :cp_interface => self.captive_portal.cp_interface,
             :address => self.ip_address,
             :mac => self.mac_address,
-            :client_id => self.id,
             :max_upload_bandwidth => self.max_upload_bandwidth,
             :max_download_bandwidth => self.max_download_bandwidth
         }
