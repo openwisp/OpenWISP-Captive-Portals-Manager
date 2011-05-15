@@ -25,6 +25,36 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   public
 
+  def bootstrap_cp(cp)
+    puts "[#{Time.now()}] Setting up allowed traffic for '#{cp.name}' - interface #{cp.cp_interface}"
+    cp.allowed_traffics.each do |at|
+      puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac_address}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
+
+      add_allowed_traffic(
+          :cp_interface => cp.cp_interface,
+          :source_mac => at.source_mac_address,
+          :source_host => at.source_host,
+          :destination_host => at.destination_host,
+          :protocol => at.protocol,
+          :source_port => at.source_port,
+          :destination_port => at.destination_port
+      )
+    end
+
+    puts "[#{Time.now()}] Setting up online users for '#{cp.name}' - interface #{cp.cp_interface}"
+    cp.online_users.each do |ou|
+      puts "[#{Time.now()}] Adding user '#{ou.username}'"
+
+      add_user(
+          :cp_interface => cp.cp_interface,
+          :address => ou.ip_address,
+          :mac => ou.mac_address,
+          :max_upload_bandwidth => ou.max_upload_bandwidth,
+          :max_download_bandwidth => ou.max_download_bandwidth
+      )
+    end
+  end
+
   def create(args = nil)
 
     # Automatically select the appropriate class for the operating system in use
@@ -52,34 +82,8 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           :total_download_bandwidth => cp.total_download_bandwidth
       )
 
-      puts "[#{Time.now()}] Setting up allowed traffic for '#{cp.name}' - interface #{cp.cp_interface}"
-      cp.allowed_traffics.each do |at|
-        puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac_address}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
-
-        add_allowed_traffic(
-            :cp_interface => cp.cp_interface,
-            :source_mac => at.source_mac_address,
-            :source_host => at.source_host,
-            :destination_host => at.destination_host,
-            :protocol => at.protocol,
-            :source_port => at.source_port,
-            :destination_port => at.destination_port
-        )
-      end
-
-      puts "[#{Time.now()}] Setting up online users for '#{cp.name}' - interface #{cp.cp_interface}"
-      cp.online_users.each do |ou|
-        puts "[#{Time.now()}] Adding user '#{ou.username}'"
-
-        add_user(
-            :cp_interface => cp.cp_interface,
-            :address => ou.ip_address,
-            :mac => ou.mac_address,
-            :max_upload_bandwidth => ou.max_upload_bandwidth,
-            :max_download_bandwidth => ou.max_download_bandwidth
-        )
-      end
-
+      bootstrap_cp(cp)
+      
       puts "[#{Time.now()}] captive portal '#{cp.name}' for interface #{cp.cp_interface} added"
     end
 
