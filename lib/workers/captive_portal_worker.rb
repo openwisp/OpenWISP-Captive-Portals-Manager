@@ -25,7 +25,11 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   public
 
-  def bootstrap_cp(cp)
+  def bootstrap_cp(args)
+    args[:cp_id] || raise("BUG: Missing 'cp_id'")
+    
+    cp = CaptivePortal.find(args[:cp_id]) || raise("BUG: Can't finda CP with id '#{args[:cp_id]}'")
+    
     puts "[#{Time.now()}] Setting up allowed traffic for '#{cp.name}' - interface #{cp.cp_interface}"
     cp.allowed_traffics.each do |at|
       puts "[#{Time.now()}] Adding allowed traffic ('#{at.source_mac_address}','#{at.source_host}','#{at.destination_host}','#{at.protocol}','#{at.source_port}','#{at.destination_port}')"
@@ -82,7 +86,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           :total_download_bandwidth => cp.total_download_bandwidth
       )
 
-      bootstrap_cp(cp)
+      bootstrap_cp( {:cp_id => cp.id} )
       
       puts "[#{Time.now()}] captive portal '#{cp.name}' for interface #{cp.cp_interface} added"
     end
