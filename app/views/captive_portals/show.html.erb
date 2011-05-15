@@ -85,14 +85,6 @@
           <td><%=h @captive_portal.local_https_port %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
-          <th><%=t :default_upload_bandwidth %></th>
-          <td><%=h @captive_portal.total_upload_bandwidth %></td>
-        </tr>
-        <tr class="<%= cycle("even", "odd") -%>">
-          <th><%=t :default_download_bandwidth %></th>
-          <td><%=h @captive_portal.default_upload_bandwidth %></td>
-        </tr>
-        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :default_session_timeout %></th>
           <td><%=h @captive_portal.default_session_timeout %></td>
         </tr>
@@ -101,12 +93,20 @@
           <td><%=h @captive_portal.default_idle_timeout %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_upload_bandwidth %></th>
+          <td><%=h @captive_portal.total_upload_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :default_download_bandwidth %></th>
+          <td><%=h @captive_portal.default_download_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :total_upload_bandwidth %></th>
           <td><%=h @captive_portal.total_upload_bandwidth %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :total_download_bandwidth %></th>
-          <td><%=h @captive_portal.total_upload_bandwidth %></td>
+          <td><%=h @captive_portal.total_download_bandwidth %></td>
         </tr>
         </tbody>
       </table>
