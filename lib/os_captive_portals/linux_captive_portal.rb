@@ -413,7 +413,7 @@ class OsCaptivePortal
 
       shaping_up_paranoid_remove_user_actions = [
           # upload class, qdisc and filter paranoid remotion
-      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip pref 0 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       "#{TC} qdisc  del dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
       "#{TC} class  del dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       ]
@@ -421,7 +421,7 @@ class OsCaptivePortal
           # upload class, qdisc and filter
       "#{TC} class  add dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       "#{TC} qdisc  add dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip pref 0 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       ]
 
       execute_actions(shaping_up_paranoid_remove_user_actions, :blind => true)
