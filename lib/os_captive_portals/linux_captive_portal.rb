@@ -409,7 +409,7 @@ class OsCaptivePortal
     execute_actions(firewall_add_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
-      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface)
+      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface) || raise("BUG: tc class not found for cp '#{@cp_interface}'")
 
       shaping_up_paranoid_remove_user_actions = [
           # upload class, qdisc and filter paranoid remotion
@@ -480,7 +480,7 @@ class OsCaptivePortal
     execute_actions(firewall_remove_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
-      tc_class = OsCaptivePortal::remove_tc_class_for_cp(@cp_interface)
+      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface) || raise("BUG: tc class not found for cp '#{@cp_interface}'")
 
       shaping_up_remove_user_actions = [
           # upload class, qdisc and filter
