@@ -77,30 +77,29 @@ class OsCaptivePortal
   include OsUtils
   include IpTablesUtils
 
+  public
+
   MARK = 0x10000
   MARK_MASK = 0x10000
-
-  private
-
   MARK_MAX = 0xFFFC
+  TC_CLASS_MAX = 0xFFFE
 
-  def create_mark_for_client(mac)
-    # This function calculate a number used for both classid and iptables mark target/match
+  @@client_marks = Array.new(MARK_MAX)
+  @@tc_classes = Array.new(TC_CLASS_MAX)
+
+  def self.create_mark_for_client(mac)
+    # This function calculates a number used for both classid and iptables mark target/match
     # 0, 1, 2 are reserved:
-    #  MARK (0x10000) is used to mark the unclasified traffic
-    #  1:0 is the root tc handle
-    #  1:1 is the first htb class id
-    #  1:2 is default htb class id
-    unless @marks
-      @marks = Array.new(MARK_MAX)
-    end
-
-    if idx = @marks.index(mac)
+    #  MARK (0x10000) is used to mark the unclassified traffic
+    #  x:0 is the root tc handle
+    #  x:1 is the first htb class id
+    #  x:2 is default htb class id
+    if idx = @@client_marks.index(mac)
       return idx + 3
     end
 
-    if idx = @marks.index(nil)
-      @marks[idx] = mac
+    if idx = @@client_marks.index(nil)
+      @@client_marks[idx] = mac
       return idx + 3
     else
       return nil
@@ -108,17 +107,47 @@ class OsCaptivePortal
 
   end
 
-  def remove_mark_for_client(mac)
-    if idx = @marks.index(mac)
-      @marks[idx] = nil
+  def self.remove_mark_for_client(mac)
+    if idx = @@client_marks.index(mac)
+      @@client_marks[idx] = nil
       return idx + 3
+    else
+      return nil
+    end
+  end
+
+  def self.create_tc_class_for_cp(cp_interface)
+    if idx = @@tc_classes.index(cp_interface)
+      return idx + 1
+    end
+
+    if idx = @@tc_classes.index(nil)
+      @@tc_classes[idx] = cp_interface
+      return idx + 1
     else
       return nil
     end
 
   end
 
-  public
+  def self.get_tc_class_for_cp(cp_interface)
+    if idx = @@tc_classes.index(cp_interface)
+      return idx + 1
+    else
+      return nil
+    end
+  end
+
+  def self.remove_tc_class_for_cp(cp_interface)
+    idx = self.get_tc_class_for_cp(cp_interface)
+    unless idx.nil?
+      @@tc_classes[idx - 1] = nil
+      return idx
+    else
+      return nil
+    end
+  end
+
 
   # Adds a new captive portal
   def start
@@ -178,29 +207,30 @@ class OsCaptivePortal
     execute_actions(firewall_create_actions)
 
     unless @total_upload_bandwidth.blank?
-      shaping_up_create_actions = [
-          # root handle and class for clients upload
-      "#{TC} qdisc add dev '#{@cp_interface}' root handle 1: htb default 2 r2q 6",
-      "#{TC} class add dev '#{@cp_interface}' parent 1 classid 1:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit burst 30k",
-      # unclassified upload traffic bandwith
-      "#{TC} class add dev '#{@cp_interface}' parent 1:1 classid 1:2 htb rate #{@total_upload_bandwidth/10}kbit ceil #{@total_upload_bandwidth}kbit burst 20k prio 1",
-      "#{TC} qdisc add dev '#{@cp_interface}' parent 1:2 handle 12: sfq perturb 10",
-      ]
-
-      execute_actions(shaping_up_create_actions)
-    end
-
-    unless @total_download_bandwidth.blank?
       shaping_down_create_actions = [
-          # root handle and class for clients download
-      "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb default 2 r2q 6",
-      "#{TC} class add dev '#{@wan_interface}' parent 1 classid 1:1 htb rate #{@total_download_bandwidth}kbit ceil #{@total_download_bandwidth}kbit burst 30k",
-      # unclassified download traffic bandwith
-      "#{TC} class add dev '#{@wan_interface}' parent 1:1 classid 1:2 htb rate #{@total_download_bandwidth/10}kbit ceil #{@total_download_bandwidth}kbit burst 20k prio 1",
-      "#{TC} qdisc add dev '#{@wan_interface}' parent 1:2 handle 12: sfq perturb 10",
+          # root handle and class for clients upload
+      "#{TC} qdisc add dev '#{@cp_interface}' root handle 1: htb",
+      "#{TC} class add dev '#{@cp_interface}' parent 1 classid 1:1 htb rate #{@total_download_bandwidth}kbit ceil #{@total_download_bandwidth}kbit",
       ]
 
       execute_actions(shaping_down_create_actions)
+    end
+
+    unless @total_download_bandwidth.blank?
+      shaping_up_create_root_action = [
+          "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb",
+      ]
+
+      tc_class = OsCaptivePortal::create_tc_class_for_cp(@cp_interface) ||
+          raise("FATAL: cannot add captive portal for '#{@cp_interface}'. Limit reached?")
+
+      shaping_up_create_actions = [
+          # root handle and class for clients download
+      "#{TC} class add dev '#{@wan_interface}' parent 1 classid #{tc_class}:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit",
+      ]
+
+      execute_actions(shaping_up_create_root_action, :blind => true)
+      execute_actions(shaping_up_create_actions)
     end
 
   ensure
@@ -252,9 +282,12 @@ class OsCaptivePortal
     execute_actions(firewall_destroy_actions)
 
     unless @total_upload_bandwidth.blank?
+      tc_class = OsCaptivePortal::remove_tc_class_for_cp(@cp_interface)
+
       shaping_upload_destroy_actions = [
           # root handle and class for clients upload
-      "#{TC} qdisc del dev '#{@cp_interface}' root handle 1: htb default 2 r2q 6",
+      "#{TC} class del dev '#{@wan_interface}' parent 1 classid #{tc_class}:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit",
+#      "#{TC} qdisc del dev '#{@wan_interface}' root handle 1: htb",
       ]
 
       execute_actions(shaping_upload_destroy_actions)
@@ -263,7 +296,7 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank?
       shaping_down_destroy_actions = [
           # root handle and class for clients download
-      "#{TC} qdisc del dev '#{@wan_interface}' root handle 1: htb default 2 r2q 6",
+      "#{TC} qdisc del dev '#{@cp_interface}' root handle 1: htb",
       ]
 
       execute_actions(shaping_down_destroy_actions)
@@ -351,7 +384,7 @@ class OsCaptivePortal
 
     @sync.lock(:EX)
 
-    mark = create_mark_for_client(client_mac_address)|| raise("FATAL: cannot add user with mac '#{client_mac_address}'. Users limit reached?")
+    mark = OsCaptivePortal::create_mark_for_client(client_mac_address) || raise("FATAL: cannot add user with mac '#{client_mac_address}'. Users limit reached?")
 
     if is_ipv4_address?(client_address)
       firewall_paranoid_remove_user_actions = [
@@ -376,17 +409,19 @@ class OsCaptivePortal
     execute_actions(firewall_add_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
+      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface)
+
       shaping_up_paranoid_remove_user_actions = [
-          # upload class, qdisc and filter
-      "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
-      "#{TC} qdisc  del dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
+          # upload class, qdisc and filter paranoid remotion
+      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} qdisc  del dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
+      "#{TC} class  del dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       ]
       shaping_up_add_user_actions = [
           # upload class, qdisc and filter
-      "#{TC} class  add dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
-      "#{TC} qdisc  add dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} filter add dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} class  add dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
+      "#{TC} qdisc  add dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
+      "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       ]
 
       execute_actions(shaping_up_paranoid_remove_user_actions, :blind => true)
@@ -396,15 +431,15 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_paranoid_remove_user_actions = [
           # download class, qdisc and filter
-      "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
       "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
+      "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       ]
       shaping_down_add_user_actions = [
           # download class, qdisc and filter
-      "#{TC} class  add dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
+      "#{TC} class  add dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       "#{TC} qdisc  add dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} filter add dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter add dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
       ]
 
       execute_actions(shaping_down_paranoid_remove_user_actions, :blind => true)
@@ -426,7 +461,7 @@ class OsCaptivePortal
 
     @sync.lock(:EX)
 
-    mark = remove_mark_for_client(client_mac_address) || raise("BUG: mac address not found '#{client_mac_address}'")
+    mark = OsCaptivePortal::remove_mark_for_client(client_mac_address) || raise("BUG: mac address not found '#{client_mac_address}'")
 
     if is_ipv4_address?(client_address)
       firewall_remove_user_actions = [
@@ -445,11 +480,13 @@ class OsCaptivePortal
     execute_actions(firewall_remove_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
+      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface)
+
       shaping_up_remove_user_actions = [
           # upload class, qdisc and filter
-      "#{TC} filter del dev '#{@wan_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
-      "#{TC} qdisc  del dev '#{@wan_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} class  del dev '#{@wan_interface}' parent 1:1 classid 1:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit burst 20k prio 1",
+      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} qdisc  del dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
+      "#{TC} class  del dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       ]
 
       execute_actions(shaping_up_remove_user_actions)
@@ -458,9 +495,9 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_remove_user_actions = [
           # download class, qdisc and filter
-      "#{TC} filter del dev '#{@cp_interface}' parent 1: prio 1 protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
       "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit burst 20k prio 1",
+      "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       ]
 
       execute_actions(shaping_down_remove_user_actions)
