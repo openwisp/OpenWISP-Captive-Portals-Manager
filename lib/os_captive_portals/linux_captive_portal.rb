@@ -413,7 +413,7 @@ class OsCaptivePortal
 
       shaping_up_paranoid_remove_user_actions = [
           # upload class, qdisc and filter paranoid remotion
-      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip pref 0 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       "#{TC} qdisc  del dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
       "#{TC} class  del dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       ]
@@ -421,7 +421,7 @@ class OsCaptivePortal
           # upload class, qdisc and filter
       "#{TC} class  add dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       "#{TC} qdisc  add dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip pref 0 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       ]
 
       execute_actions(shaping_up_paranoid_remove_user_actions, :blind => true)
@@ -431,7 +431,7 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_paranoid_remove_user_actions = [
           # download class, qdisc and filter
-      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid 1:#{mark}",
       "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
       "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       ]
@@ -439,7 +439,7 @@ class OsCaptivePortal
           # download class, qdisc and filter
       "#{TC} class  add dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       "#{TC} qdisc  add dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
-      "#{TC} filter add dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter add dev '#{@cp_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid 1:#{mark}",
       ]
 
       execute_actions(shaping_down_paranoid_remove_user_actions, :blind => true)
@@ -480,11 +480,11 @@ class OsCaptivePortal
     execute_actions(firewall_remove_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
-      tc_class = OsCaptivePortal::get_tc_class_for_cp(@cp_interface)
+      tc_class = OsCaptivePortal::remove_tc_class_for_cp(@cp_interface)
 
       shaping_up_remove_user_actions = [
           # upload class, qdisc and filter
-      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
+      "#{TC} filter del dev '#{@wan_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       "#{TC} qdisc  del dev '#{@wan_interface}' parent #{tc_class}:#{mark} handle #{mark}: sfq perturb 10",
       "#{TC} class  del dev '#{@wan_interface}' parent #{tc_class}:1 classid #{tc_class}:#{mark} htb rate #{upload_bandwidth}kbit ceil #{upload_bandwidth}kbit",
       ]
@@ -495,7 +495,7 @@ class OsCaptivePortal
     unless @total_download_bandwidth.blank? or download_bandwidth.blank?
       shaping_down_remove_user_actions = [
           # download class, qdisc and filter
-      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip handle #{mark + MARK} fw classid 1:#{mark}",
+      "#{TC} filter del dev '#{@cp_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid 1:#{mark}",
       "#{TC} qdisc  del dev '#{@cp_interface}' parent 1:#{mark} handle #{mark}: sfq perturb 10",
       "#{TC} class  del dev '#{@cp_interface}' parent 1:1 classid 1:#{mark} htb rate #{download_bandwidth}kbit ceil #{download_bandwidth}kbit",
       ]
