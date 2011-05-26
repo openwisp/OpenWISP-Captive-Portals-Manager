@@ -102,6 +102,7 @@ it:
   editing_captive_portal: "Modifica captive portal"
   show_captive_portal: "Captive portal"
   list: "elenca"
+  already_logged_in: "Sei già autenticato"
   <<: *attributes_names
   <<: *models_names
 

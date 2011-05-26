@@ -8,7 +8,7 @@ class RedirectionsController < ApplicationController
 
   def set_headers
     # Prevents Keep-Alive and caching for CP error, redirect, login and logout 
-    # HTTP Keep-Alive and Caching can interfere with aforemonsioned operations
+    # HTTP Keep-Alive and Caching can interfere with aforementioned operations
     response.headers["Connection"] = "close"
     response.headers["Cache-Control"] = "no-cache, no-store, max-age=0, must-revalidate"
     response.headers["Pragma"] = "no-cache"

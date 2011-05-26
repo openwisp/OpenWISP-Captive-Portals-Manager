@@ -1,8 +1,8 @@
 ---
 :backgroundrb:
   :ip: "127.0.0.1"
-  :port: "11008"
-  :environment: "development"
+  :port: "11009"
+  :environment: "production"
 
 :schedules:
   :captive_portal_worker:

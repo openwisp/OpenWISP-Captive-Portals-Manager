@@ -1,6 +1,5 @@
 require 'ipaddr'
 require 'singleton'
-require 'sync'
 
 module OsUtils
 
@@ -108,8 +107,6 @@ class OsCaptivePortal
     raise("[BUG] Invalid Local HTTP Port") unless is_port?(local_http_port)
     raise("[BUG] Invalid Local HTTPS Port") unless is_port?(local_https_port)
 
-    @sync = Sync.new
-    
     @cp_interface = cp_interface
     @wan_interface = wan_interface
     @local_http_port = local_http_port
@@ -180,8 +177,13 @@ class OsControl
     @captive_portals = Hash.new
   end
 
+  def get_captive_portal(cp_interface)
+    @captive_portals[cp_interface]
+  end
+
   def add_captive_portal(cp_interface, wan_interface, local_http_port, local_https_port, options = {})
-    not_implemented
+    raise("[BUG] Captive portal for #{cp_interface} already exists!") unless @captive_portals[cp_interface].nil?
+
     @captive_portals[cp_interface] = OsCaptivePortal.new(
         cp_interface,
         wan_interface,
@@ -189,13 +191,13 @@ class OsControl
         local_https_port,
         options
     )
-  end
-
-  def get_captive_portal(cp_interface)
-    @captive_portals[cp_interface]
+    @captive_portals[cp_interface].start
   end
 
   def remove_captive_portal(cp_interface)
+    raise("[BUG] Captive portal for #{cp_interface} doesn't exists!") unless @captive_portals[cp_interface]
+
+    @captive_portals[cp_interface].stop
     @captive_portals.delete(cp_interface)
   end
 

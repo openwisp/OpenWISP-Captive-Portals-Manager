@@ -152,8 +152,6 @@ class OsCaptivePortal
   # Adds a new captive portal
   def start
 
-    @sync.lock(:EX)
-
     #TO DO: ip6tables rules!
 
     cp_ip = get_interface_ipv4_address(@cp_interface)
@@ -233,15 +231,11 @@ class OsCaptivePortal
       execute_actions(shaping_up_create_actions)
     end
 
-  ensure
-    @sync.unlock
   end
 
   # Removes a captive portal
   # cp_interface is the name of the interface directly connected the clients
   def stop
-
-    @sync.lock(:EX)
 
     #TO DO: ip6tables rules!
 
@@ -302,8 +296,6 @@ class OsCaptivePortal
       execute_actions(shaping_down_destroy_actions)
     end
 
-  ensure
-    @sync.unlock
   end
 
   # Creates/Removes an iptables rule parameters for allowed traffic
@@ -382,8 +374,6 @@ class OsCaptivePortal
     firewall_paranoid_remove_user_actions = []
     firewall_add_user_actions = []
 
-    @sync.lock(:EX)
-
     mark = OsCaptivePortal::create_mark_for_client(client_mac_address) || raise("FATAL: cannot add user with mac '#{client_mac_address}'. Users limit reached?")
 
     if is_ipv4_address?(client_address)
@@ -446,8 +436,6 @@ class OsCaptivePortal
       execute_actions(shaping_down_add_user_actions)
     end
 
-  ensure
-    @sync.unlock
   end
 
   # Removes a client
@@ -458,8 +446,6 @@ class OsCaptivePortal
     download_bandwidth = options[:max_download_bandwidth] || @default_download_bandwidth
 
     firewall_remove_user_actions = []
-
-    @sync.lock(:EX)
 
     mark = OsCaptivePortal::remove_mark_for_client(client_mac_address) || raise("BUG: mac address not found '#{client_mac_address}'")
 
@@ -503,14 +489,10 @@ class OsCaptivePortal
       execute_actions(shaping_down_remove_user_actions)
     end
 
-  ensure
-    @sync.unlock
   end
 
   # Returns uploaded and downloaded bytes (respectively) for a given client
   def get_user_bytes_counters(client_address)
-
-    @sync.lock(:SH)
 
     ret = [0, 0]
     if is_ipv4_address?(client_address)
@@ -526,14 +508,10 @@ class OsCaptivePortal
 
     ret
 
-  ensure
-    @sync.unlock
   end
 
   # Returns uploaded and downloaded packets (respectively) for a given client
   def get_user_packets_counters(client_address)
-
-    @sync.lock(:SH)
 
     ret = [0, 0]
     if is_ipv4_address?(client_address)
@@ -549,8 +527,6 @@ class OsCaptivePortal
 
     ret
 
-  ensure
-    @sync.unlock
   end
 
 end
@@ -635,18 +611,6 @@ class OsControl
 
     execute_actions(stop_actions)
 
-  end
-
-  def add_captive_portal(cp_interface, wan_interface, local_http_port, local_https_port, options = {})
-    raise("[BUG] Captive portal for #{cp_interface} already exists!") unless @captive_portals[cp_interface].nil?
-
-    @captive_portals[cp_interface] = OsCaptivePortal.new(
-        cp_interface,
-        wan_interface,
-        local_http_port,
-        local_https_port,
-        options
-    )
   end
 
 end

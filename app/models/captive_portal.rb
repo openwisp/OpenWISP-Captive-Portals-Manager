@@ -85,11 +85,6 @@ class CaptivePortal < ActiveRecord::Base
               :default_download_bandwidth => default_download_bandwidth
           }
       )
-      worker.bootstrap_cp(
-        :args => { 
-          :cp_id => self.id 
-        }
-      )
     end
   }
 
@@ -129,6 +124,11 @@ class CaptivePortal < ActiveRecord::Base
     radius = false
     reply = Hash.new
 
+    # Check if user is already auth'ed on with same mac address
+    unless online_users.where(:username => username, :mac_address => client_mac).empty?
+      return [ nil, I18n.t(:already_logged_in) ]
+    end
+    
     # First look in local user
     local_user = local_users.where(:username => username).first
     if !local_user.nil?
@@ -199,7 +199,7 @@ class CaptivePortal < ActiveRecord::Base
       begin
         online_user.save!
       rescue Exception => e
-        [ nil , "Cannot save user, internal error (#{e})" ]
+        return [ nil , "Cannot save user, internal error (#{e})" ]
       end
 
       unless self.radius_acct_server.nil?
