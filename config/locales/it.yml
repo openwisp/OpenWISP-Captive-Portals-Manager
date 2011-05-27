@@ -7,6 +7,7 @@ it:
     local_user: "Utente locale"
 
   attributes_names: &attributes_names
+    captive_portals: "Captive Portals"
     protocol: "Protocollo"
     source_mac_address: "MAC Address Sorgente"
     source_host: "Host Sorgente"
@@ -76,7 +77,6 @@ it:
   listing_captive_portals: "elenco dei captive portal"
   are_you_sure_logout: "sei sicuro di voler effettuare il logout?"  
   logged_in_as: "autenticato come"
-  captive_portals: "captive portals"
   logout: "logout"
   login: "login"
   login_successful: "login riuscito"

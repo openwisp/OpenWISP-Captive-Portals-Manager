@@ -10,6 +10,7 @@ en:
     local_user: "Local user"
 
   attributes_names: &attributes_names
+    captive_portals: "Captive Portals"
     protocol: "Protocol"
     source_mac_address: "Source MAC Address"
     source_host: "Source Host"
@@ -79,7 +80,6 @@ en:
   listing_captive_portals: "listing captive portals"
   are_you_sure_logout: "are you sure you want to logout?"
   logged_in_as: "logged in as"
-  captive_portals: "captive portals"
   logout: "logout"
   login: "login"
   login_successful: "login successful"
