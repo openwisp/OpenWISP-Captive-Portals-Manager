@@ -71,6 +71,8 @@ it:
   new_captive_portal: "nuovo captive portal"
   new_local_user: "nuovo utente locale"
   new_allowed_traffic: "nuova eccezione firewall"
+  editing_allowed_traffic: "modifica eccezione firewall"
+  allowed_traffic: "eccezione firewall"
   listing_captive_portals: "elenco dei captive portal"
   are_you_sure_logout: "sei sicuro di voler effettuare il logout?"  
   logged_in_as: "autenticato come"

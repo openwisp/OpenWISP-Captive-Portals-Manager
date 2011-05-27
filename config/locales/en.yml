@@ -74,6 +74,8 @@ en:
   new_captive_portal: "new captive portal"
   new_local_user: "new local user"
   new_allowed_traffic: "new allowed traffic"
+  editing_allowed_traffic: "editing firewall rule"
+  allowed_traffic: "firewall rule"
   listing_captive_portals: "listing captive portals"
   are_you_sure_logout: "are you sure you want to logout?"
   logged_in_as: "logged in as"
