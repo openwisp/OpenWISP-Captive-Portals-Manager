@@ -168,7 +168,7 @@ class OsCaptivePortal
     "#{IPTABLES} -t mangle -N '_AUTH_OUT_#{@cp_interface}'",
     # creating_http_redirections
     "#{IPTABLES} -t nat -A '_REDIR_#{@cp_interface}' -p tcp --dport 80  -j DNAT --to-destination '#{cp_ip}:#{@local_http_port}'",
-    "#{IPTABLES} -t nat -A '_REDIR_#{@cp_interface}' -p tcp --dport 443 -j DNAT --to-destination '#{cp_ip}:#{@local_https_port}'",
+#    "#{IPTABLES} -t nat -A '_REDIR_#{@cp_interface}' -p tcp --dport 443 -j DNAT --to-destination '#{cp_ip}:#{@local_https_port}'",
     # creating_dns_redirections
     "#{IPTABLES} -t nat -A '_DNAT_#{@cp_interface}'  -p udp --dport 53  -j DNAT --to-destination '#{cp_ip}:#{DNS_PORT}'",
     "#{IPTABLES} -t nat -A '_DNAT_#{@cp_interface}'  -p tcp --dport 53  -j DNAT --to-destination '#{cp_ip}:#{DNS_PORT}'",
