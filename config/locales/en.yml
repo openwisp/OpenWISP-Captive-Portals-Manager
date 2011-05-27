@@ -106,6 +106,9 @@ en:
   show_captive_portal: "Captive portal"
   list: "list"
   already_logged_in: "You are already logged in"
+  error: "error"
+  invalid_network: "seems you are trying to log in from the wrong network."
+  check_your_network_settings: "please check your network settings."
   <<: *attributes_names
   <<: *models_names
 

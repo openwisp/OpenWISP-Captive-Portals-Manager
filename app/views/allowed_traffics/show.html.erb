@@ -1,11 +1,11 @@
 <div class="grid_16">
   <div class="box">
     <h2>
-      <a href="#" id="toggle-show_captive_portals"><%=t :show_captive_portals %></a>
+      <a href="#" id="toggle-show_captive_portals"><%=t :allowed_traffics %></a>
     </h2>
     <ul class="nav main">
       <li>
-        <%= link_to t(:captive_portal), '#' %>
+        <%= link_to t(:allowed_traffics), '#' %>
         <ul>
           <li>
             <%= link_to t(:edit), edit_captive_portal_allowed_traffic_path(@captive_portal, @allowed_traffic) %>

@@ -50,6 +50,13 @@ class RedirectionsController < ApplicationController
   end
 
   def login
+    if @captive_portal.nil?
+      respond_to do |format|
+        format.html { render :action => :invalid_network }
+      end
+      return
+    end
+
     original_url = params[:original_url].nil? ? CaptivePortal::DEFAULT_URL :
         URI.unescape(params[:original_url])
 

@@ -103,6 +103,9 @@ it:
   show_captive_portal: "Captive portal"
   list: "elenca"
   already_logged_in: "Sei già autenticato"
+  error: "errore"
+  invalid_network: "è probabile che tu stia cercando di accedere dalla rete sbagliata."
+  check_your_network_settings: "controlla le tue impostazioni di rete."
   <<: *attributes_names
   <<: *models_names
 
