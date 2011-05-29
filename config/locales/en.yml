@@ -108,7 +108,6 @@ en:
   show_captive_portal: "Captive portal"
   list: "list"
   already_logged_in: "You are already logged in"
-  error: "error"
   Error: "Error"
   invalid_network: "It seems you are trying to log in from a wrong network."
   check_your_network_settings: "please check your network settings."
