@@ -110,7 +110,7 @@ en:
   already_logged_in: "You are already logged in"
   error: "error"
   Error: "Error"
-  invalid_network: "seems you are trying to log in from the wrong network."
+  invalid_network: "It seems you are trying to log in from a wrong network."
   check_your_network_settings: "please check your network settings."
   <<: *attributes_names
   <<: *models_names
