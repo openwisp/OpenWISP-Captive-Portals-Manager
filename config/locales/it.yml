@@ -106,6 +106,7 @@ it:
   list: "elenca"
   already_logged_in: "Sei già autenticato"
   error: "errore"
+  Error: "Errore"
   invalid_network: "è probabile che tu stia cercando di accedere dalla rete sbagliata."
   check_your_network_settings: "controlla le tue impostazioni di rete."
   <<: *attributes_names

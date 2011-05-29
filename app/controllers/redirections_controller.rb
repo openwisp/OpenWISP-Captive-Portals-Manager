@@ -1,3 +1,4 @@
+#noinspection RubyResolve
 class RedirectionsController < ApplicationController
   before_filter :set_headers
   before_filter :load_captive_portal
@@ -45,6 +46,10 @@ class RedirectionsController < ApplicationController
       )
       respond_to do |format|
         format.html { redirect_to redirection_url, :status => 302 }
+      end
+    else
+      respond_to do |format|
+        format.html { render :action => :unimplemented }
       end
     end
   end
