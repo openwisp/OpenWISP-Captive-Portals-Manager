@@ -1,0 +1,13 @@
+development:
+  url: ""
+
+test:
+  url: "http://owmw.site/url"
+  username: "john"
+  password: "doe"
+
+production:
+  url: "http://owmw.site/url"
+  username: "john"
+  password: "doe"
+

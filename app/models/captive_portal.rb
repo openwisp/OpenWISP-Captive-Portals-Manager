@@ -89,10 +89,18 @@ class CaptivePortal < ActiveRecord::Base
   }
 
   def compile_redirection_url(options = {})
-    url = redirection_url
     options[:mac_address] ||= ""
     options[:ip_address] ||= ""
     options[:original_url] ||= ""
+
+    url = nil
+    if OWMW["url"].present? and options[:mac_address].present?
+      url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address])
+    end
+ 
+    if url.blank?
+      url = redirection_url
+    end
 
     url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
     url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
