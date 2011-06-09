@@ -1,7 +1,3 @@
-# Loads OWMW constats
+# Loads OWMW constants
 
-begin
-  OWMW = YAML.load_file(File.join(Rails.root, "config", "owmw.yml"))[RAILS_ENV]
-rescue
-  OWMW = {}
-end
+OWMW = YAML.load_file(File.join(Rails.root, "config", "owmw.yml"))[Rails.env] rescue {}
