@@ -6,6 +6,7 @@ gem 'rails', '3.0.3'
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 gem 'dguerri-radiustar'
+gem 'packet', '0.1.15', :git => 'git://github.com/dguerri/packet.git'
 gem "backgroundrb-rails3", :require => 'backgroundrb'
 
 gem 'authlogic'
