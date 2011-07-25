@@ -2,8 +2,8 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-  <title><%=t :application_name %></title>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  <title><%= t :application_name %></title>
 
   <%= stylesheet_link_tag 'fluid960/reset' %>
   <%= stylesheet_link_tag 'fluid960/text' %>
@@ -33,7 +33,7 @@
                                   :alt => t(:extended_application_name),
                                   :class => "application_logo"), ""
             %>
-            <%=t :extended_application_name %>
+            <%= t :extended_application_name %>
           </h1>
         </td>
         <td style="text-align:right">
@@ -65,12 +65,16 @@
     </ul>
   </div>
   <div class="clear"></div>
+  <div class="grid_16">
+    <h2 id="page-notice">&nbsp;</h2>
+  </div>
+  <div class="clear"></div>
 
   <%= yield %>
 
   <div class="grid_16" id="site_info">
     <div class="box" style="text-align:center">
-      <p><%=t :extended_application_name %> - <%=t :created_by %>
+      <p><%= t :extended_application_name %> - <%= t :created_by %>
         <a href="http://www.caspur.it">CASPUR</a>
       </p>
     </div>
