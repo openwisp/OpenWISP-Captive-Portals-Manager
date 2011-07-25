@@ -65,14 +65,6 @@
     </ul>
   </div>
   <div class="clear"></div>
-  <div class="grid_16">
-    <% if flash[:notice]%>
-        <h2 id="page-notice" style="color: #008000"><%= flash[:notice] %></h2>
-    <% else %>
-        <h2 id="page-notice">&nbsp;</h2>
-    <% end %>
-  </div>
-  <div class="clear"></div>
 
   <%= yield %>
 
