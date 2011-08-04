@@ -24,6 +24,7 @@
           <th><%=t :downloaded_octets %></th>
           <th><%=t :uploaded_packets %></th>
           <th><%=t :downloaded_packets %></th>
+          <th><%=t :session_start %></th>
           <th><%=t :last_activity %></th>
         </tr>
         </thead>
@@ -56,6 +57,7 @@
               <td><%=h number_to_human_size(online_user.downloaded_octets) %></td>
               <td><%=h number_to_human(online_user.uploaded_packets) %></td>
               <td><%=h number_to_human(online_user.downloaded_packets) %></td>
+              <td><%= l(online_user.created_at, :format => :short) %></td>
               <td><%= l(online_user.last_activity, :format => :short) %></td>
             </tr>
         <% end %>

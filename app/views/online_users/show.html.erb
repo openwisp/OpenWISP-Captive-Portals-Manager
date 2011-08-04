@@ -66,7 +66,12 @@
         <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :downloaded_packets %></th>
           <td><%=h number_to_human(@online_user.downloaded_packets, :precision => 2) %></td>
-        </tr>        <tr class="<%= cycle("even", "odd") -%>">
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :session_start %></th>
+          <td><%= l(@online_user.created_at, :format => :short) %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :last_activity %></th>
           <td><%= l(@online_user.last_activity, :format => :short) %></td>
         </tr>
