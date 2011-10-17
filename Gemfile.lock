@@ -43,11 +43,22 @@ GEM
       packet (>= 0.1.15)
       rails (>= 3.0.0)
     builder (2.1.2)
+    cap-recipes (0.3.36)
+    capistrano (2.9.0)
+      highline
+      net-scp (>= 1.0.0)
+      net-sftp (>= 2.0.0)
+      net-ssh (>= 2.0.14)
+      net-ssh-gateway (>= 1.1.0)
+    capistrano-ext (1.2.1)
+      capistrano (>= 1.0.0)
+    capistrano_colors (0.5.5)
     chronic (0.4.4)
     columnize (0.3.3)
     dguerri-radiustar (0.0.5)
     erubis (2.6.6)
       abstract (>= 1.0.0)
+    highline (1.6.2)
     hirb (0.4.5)
     i18n (0.6.0)
     jquery-rails (1.0.11)
@@ -62,6 +73,13 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.16)
     mysql (2.8.1)
+    net-scp (1.0.4)
+      net-ssh (>= 1.99.1)
+    net-sftp (2.0.5)
+      net-ssh (>= 2.0.9)
+    net-ssh (2.2.1)
+    net-ssh-gateway (1.1.0)
+      net-ssh (>= 1.99.1)
     polyglot (0.3.1)
     rack (1.2.3)
     rack-mount (0.6.14)
@@ -106,6 +124,10 @@ DEPENDENCIES
   authlogic
   awesome_print
   backgroundrb-rails3
+  cap-recipes (~> 0.3.36)
+  capistrano (~> 2.9.0)
+  capistrano-ext (~> 1.2.1)
+  capistrano_colors (~> 0.5.4)
   dguerri-radiustar
   hirb
   jquery-rails (>= 0.2.6)

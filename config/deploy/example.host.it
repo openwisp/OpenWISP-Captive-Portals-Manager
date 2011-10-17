@@ -1,0 +1,1 @@
+server "example.host.it", :db, :web, :app, :primary => true
