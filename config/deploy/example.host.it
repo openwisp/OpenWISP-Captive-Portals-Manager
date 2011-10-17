@@ -1,1 +1,7 @@
 server "example.host.it", :db, :web, :app, :primary => true
+
+set :user, "otheruser"
+set :port, 6666
+
+set :scm_username, 'user'
+set :scm_password, 'password'
