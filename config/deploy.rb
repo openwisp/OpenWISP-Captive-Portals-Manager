@@ -2,12 +2,12 @@
 # GENERAL SETTINGS
 # =============================================================================
 
-set :application,  "owums"
+set :application,  "owcpm"
 set :deploy_to,  "/var/rails/#{application}"
 set :rails_env, "production"
 
 set :scm, :subversion
-set :repository, "https://spider.caspur.it/svn/owums/trunk"
+set :repository, "https://spider.caspur.it/svn/owcpm/trunk"
 
 set :rvm_ruby_string, 'ree'
 
