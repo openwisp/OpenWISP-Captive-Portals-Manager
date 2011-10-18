@@ -7,6 +7,7 @@ set :deploy_to,  "/var/rails/#{application}"
 set :rails_env, "production"
 
 set :scm, :subversion
+set :deploy_via, :export
 set :repository, "https://spider.caspur.it/svn/owcpm/trunk"
 
 set :rvm_ruby_string, 'ree'
