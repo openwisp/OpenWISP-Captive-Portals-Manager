@@ -28,5 +28,6 @@ namespace :daemons do
     print 'BackgrounDRb: '
     %x[bundle exec #{Rails.root}/script/backgroundrb status]
     puts $? == 0 ? 'running...' : 'not running...'
+    exit(1) if $? != 0
   end
 end
