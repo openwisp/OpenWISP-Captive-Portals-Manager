@@ -51,53 +51,47 @@ class CaptivePortal < ActiveRecord::Base
 
   attr_readonly :cp_interface, :wan_interface
 
-  after_create {
-    worker = MiddleMan.worker(:captive_portal_worker)
-    worker.async_add_cp(
-        :args => {
-            :cp_interface => cp_interface,
-            :wan_interface => wan_interface,
-            :local_http_port => local_http_port,
-            :local_https_port => local_https_port,
-            :total_upload_bandwidth => total_upload_bandwidth,
-            :total_download_bandwidth => total_download_bandwidth,
-            :default_upload_bandwidth => default_upload_bandwidth,
-            :default_download_bandwidth => default_download_bandwidth
-        }
-    )
-  }
-
   before_destroy {
     worker = MiddleMan.worker(:captive_portal_worker)
-    worker.async_remove_cp(
-        :args => {
-            :cp_interface => cp_interface
-        }
+
+    worker.remove_cp(
+      :args => {
+          :cp_interface => cp_interface
+      }
     )
   }
 
+  before_update {
+    worker = MiddleMan.worker(:captive_portal_worker)
+
+    # cp_interface is a readonly attribute so it wont be changed
+    worker.remove_cp(
+      :args => {
+        :cp_interface => cp_interface
+      }
+    )
+  }
+
+  # Called after save on create and after "before_update" on update
   after_save {
-    unless self.new_record?
-      worker = MiddleMan.worker(:captive_portal_worker)
-      # cp_interface is a readonly attribute so it wont be changed
-      worker.remove_cp(
-          :args => {
-              :cp_interface => cp_interface
-          }
-      )
-      worker.add_cp(
-          :args => {
-              :cp_interface => cp_interface,
-              :wan_interface => wan_interface,
-              :local_http_port => local_http_port,
-              :local_https_port => local_https_port,
-              :total_upload_bandwidth => total_upload_bandwidth,
-              :total_download_bandwidth => total_download_bandwidth,
-              :default_upload_bandwidth => default_upload_bandwidth,
-              :default_download_bandwidth => default_download_bandwidth
-          }
-      )
-    end
+    worker = MiddleMan.worker(:captive_portal_worker)
+    
+    # For some strange reasons, the following call can't be synchronous: it will
+    # fail because no CaptivePortal for "cp_interface" will be found.
+    # This is weird because in the after_save callback a record for 
+    # "cp_interface" should exists
+    worker.async_add_cp(
+      :args => {
+        :cp_interface => cp_interface,
+        :wan_interface => wan_interface,
+        :local_http_port => local_http_port,
+        :local_https_port => local_https_port,
+        :total_upload_bandwidth => total_upload_bandwidth,
+        :total_download_bandwidth => total_download_bandwidth,
+        :default_upload_bandwidth => default_upload_bandwidth,
+        :default_download_bandwidth => default_download_bandwidth
+      }
+    )
   }
 
   def compile_redirection_url(options = {})
