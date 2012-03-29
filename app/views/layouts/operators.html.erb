@@ -1,6 +1,7 @@
 <%#
 # This file is part of the OpenWISP Captive Portal Manager
 #
+# Copyright (C) 2012 OpenWISP.org
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,10 +48,6 @@
       <tr>
         <td style="text-align:left">
           <h1 id="branding">
-            <%= link_to image_tag("logo_caspur.png", :border => 0, :size => "64x50",
-                                  :alt => t(:extended_application_name),
-                                  :class => "application_logo"), ""
-            %>
             <%= t :extended_application_name %>
           </h1>
         </td>
@@ -92,9 +89,7 @@
 
   <div class="grid_16" id="site_info">
     <div class="box" style="text-align:center">
-      <p><%= t :extended_application_name %> - <%= t :created_by %>
-        <a href="http://www.caspur.it">CASPUR</a>
-      </p>
+      <p><%= t :extended_application_name %> - Copyright (C) 2012 <a href="http://openwisp.org/">OpenWISP.org</a></p>
     </div>
   </div>
   <div class="clear"></div>
