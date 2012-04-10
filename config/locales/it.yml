@@ -27,7 +27,7 @@ it:
     local_http_port: "Port HTTP Locale"
     local_https_port: "Port HTTPS Locale"
     default_download_bandwidth: "Default Banda Utente Download (kbit/s)"
-    default_upload_bandwidth: "Default Banda Utente Upoad (kbit/s)"
+    default_upload_bandwidth: "Default Banda Utente Upload (kbit/s)"
     default_session_timeout: "Default Timeout Sessione Utente (secondi)"
     default_idle_timeout: "Default Timeout Inattività Utente (secondi)"
     total_download_bandwidth: "Banda Totale Captive Portal Download (kbit/s)"
