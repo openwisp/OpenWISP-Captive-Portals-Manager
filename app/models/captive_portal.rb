@@ -106,19 +106,23 @@ class CaptivePortal < ActiveRecord::Base
     options[:ip_address] ||= ""
     options[:original_url] ||= ""
 
-    url = nil
     if OWMW["url"].present? and options[:mac_address].present?
       # If OWMW is configured, get redirection URL from it.
-      url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address])
-      if url.present? and !url.match /\Ahttps{0,1}:\/\//
-         # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
-         # This way we can add parameters to default redirection URL
-         url = redirection_url +
-               (url.include?('?') ? "&#{OWMW_URL_PARAMETER}=" : "?#{OWMW_URL_PARAMETER}=") +
-               URI.escape(url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+      if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
+        if dynamic_url.match /\Ahttps{0,1}:\/\//
+          url = dynamic_url
+        else
+          # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
+          # This way we can add parameters to default redirection URL
+          url = redirection_url +
+              (redirection_url.include?('?') ? '&' : '?') + "#{OWMW_URL_PARAMETER}=" +
+              URI.escape(dynamic_url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+        end
+      else
+        url = redirection_url
       end
     else
-       url = redirection_url
+      url = redirection_url
     end
   rescue Exception => e
     url = redirection_url
