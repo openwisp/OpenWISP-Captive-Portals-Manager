@@ -29,6 +29,8 @@ class CaptivePortal < ActiveRecord::Base
 
   # Default url to redirect clients to if session[:original_url] is not present
   DEFAULT_URL="http://rubyonrails.org/"
+  # Parameter to be added to the redirection URL whenever OWMW don't return a complete URL
+  OWMW_URL_PARAMETER="__owmw"
 
   validates_format_of :name, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
   validates_uniqueness_of :name
@@ -36,8 +38,8 @@ class CaptivePortal < ActiveRecord::Base
   validates_format_of :cp_interface, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
   validates_format_of :wan_interface, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
 
-  validates_format_of :redirection_url, :with => /\A[a-zA-Z0-9:<%%>_=&\?\.\-\/\.]*\Z/
-  validates_format_of :error_url, :with => /\A[a-zA-Z0-9:<%%>_=&\?\.\-\/\.]*\Z/
+  validates_format_of :redirection_url, :with => /\Ahttps{0,1}:\/\/[a-zA-Z0-9:<%%>_=&\?\.\-\/\.]*\Z/
+  validates_format_of :error_url, :with => /\Ahttps{0,1}:\/\/[a-zA-Z0-9:<%%>_=&\?\.\-\/\.]*\Z/
 
   validates_numericality_of :local_http_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
   validates_numericality_of :local_https_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
@@ -106,13 +108,22 @@ class CaptivePortal < ActiveRecord::Base
 
     url = nil
     if OWMW["url"].present? and options[:mac_address].present?
+      # If OWMW is configured, get redirection URL from it.
       url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address])
+      if url.present? and !url.match /\Ahttps{0,1}:\/\//
+         # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
+         # This way we can add parameters to default redirection URL
+         url = redirection_url +
+               (url.include?('?') ? "&#{OWMW_URL_PARAMETER}=" : "?#{OWMW_URL_PARAMETER}=") +
+               URI.escape(url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+      end
+    else
+       url = redirection_url
     end
- 
-    if url.blank?
-      url = redirection_url
-    end
-
+  rescue Exception => e
+    url = redirection_url
+    Rails.logger.error "Problem compiling redirection URL: '#{e}'"
+  ensure
     url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
     url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
     url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
