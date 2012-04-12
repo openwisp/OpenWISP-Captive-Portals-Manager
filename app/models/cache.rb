@@ -18,24 +18,35 @@
 class Cache
 
   def initialize(duration = 10)
+    @cache_semaphore = Mutex.new
     @cache = {}
     @duration = duration
   end
 
   def []=(key, value)
+    @cache_semaphore.lock
+
     @cache[key] = { :value => value, :expire_date => Time.now + @duration }
-    value
+    return value
+
+  ensure
+    @cache_semaphore.unlock
   end
 
   def [](key)
+    @cache_semaphore.lock
+
     elem = @cache[key]
 
     if elem.nil? || elem[:expire_date] < Time.now
       @cache.delete key
-      nil
+      return nil
     else
-      @cache[key][:value]
+      return @cache[key][:value]
     end
+
+  ensure
+    @cache_semaphore.unlock
   end
 
 end
