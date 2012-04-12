@@ -101,38 +101,47 @@ class CaptivePortal < ActiveRecord::Base
     )
   }
 
+  # Initialize cache with 60 seconds of duration with memoization
+  @@redirection_url_cache = Cache.new 60
+  
   def compile_redirection_url(options = {})
     options[:mac_address] ||= ""
     options[:ip_address] ||= ""
     options[:original_url] ||= ""
 
-    if OWMW["url"].present? and options[:mac_address].present?
-      # If OWMW is configured, get redirection URL from it.
-      if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
-        if dynamic_url.match /\Ahttps{0,1}:\/\//
-          url = dynamic_url
+    if (cached_url = @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"])
+      cached_url
+    else  
+      begin
+        if OWMW["url"].present? and options[:mac_address].present?
+          # If OWMW is configured, get redirection URL from it.
+          if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
+            if dynamic_url.match /\Ahttps{0,1}:\/\//
+              url = dynamic_url
+            else
+              # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
+              # This way we can add parameters to default redirection URL
+              url = redirection_url +
+                  (redirection_url.include?('?') ? '&' : '?') + "#{OWMW_URL_PARAMETER}=" +
+                  URI.escape(dynamic_url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+            end
+          else
+            url = redirection_url
+          end
         else
-          # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
-          # This way we can add parameters to default redirection URL
-          url = redirection_url +
-              (redirection_url.include?('?') ? '&' : '?') + "#{OWMW_URL_PARAMETER}=" +
-              URI.escape(dynamic_url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
+          url = redirection_url
         end
-      else
+      rescue Exception => e
         url = redirection_url
-      end
-    else
-      url = redirection_url
-    end
-  rescue Exception => e
-    url = redirection_url
-    Rails.logger.error "Problem compiling redirection URL: '#{e}'"
-  ensure
-    url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-    url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-    url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+        Rails.logger.error "Problem compiling redirection URL: '#{e}'"
+      ensure
+        url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+        url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+        url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
 
-    url
+        @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"] = url
+      end
+    end
   end
 
   def compile_error_url(options = {})
