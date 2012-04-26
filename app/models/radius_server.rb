@@ -29,7 +29,7 @@ class RadiusServer < ActiveRecord::Base
   DEFAULT_REQUEST_RETRIES = 3
 
   validates_numericality_of :port, :greater_than => 0, :less_than_or_equal_to => 65535
-  validates_format_of :host, :with => /^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$/
+  validates_format_of :host, :with => /\A([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}\Z/
   # From FreeRadius Proxy.conf:
   ##  The secret can be any string, up to 8k characters in length.
   validates_length_of :shared_secret, :within => 8..8192
