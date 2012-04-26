@@ -21,14 +21,10 @@ class CaptivePortal < ActiveRecord::Base
   has_many :online_users, :dependent => :destroy
   has_many :allowed_traffics, :dependent => :destroy
   has_one :radius_auth_server, :dependent => :destroy
-  accepts_nested_attributes_for :radius_auth_server, :allow_destroy => true,
-                                :reject_if => proc { |attributes| attributes[:host].blank? }
   has_one :radius_acct_server, :dependent => :destroy
-  accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
-                                :reject_if => proc { |attributes| attributes[:host].blank? }
 
   # Default url to redirect clients to if session[:original_url] is not present
-  DEFAULT_URL="http://rubyonrails.org/"
+  DEFAULT_URL="http://openwisp.org/"
   # Parameter to be added to the redirection URL whenever OWMW don't return a complete URL
   OWMW_URL_PARAMETER="__owmw"
 
@@ -57,6 +53,16 @@ class CaptivePortal < ActiveRecord::Base
   validates_presence_of :default_upload_bandwidth, :unless => Proc.new { self.total_upload_bandwidth.blank? }
 
   attr_readonly :cp_interface, :wan_interface
+
+  attr_accessible :name, :cp_interface, :wan_interface, :redirection_url, :error_url, :local_http_port,
+                  :local_https_port, :default_session_timeout, :default_idle_timeout, :total_download_bandwidth,
+                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth,
+                  :radius_auth_server_attributes, :radius_acct_server_attributes
+
+  accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
+                                :reject_if => proc { |attributes| attributes[:host].blank? }
+  accepts_nested_attributes_for :radius_auth_server, :allow_destroy => true,
+                                :reject_if => proc { |attributes| attributes[:host].blank? }
 
   before_destroy {
     worker = MiddleMan.worker(:captive_portal_worker)

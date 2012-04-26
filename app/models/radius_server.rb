@@ -19,6 +19,8 @@ require 'radiustar'
 
 class RadiusServer < ActiveRecord::Base
 
+  attr_accessible :host, :port, :shared_secret
+
   DICTIONARY_DIR = Rails.root.join("lib", "RADIUS", "dictionaries")
 
   @@dictionary = Radiustar::Dictionary.new(DICTIONARY_DIR)

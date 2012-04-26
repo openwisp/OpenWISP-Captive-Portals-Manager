@@ -46,6 +46,10 @@ class OnlineUser < ActiveRecord::Base
   validates_uniqueness_of :mac_address
   validates_uniqueness_of :cp_session_token
 
+  attr_accessible :username, :password, :cp_session_token, :ip_address, :mac_address, :session_timeout, :idle_timeout,
+                  :uploaded_octets, :downloaded_octets, :uploaded_packets, :downloaded_packets, :last_activity,
+                  :max_upload_bandwidth, :max_download_bandwidth, :radius
+
   before_create {
       # Generates the cp_session_token. Where applicable this id it's used also as a unique RADIUS session id.
     self.cp_session_token = (Digest::MD5.hexdigest(Time.new.to_s + self.username + self.password + self.ip_address +

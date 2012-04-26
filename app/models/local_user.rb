@@ -35,6 +35,9 @@ class LocalUser < ActiveRecord::Base
 
   attr_readonly :username
 
+  attr_accessible :username, :password, :max_upload_bandwidth, :max_download_bandwidth, :disabled, :disabled_message,
+                  :allow_concurrent_login
+
   # Simple as can be :-D
   def check_password(password)
     self.password == password
