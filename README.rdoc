@@ -1,0 +1,237 @@
+= OpenWISP Captive Portals Manager
+
+== Description
+
+OWCPM is a captive portal written from scratch with Ruby on Rails. 
+Main features:
+* multiple captive portal (i.e. one per physical/virtual interface)
+* RADIUS / Local authentication
+* per-user traffic shaping (EXPERIMENTAL)
+* multiple OS support
+  * IPv4/GNU-Linux (iptables/tc) already implemented
+  * other OS support can be implemented within the proper subclass
+* IPv6 support can be easily implemented
+
+== Configuration
+
+=== Networking setup
+
+Before installing and starting OWCPM, please be sure that your machine works (as expected) as a router w/ or w/o NAT.
+Please note that auth'ed users traffic and walled gardened traffic will be marked with 0x1xxxx.
+
+For instance assuming that:
+* you need logging and NAT
+* <cp1 interface>, <cp2 interface>> are the untrusted interfaces
+* <wan interface> is your "Internet" interface
+* you've correctly set up routing
+
+the startup iptables rules might look like the following:
+
+    *nat
+    :PREROUTING ACCEPT [0:0]
+    :POSTROUTING ACCEPT [0:0]
+    :OUTPUT ACCEPT [0:0]
+    -A POSTROUTING -m mark --mark 0x10000/0x10000 -m state --state NEW -j LOG --log-prefix="Captive Portal: "
+    -A POSTROUTING -m mark --mark 0x10000/0x10000 -j MASQUERADE
+    COMMIT
+    *mangle
+    :PREROUTING ACCEPT [0:0]
+    :INPUT ACCEPT [0:0]
+    :FORWARD ACCEPT [0:0]
+    :OUTPUT ACCEPT [0:0]
+    :POSTROUTING ACCEPT [0:0]
+    COMMIT
+    *filter
+    :INPUT DROP [0:0]
+    :FORWARD DROP [0:0]
+    -A FORWARD -i <cp1 interface> -o <wan interface> -j ACCEPT
+    -A FORWARD -o <cp1 interface> -i <wan interface> -j ACCEPT
+    -A FORWARD -i <cp2 interface> -o <wan interface> -j ACCEPT
+    -A FORWARD -o <cp2 interface> -i <wan interface> -j ACCEPT
+    :OUTPUT DROP [0:0]
+    -A INPUT -i lo -j ACCEPT 
+    -A INPUT -i <wan interface> -m state --state RELATED,ESTABLISHED -j ACCEPT 
+    -A OUTPUT -o lo -j ACCEPT 
+    -A OUTPUT -o <wan interface> -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
+    COMMIT
+
+=== Web server setup
+
+You'll also need to configure a web server for the redirection process and to host that captive pages (optional).
+
+For instance, if you wan't to use apache2 you'll need to configure two virtual hosts. So you configuration will look like to the following:
+
+    Listen [owcpm http port]
+    <VirtualHost *:[owcpm http port]>
+
+      DocumentRoot [your owcpm directory]/public
+
+      LogLevel warn
+      ErrorLog [error log file]
+      CustomLog [access log file] combined
+
+      PassengerDefaultUser www-data # Change it to reflect your needs
+      RackEnv production            # Change it to reflect your needs
+      RailsEnv production           # Change it to reflect your needs
+
+      <Directory [your owcpm directory]/public>
+        AllowOverride all
+        Options -MultiViews	
+        Order allow,deny
+        Allow from all
+      </Directory>
+
+    </VirtualHost>
+
+
+    <IfModule mod_ssl.c>
+      Listen [owcpm https port]
+
+      <VirtualHost _default_:[owcpm https port]>
+        SSLEngine on
+
+        DocumentRoot [your owcpm directory]/public
+
+        PassengerDefaultUser www-data # Change it to reflect your needs
+        RackEnv production            # Change it to reflect your needs
+        RailsEnv production           # Change it to reflect your needs
+
+        <Directory [your owcpm directory]/public>
+          Allow from all
+          Options -MultiViews
+        </Directory>
+
+        Alias / "[your owcpm directory]"
+        <Directory [your owcpm directory]/public>
+          AllowOverride all
+          Options -MultiViews
+          Order allow,deny
+          Allow from all
+        </Directory>
+
+        LogLevel warn
+        ErrorLog [error log file]
+        CustomLog [access log file] combined
+
+        SSLCertificateFile [certificate file]
+        SSLCertificateKeyFile [key file]
+        SSLCACertificateFile [ca chain file]
+      </VirtualHost>
+    </IfModule>
+
+=== Background jobs
+
+The following script can be used to start the captive portal daemons.
+At start captive portal daemons will create the appropriate iptables rules (that will be removed at stop).
+
+    #!/bin/sh
+    ### BEGIN INIT INFO
+    # Provides:          owcpm-daemons
+    # Required-Start:    $local_fs $network  
+    # Required-Stop:     $local_fs $network 
+    # Default-Start:     2 3 4 5
+    # Default-Stop:      0 1 6
+    # Short-Description: Starting owcpm-daemons
+    # Description:       Starting owcpm-daemons
+    ### END INIT INFO#
+
+    ########## Variables for openwisp-daemons ##########
+
+    # The directory in which all the various OpenWisp
+    # applications are deployed. Generally it's /var/www
+    # or /var/rails
+    OPENWISP_BASE_PATH="/var/rails"
+
+    # The daemon you wish to start with this script
+    # (it must have already been deployed of course).
+    OPENWISP_APP="owcpm" 
+
+    # The Rails environment in which the script must be run.
+    # It will almost always be set to production.
+    RAILS_ENV="production" 
+
+    ####################################################
+
+    export PATH RAILS_ENV
+
+    # Define LSB log_* functions.
+    # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+    . /lib/lsb/init-functions
+
+    bundle_exec() {
+      cd $1 && bundle exec $2
+      return $?
+    }
+
+    openwisp_daemons_start() {
+      bundle_exec $OPENWISP_BASE_PATH/$OPENWISP_APP 'rake daemons:start'
+    }
+
+    openwisp_daemons_stop() {
+      bundle_exec $OPENWISP_BASE_PATH/$OPENWISP_APP 'rake daemons:stop'
+    }
+
+    openwisp_daemons_restart() {
+      bundle_exec $OPENWISP_BASE_PATH/$OPENWISP_APP 'rake daemons:restart'
+    }
+
+    openwisp_daemons_status() {
+      bundle_exec $OPENWISP_BASE_PATH/$OPENWISP_APP 'rake daemons:status'
+    }
+
+    case "$1" in
+      start)
+        log_daemon_msg "Starting OpenWISP daemon" "$NAME" 
+        openwisp_daemons_start
+        RET="$?" 
+        log_end_msg $RET
+        return $RET
+        ;;
+      stop)
+        log_daemon_msg "Stopping OpenWISP daemon" "$NAME" 
+        openwisp_daemons_stop
+        if [ $? -eq 0 ]; then
+          RET="1"
+        else
+          RET="0"
+        fi
+        log_end_msg $RET
+        return $RET
+        ;;
+      restart)
+        log_daemon_msg "Restarting OpenWISP daemon" "$NAME" 
+        openwisp_daemons_restart
+        RET="$?" 
+        log_end_msg $RET
+        return $RET
+        ;;
+      status)
+        openwisp_daemons_status
+        RET="$?" 
+        return $RET
+        ;;
+      *)
+        echo "Usage: /etc/init.d/$NAME {start|stop|restart|status}" >&2
+        exit 1
+        ;;
+    esac
+
+    exit 0
+
+== Copyright
+
+Copyright (C) 2012 OpenWISP.org
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
