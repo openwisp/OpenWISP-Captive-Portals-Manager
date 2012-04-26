@@ -30,7 +30,7 @@ class ApplicationController < ActionController::Base
 
   def set_session_locale
     session[:locale] = params[:locale].to_sym
-    redirect_to request.env['HTTP_REFERER'] || :root
+    redirect_to request.env['HTTP_REFERER'] || :root, :only_path => true
   end
 
   private
