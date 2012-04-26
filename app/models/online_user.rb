@@ -99,7 +99,7 @@ class OnlineUser < ActiveRecord::Base
       self.last_activity = Time.new
       unless self.save
         logger.error("Failed to update activity of user '#{self.username}'")
-        logger.error("...forcing the update of '#{self.username}' acrivity")
+        logger.error("...forcing the update of '#{self.username}' activity")
         self.save false
       end
     else
