@@ -27,7 +27,12 @@ class CaptivePortal < ActiveRecord::Base
   DEFAULT_URL="http://openwisp.org/"
   # Parameter to be added to the redirection URL whenever OWMW don't return a complete URL
   OWMW_URL_PARAMETER="__owmw"
-
+  
+  # Cache for user redirections
+  # This is not meant to be a replacement of Rails (pages / actions) cache: here "cached
+  # redirection URLs" still needs to be completed with the ORIGINAL_URL param.
+  @@redirection_url_cache = ActiveSupport::Cache::MemoryStore.new(:expires_in => 1.minute)
+  
   validates_format_of :name, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
   validates_uniqueness_of :name
   validates_uniqueness_of :cp_interface
@@ -106,48 +111,49 @@ class CaptivePortal < ActiveRecord::Base
       }
     )
   }
-
-  # Initialize cache with 60 seconds of duration with memoization
-  @@redirection_url_cache = Cache.new 60
   
   def compile_redirection_url(options = {})
     options[:mac_address] ||= ""
     options[:ip_address] ||= ""
     options[:original_url] ||= ""
 
-    if (cached_url = @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"])
-      cached_url
-    else  
+    # Fetch redirection url from cache
+    url = @@redirection_url_cache.fetch("#{options[:mac_address]}-#{options[:ip_address]}") do
+      # Cache miss
       begin
         if OWMW["url"].present? and options[:mac_address].present?
           # If OWMW is configured, get redirection URL from it.
           if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
             if dynamic_url.match /\Ahttps{0,1}:\/\//
-              url = dynamic_url
+              _url = dynamic_url
             else
               # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
               # This way we can add parameters to default redirection URL
-              url = redirection_url +
+              _url = redirection_url +
                   (redirection_url.include?('?') ? '&' : '?') + "#{OWMW_URL_PARAMETER}=" +
                   URI.escape(dynamic_url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
             end
           else
-            url = redirection_url
+            _url = redirection_url
           end
         else
-          url = redirection_url
+          _url = redirection_url
         end
       rescue Exception => e
-        url = redirection_url
+        _url = redirection_url
         Rails.logger.error "Problem compiling redirection URL: '#{e}'"
-      ensure
-        url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-        url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-        url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-
-        @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"] = url
       end
+      
+      _url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+      _url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+      
+      # Cache this URL and return it
+      _url
     end
+        
+    url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+
+    url
   end
 
   def compile_error_url(options = {})
