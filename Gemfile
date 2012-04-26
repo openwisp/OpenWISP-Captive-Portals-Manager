@@ -1,18 +1,18 @@
 source 'http://rubygems.org'
 
-gem 'rails', '3.0.3'
+gem 'rails', '3.0.12'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'dguerri-radiustar'
+gem 'radiustar', '~> 0.0.6'
 gem 'packet', '0.1.15', :git => 'git://github.com/dguerri/packet.git'
-gem "backgroundrb-rails3", :require => 'backgroundrb'
+gem 'backgroundrb-rails3', :require => 'backgroundrb'
 
-gem 'authlogic'
-gem "rails3-generators"
+gem 'authlogic', '~> 2.1.6'
+gem 'rails3-generators', '~> 0.17.4'
 
-gem 'jquery-rails', '>= 0.2.6'
+gem 'jquery-rails', '~> 0.2.6'
 
 # Use unicorn as the web server
 # gem 'unicorn'
@@ -40,15 +40,15 @@ gem 'capistrano_colors', '~> 0.5.4', :require => false
 # end
 
 group :development, :test do
-  gem "wirble"
-  gem "hirb"
-  gem "awesome_print"
-  gem "ruby-debug"
+  gem 'wirble'
+  gem 'hirb'
+  gem 'awesome_print'
+  gem 'ruby-debug'
   gem 'sqlite3-ruby', :require => 'sqlite3'
 end
 
 group :production do
-  gem "mysql"
+  gem 'mysql'
 end
 
 # TODO: there is a bug in bundler that prevent us to use exception_notifier as a gem
