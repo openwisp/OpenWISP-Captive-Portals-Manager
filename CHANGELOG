@@ -1,0 +1,22 @@
+OWCPM Changelog
+
+* Note
+
+This changelog only contains release TAGs.
+For a detailed changelog of each commits use the "git log" command.
+
+* Legend
+
+[F] Feature
+[B] Bugfix
+[D] Documentation
+[M] Misc
+[N] Note
+ 
+* Log
+
+April 13rd, 2012 - Version 0.8.6b
+
+ * [N] Initial commit to Github
+ * [D] Added CHANGELOG
+ * [D] Added README.rdoc
