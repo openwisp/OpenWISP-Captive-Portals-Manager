@@ -23,7 +23,7 @@
   <%= form_for([@captive_portal, @allowed_traffic]) do |f| %>
       <% if @allowed_traffic.errors.any? %>
           <h3 id="error_explanation" class="toggler atStart" style="color: #ff0000">
-            <%= pluralize(@captive_portal.errors.count, "error") %>
+            <%= t(:error, :count => @allowed_traffic.errors.count) %>
           </h3>
           <h4 class="toggler atStart">
             <ul>
