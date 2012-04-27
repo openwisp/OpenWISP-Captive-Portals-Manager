@@ -45,14 +45,14 @@ class CaptivePortal < ActiveRecord::Base
   validates_numericality_of :local_http_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
   validates_numericality_of :local_https_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
 
-  validates_numericality_of :default_session_timeout, :greater_than_or_equal_to => 0, :allow_blank => true
-  validates_numericality_of :default_idle_timeout, :greater_than_or_equal_to => 0, :allow_blank => true
+  validates_numericality_of :default_session_timeout, :greater_than_or_equal_to => 60, :allow_blank => true
+  validates_numericality_of :default_idle_timeout, :greater_than_or_equal_to => 60, :allow_blank => true
 
-  validates_numericality_of :total_download_bandwidth, :greater_than => 0, :allow_blank => true
-  validates_numericality_of :total_upload_bandwidth, :greater_than => 0, :allow_blank => true
+  validates_numericality_of :total_download_bandwidth, :greater_than => 100, :allow_blank => true
+  validates_numericality_of :total_upload_bandwidth, :greater_than => 100, :allow_blank => true
   
-  validates_numericality_of :default_download_bandwidth, :greater_than => 0, :allow_blank => true
-  validates_numericality_of :default_upload_bandwidth, :greater_than => 0, :allow_blank => true
+  validates_numericality_of :default_download_bandwidth, :greater_than => 100, :allow_blank => true
+  validates_numericality_of :default_upload_bandwidth, :greater_than => 100, :allow_blank => true
 
   validates_presence_of :default_download_bandwidth, :unless => Proc.new { self.total_download_bandwidth.blank? }
   validates_presence_of :default_upload_bandwidth, :unless => Proc.new { self.total_upload_bandwidth.blank? }
