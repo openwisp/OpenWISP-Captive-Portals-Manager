@@ -94,7 +94,7 @@ class CaptivePortal < ActiveRecord::Base
   after_save {
     worker = MiddleMan.worker(:captive_portal_worker)
     
-    # For some strange reasons, the following call can't be synchronous: it will
+    # For some strange reason, the following call can't be synchronous: it will
     # fail because no CaptivePortal for "cp_interface" will be found.
     # This is weird because in the after_save callback a record for 
     # "cp_interface" should exists
