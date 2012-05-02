@@ -95,19 +95,20 @@ class OnlineUser < ActiveRecord::Base
   end
 
   def update_activity!(uploaded_octets, downloaded_octets, uploaded_packets, downloaded_packets)
-    unless uploaded_octets == self.uploaded_octets and downloaded_octets == self.downloaded_octets
+    if uploaded_octets != self.uploaded_octets
       self.uploaded_octets = uploaded_octets
-      self.downloaded_octets = downloaded_octets
       self.uploaded_packets = uploaded_packets
+      # Last activity timestamp for a user should be updated only when she generates traffic
+      self.last_activity = Time.now
+    end
+    
+    if  downloaded_octets != self.downloaded_octets
+      self.downloaded_octets = downloaded_octets
       self.downloaded_packets = downloaded_packets
-      self.last_activity = Time.new
-      unless self.save
-        logger.error("Failed to update activity of user '#{self.username}'")
-        logger.error("...forcing the update of '#{self.username}' activity")
-        self.save false
-      end
-    else
-      false
+    end
+    
+    unless self.save
+      logger.error("Failed to update activity of user '#{self.username}'")
     end
   end
 
