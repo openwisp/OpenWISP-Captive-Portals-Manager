@@ -9,14 +9,20 @@ For a detailed changelog of each commits use the "git log" command.
 
 [F] Feature
 [B] Bugfix
+[S] Security fix
 [D] Documentation
 [M] Misc
 [N] Note
  
 * Log
 
-April 13rd, 2012 - Version 0.8.6b
+April XXX, 2012 - Version 0.8.6b
 
  * [N] Initial commit to Github
  * [D] Added CHANGELOG
  * [D] Added README.rdoc
+ * [M] Upgraded to RAILS version 3.0.12
+ * [S] Added mass-assignment protection with attr_accessible white-lists
+ * [F] Added cache to redirection URL calculation
+ * [B] Fixed daemons::restart rake task
+ * [B] Fixed default idle/session timeouts usage

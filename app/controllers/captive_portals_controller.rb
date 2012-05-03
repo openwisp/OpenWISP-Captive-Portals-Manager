@@ -83,7 +83,7 @@ class CaptivePortalsController < ApplicationController
     
     respond_to do |format|
       if @captive_portal.update_attributes(params[:captive_portal])
-        format.html { redirect_to(@captive_portal, :notice => 'Captive portal was successfully updated.') }
+        format.html { redirect_to(captive_portal_url, :notice => 'Captive portal was successfully updated.') }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

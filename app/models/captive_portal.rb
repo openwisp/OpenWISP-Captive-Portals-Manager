@@ -21,17 +21,18 @@ class CaptivePortal < ActiveRecord::Base
   has_many :online_users, :dependent => :destroy
   has_many :allowed_traffics, :dependent => :destroy
   has_one :radius_auth_server, :dependent => :destroy
-  accepts_nested_attributes_for :radius_auth_server, :allow_destroy => true,
-                                :reject_if => proc { |attributes| attributes[:host].blank? }
   has_one :radius_acct_server, :dependent => :destroy
-  accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
-                                :reject_if => proc { |attributes| attributes[:host].blank? }
 
   # Default url to redirect clients to if session[:original_url] is not present
-  DEFAULT_URL="http://rubyonrails.org/"
+  DEFAULT_URL="http://openwisp.org/"
   # Parameter to be added to the redirection URL whenever OWMW don't return a complete URL
   OWMW_URL_PARAMETER="__owmw"
-
+  
+  # Cache for user redirections
+  # This is not meant to be a replacement of Rails (pages / actions) cache: here "cached
+  # redirection URLs" still needs to be completed with the ORIGINAL_URL param.
+  @@redirection_url_cache = ActiveSupport::Cache::MemoryStore.new(:expires_in => 1.minute)
+  
   validates_format_of :name, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
   validates_uniqueness_of :name
   validates_uniqueness_of :cp_interface
@@ -44,19 +45,29 @@ class CaptivePortal < ActiveRecord::Base
   validates_numericality_of :local_http_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
   validates_numericality_of :local_https_port, :less_than_or_equal_to => 65535, :greater_than_or_equal_to => 0
 
-  validates_numericality_of :default_session_timeout, :greater_than_or_equal_to => 0, :allow_blank => true
-  validates_numericality_of :default_idle_timeout, :greater_than_or_equal_to => 0, :allow_blank => true
+  validates_numericality_of :default_session_timeout, :greater_than_or_equal_to => 60, :allow_blank => true
+  validates_numericality_of :default_idle_timeout, :greater_than_or_equal_to => 60, :allow_blank => true
 
-  validates_numericality_of :total_download_bandwidth, :greater_than => 0, :allow_blank => true
-  validates_numericality_of :total_upload_bandwidth, :greater_than => 0, :allow_blank => true
+  validates_numericality_of :total_download_bandwidth, :greater_than => 100, :allow_blank => true
+  validates_numericality_of :total_upload_bandwidth, :greater_than => 100, :allow_blank => true
   
-  validates_numericality_of :default_download_bandwidth, :greater_than => 0, :allow_blank => true
-  validates_numericality_of :default_upload_bandwidth, :greater_than => 0, :allow_blank => true
+  validates_numericality_of :default_download_bandwidth, :greater_than => 100, :allow_blank => true
+  validates_numericality_of :default_upload_bandwidth, :greater_than => 100, :allow_blank => true
 
   validates_presence_of :default_download_bandwidth, :unless => Proc.new { self.total_download_bandwidth.blank? }
   validates_presence_of :default_upload_bandwidth, :unless => Proc.new { self.total_upload_bandwidth.blank? }
 
   attr_readonly :cp_interface, :wan_interface
+
+  attr_accessible :name, :cp_interface, :wan_interface, :redirection_url, :error_url, :local_http_port,
+                  :local_https_port, :default_session_timeout, :default_idle_timeout, :total_download_bandwidth,
+                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth,
+                  :radius_auth_server_attributes, :radius_acct_server_attributes
+
+  accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
+                                :reject_if => proc { |attributes| attributes[:host].blank? }
+  accepts_nested_attributes_for :radius_auth_server, :allow_destroy => true,
+                                :reject_if => proc { |attributes| attributes[:host].blank? }
 
   before_destroy {
     worker = MiddleMan.worker(:captive_portal_worker)
@@ -83,7 +94,7 @@ class CaptivePortal < ActiveRecord::Base
   after_save {
     worker = MiddleMan.worker(:captive_portal_worker)
     
-    # For some strange reasons, the following call can't be synchronous: it will
+    # For some strange reason, the following call can't be synchronous: it will
     # fail because no CaptivePortal for "cp_interface" will be found.
     # This is weird because in the after_save callback a record for 
     # "cp_interface" should exists
@@ -100,48 +111,49 @@ class CaptivePortal < ActiveRecord::Base
       }
     )
   }
-
-  # Initialize cache with 60 seconds of duration with memoization
-  @@redirection_url_cache = Cache.new 60
   
   def compile_redirection_url(options = {})
     options[:mac_address] ||= ""
     options[:ip_address] ||= ""
     options[:original_url] ||= ""
 
-    if (cached_url = @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"])
-      cached_url
-    else  
+    # Fetch redirection url from cache
+    url = @@redirection_url_cache.fetch("#{options[:mac_address]}-#{options[:ip_address]}") do
+      # Cache miss
       begin
         if OWMW["url"].present? and options[:mac_address].present?
           # If OWMW is configured, get redirection URL from it.
           if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
             if dynamic_url.match /\Ahttps{0,1}:\/\//
-              url = dynamic_url
+              _url = dynamic_url
             else
               # If what we obtained from OWMW isn't an URL, add it to the default redirection URL
               # This way we can add parameters to default redirection URL
-              url = redirection_url +
+              _url = redirection_url +
                   (redirection_url.include?('?') ? '&' : '?') + "#{OWMW_URL_PARAMETER}=" +
                   URI.escape(dynamic_url, Regexp.new("[^#{URI::PATTERN::UNRESERVED}]"))
             end
           else
-            url = redirection_url
+            _url = redirection_url
           end
         else
-          url = redirection_url
+          _url = redirection_url
         end
       rescue Exception => e
-        url = redirection_url
+        _url = redirection_url
         Rails.logger.error "Problem compiling redirection URL: '#{e}'"
-      ensure
-        url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-        url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-        url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
-
-        @@redirection_url_cache["#{options[:mac_address]}-#{options[:ip_address]}"] = url
       end
+      
+      _url.gsub!(/<%\s*MAC_ADDRESS\s*%>/, URI.escape(options[:mac_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+      _url.gsub!(/<%\s*IP_ADDRESS\s*%>/, URI.escape(options[:ip_address], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+      
+      # Cache this URL and return it
+      _url
     end
+        
+    url.gsub!(/<%\s*ORIGINAL_URL\s*%>/, URI.escape(options[:original_url], Regexp.new("[^#{URI::PATTERN::UNRESERVED}]")))
+
+    url
   end
 
   def compile_error_url(options = {})
@@ -234,8 +246,8 @@ class CaptivePortal < ActiveRecord::Base
           :radius => radius,
           :ip_address => client_ip,
           :mac_address => client_mac,
-          :idle_timeout => reply[:idle_timeout],
-          :session_timeout => reply[:session_timeout],
+          :idle_timeout => reply[:idle_timeout] || self.default_idle_timeout,
+          :session_timeout => reply[:session_timeout] || self.default_session_timeout,
           :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
           :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
       )
