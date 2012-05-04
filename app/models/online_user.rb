@@ -46,6 +46,10 @@ class OnlineUser < ActiveRecord::Base
   validates_uniqueness_of :mac_address
   validates_uniqueness_of :cp_session_token
 
+  attr_accessible :username, :password, :cp_session_token, :ip_address, :mac_address, :session_timeout, :idle_timeout,
+                  :uploaded_octets, :downloaded_octets, :uploaded_packets, :downloaded_packets, :last_activity,
+                  :max_upload_bandwidth, :max_download_bandwidth, :radius
+
   before_create {
       # Generates the cp_session_token. Where applicable this id it's used also as a unique RADIUS session id.
     self.cp_session_token = (Digest::MD5.hexdigest(Time.new.to_s + self.username + self.password + self.ip_address +
@@ -91,19 +95,20 @@ class OnlineUser < ActiveRecord::Base
   end
 
   def update_activity!(uploaded_octets, downloaded_octets, uploaded_packets, downloaded_packets)
-    unless uploaded_octets == self.uploaded_octets and downloaded_octets == self.downloaded_octets
+    if uploaded_octets != self.uploaded_octets
       self.uploaded_octets = uploaded_octets
-      self.downloaded_octets = downloaded_octets
       self.uploaded_packets = uploaded_packets
+      # Last activity timestamp for a user should be updated only when she generates traffic
+      self.last_activity = Time.now
+    end
+    
+    if  downloaded_octets != self.downloaded_octets
+      self.downloaded_octets = downloaded_octets
       self.downloaded_packets = downloaded_packets
-      self.last_activity = Time.new
-      unless self.save
-        logger.error("Failed to update activity of user '#{self.username}'")
-        logger.error("...forcing the update of '#{self.username}' acrivity")
-        self.save false
-      end
-    else
-      false
+    end
+    
+    unless self.save
+      logger.error("Failed to update activity of user '#{self.username}'")
     end
   end
 

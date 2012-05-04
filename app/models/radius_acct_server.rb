@@ -20,6 +20,8 @@ class RadiusAcctServer < RadiusServer
 
   belongs_to :captive_portal
 
+  attr_accessible :host, :port, :shared_secret
+
   DEFAULT_PORT = 1813
 
   SESSION_TERMINATE_CAUSE = {

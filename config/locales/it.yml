@@ -105,7 +105,9 @@ it:
   show_captive_portal: "Captive portal"
   list: "elenca"
   already_logged_in: "Sei già autenticato"
-  Error: "Errore"
+  error:
+    one:  "un errore"
+    other: "%{count} errori"
   invalid_network: "è probabile che tu stia cercando di accedere dalla rete sbagliata."
   check_your_network_settings: "controlla le tue impostazioni di rete."
   session_start: "Inizio Sessione"
