@@ -301,13 +301,12 @@ class CaptivePortal < ActiveRecord::Base
           }
       )
     end
-  ensure
-    online_user.destroy
   end
 
   def deauthenticate_online_users(reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Forced_logout])
     self.online_users.each do |online_user|
       deauthenticate_user(online_user, reason)
+      online_user.destroy
     end
   end
 
