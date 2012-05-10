@@ -76,8 +76,8 @@ class RadiusAuthServer < RadiusServer
 
     { :authenticated => (reply[:code] == RadiusAuthServer::CODE[:Access_accept]),
       :message => reply['Reply-Message'].nil? ? nil : reply['Reply-Message'].value,
-      :max_upload_bandwidth => reply['WISPr-Bandwidth-Max-Up'].nil? ? nil : reply['WISPr-Bandwidth-Max-Up'].value,
-      :max_download_bandwidth => reply['WISPr-Bandwidth-Max-Down'].nil? ? nil : reply['WISPr-Bandwidth-Max-Down'].value,
+      :max_upload_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Up'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Up'].value,
+      :max_download_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Down'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Down'].value,
       :idle_timeout => reply['Idle-Timeout'].nil? ? nil : reply['Idle-Timeout'].value,
       :session_timeout => reply['Session-Timeout'].nil? ? nil : reply['Session-Timeout'].value
     }
