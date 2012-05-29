@@ -489,6 +489,7 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
           if to_be_disconnected
             cp.deauthenticate_user(online_user, reason)
+            online_user.destroy
             next
           else
             unless cp.radius_acct_server.nil?

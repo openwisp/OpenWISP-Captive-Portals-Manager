@@ -137,6 +137,7 @@ class RedirectionsController < ApplicationController
             user,
             RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Explicit_logout]
         )
+        user.destroy
       end
       cookies.delete(:cp_session_token)
 
