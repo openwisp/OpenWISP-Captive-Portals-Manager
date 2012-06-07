@@ -31,7 +31,7 @@ class CaptivePortal < ActiveRecord::Base
   # Cache for user redirections
   # This is not meant to be a replacement of Rails (pages / actions) cache: here "cached
   # redirection URLs" still needs to be completed with the ORIGINAL_URL param.
-  @@redirection_url_cache = ActiveSupport::Cache::MemoryStore.new(:expires_in => 1.minute)
+  @@redirection_url_cache = Cache.new(:expires_in => 1.minute)
   
   validates_format_of :name, :with => /\A[a-zA-Z][a-zA-Z0-9\.\-]*\Z/
   validates_uniqueness_of :name
@@ -301,13 +301,12 @@ class CaptivePortal < ActiveRecord::Base
           }
       )
     end
-  ensure
-    online_user.destroy
   end
 
   def deauthenticate_online_users(reason = RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Forced_logout])
     self.online_users.each do |online_user|
       deauthenticate_user(online_user, reason)
+      online_user.destroy
     end
   end
 
