@@ -83,6 +83,7 @@ module IpTablesUtils
     actions.each do |action|
       action << " >/dev/null 2>&1" if options[:blind]
       unless system(action)
+        warn "#{caller[2]} - problem executing action: '#{action}'"
         raise "#{caller[2]} - problem executing action: '#{action}'" unless options[:blind]
       end
     end
@@ -631,7 +632,7 @@ class OsControl
     "#{IPTABLES} -t mangle -X _POSR_MAN"
     ]
 
-    execute_actions(stop_actions)
+    execute_actions(stop_actions, :blind => true)
 
   end
 
