@@ -222,22 +222,24 @@ class OsCaptivePortal
     execute_actions(firewall_create_actions)
 
     unless @total_upload_bandwidth.blank?
-      shaping_down_create_actions = [
+      shaping_down_cleanup_actions = [
           # delete preexisting qdisc/classes
       "#{TC} qdisc del dev '#{@cp_interface}' root",
+      ]
+      shaping_down_create_actions = [
           # root handle and class for clients upload
       "#{TC} qdisc add dev '#{@cp_interface}' root handle 1: htb",
       "#{TC} class add dev '#{@cp_interface}' parent 1 classid 1:1 htb rate #{@total_download_bandwidth}kbit ceil #{@total_download_bandwidth}kbit",
       ]
 
+      execute_actions(shaping_down_cleanup_actions, :blind => true)
       execute_actions(shaping_down_create_actions)
     end
 
     unless @total_download_bandwidth.blank?
-      shaping_up_create_root_action = [
+      shaping_up_cleanup_action = [
           # delete preexisting qdisc/classes
       "#{TC} qdisc del dev '#{@wan_interface}' root",
-      "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb",
       ]
 
       tc_class = OsCaptivePortal::create_tc_class_for_cp(@cp_interface) ||
@@ -245,10 +247,11 @@ class OsCaptivePortal
 
       shaping_up_create_actions = [
           # root handle and class for clients download
+      "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb",
       "#{TC} class add dev '#{@wan_interface}' parent 1 classid #{tc_class}:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit",
       ]
 
-      execute_actions(shaping_up_create_root_action, :blind => true)
+      execute_actions(shaping_up_cleanup_action, :blind => true)
       execute_actions(shaping_up_create_actions)
     end
 
@@ -294,17 +297,16 @@ class OsCaptivePortal
     "#{IPTABLES} -t filter -X '_FOUT_#{@cp_interface}'"
     ]
 
-    execute_actions(firewall_destroy_actions)
+    execute_actions(firewall_destroy_actions, :blind => true)
 
     unless @total_upload_bandwidth.blank?
-      tc_class = OsCaptivePortal::remove_tc_class_for_cp(@cp_interface)
 
       shaping_upload_destroy_actions = [
           # root handle and class for clients upload
       "#{TC} qdisc del dev '#{@wan_interface}' root",
       ]
 
-      execute_actions(shaping_upload_destroy_actions)
+      execute_actions(shaping_upload_destroy_actions, :blind => true)
     end
 
     unless @total_download_bandwidth.blank?
@@ -313,7 +315,7 @@ class OsCaptivePortal
       "#{TC} qdisc del dev '#{@cp_interface}' root",
       ]
 
-      execute_actions(shaping_down_destroy_actions)
+      execute_actions(shaping_down_destroy_actions, :blind => true)
     end
 
   end
