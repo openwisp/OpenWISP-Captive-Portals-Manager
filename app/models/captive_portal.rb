@@ -122,6 +122,7 @@ class CaptivePortal < ActiveRecord::Base
       # Cache miss
       begin
         if OWMW["url"].present? and options[:mac_address].present?
+             
           # If OWMW is configured, get redirection URL from it.
           if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
             if dynamic_url.match /\Ahttps{0,1}:\/\//
@@ -139,6 +140,8 @@ class CaptivePortal < ActiveRecord::Base
         else
           _url = redirection_url
         end
+        if ( ap_hostname = AssociatedUser.access_point_hostname_by_user_mac_address(options[:mac_address]))
+           _url = _url + "?ap="+ap_hostname
       rescue Exception => e
         _url = redirection_url
         Rails.logger.error "Problem compiling redirection URL: '#{e}'"

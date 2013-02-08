@@ -26,5 +26,11 @@ class AssociatedUser < ActiveResource::Base
   rescue
     nil
   end
+  def self.access_point_hostname_by_user_mac_address(mac)
+    au = AssociatedUser.find(mac)
+    au.access_point.name
+  rescue
+    nil
+  end
 
 end
