@@ -334,3 +334,13 @@ it:
     submit:
       operator_session:
         create: "accedi"
+
+  api:
+    params_missing: "mancano alcuni parametri."
+    ip_address_not_associated: "indirizzo ip non associato."
+    invalid_username_password: "username o password non validi."
+    logged_in: "login effettuato correttamente."
+    format_not_supported: "Solo HTML, JSON e XML sono supportati al momento."
+    username_not_logged_in: "l'username specificato non è loggato nel sistema"
+    logged_out_successfully: "logout effettuato con successo"
+    ip_address_not_allowed: "il tuo indirizzo ip non ha il permesso di effettuare quest'operazione"

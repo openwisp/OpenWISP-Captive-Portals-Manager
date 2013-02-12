@@ -145,3 +145,13 @@ en:
     submit:
       operator_session:
         create: "login"
+  
+  api:
+    params_missing: "some parameters are missing"
+    ip_address_not_associated: "ip address not associated"
+    invalid_username_password: "invalid username or password"
+    logged_in: "logged in"
+    format_not_supported: "Only HTML, JSON and XML are currently supported"
+    username_not_logged_in: "username specified is not logged in"
+    logged_out_successfully: "logged out successfully"
+    ip_address_not_allowed: "your ip address is not allowed to perform this operation"

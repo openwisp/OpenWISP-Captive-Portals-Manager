@@ -6,6 +6,13 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(:default, Rails.env) if defined?(Bundler)
 
+# in case config.yml has not been created load the default config.default.yml
+begin
+  CONFIG = YAML.load_file("config/config.yml")[Rails.env]
+rescue Errno::ENOENT
+  CONFIG = YAML.load_file("config/config.default.yml")[Rails.env]
+end
+
 module Railscp
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
