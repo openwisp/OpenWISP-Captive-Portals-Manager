@@ -27,6 +27,7 @@ en:
     cp_interface: "CP Interface"
     wan_interface: "WAN Interface"
     redirection_url: "Redirection URL"
+    hostname_on_url:  "Hostname on URL"
     error_url: "Error URL"
     local_http_port: "Local HTTP Port"
     local_https_port: "Local HTTPS Port"

@@ -61,7 +61,7 @@ class CaptivePortal < ActiveRecord::Base
 
   attr_accessible :name, :cp_interface, :wan_interface, :redirection_url, :error_url, :local_http_port,
                   :local_https_port, :default_session_timeout, :default_idle_timeout, :total_download_bandwidth,
-                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth,
+                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth, :hostname_on_url,
                   :radius_auth_server_attributes, :radius_acct_server_attributes
 
   accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
@@ -140,8 +140,10 @@ class CaptivePortal < ActiveRecord::Base
         else
           _url = redirection_url
         end
-        if ( ap_hostname = AssociatedUser.access_point_hostname_by_user_mac_address(options[:mac_address]))
-           _url = _url + "?ap="+ap_hostname
+        if self.hostname_on_url and ( ap_hostname = AssociatedUser.access_point_hostname_by_user_mac_address(options[:mac_address]))
+           _url = _url + "&HOSTNAME="+ap_hostname
+           Rails.logger.error "Redirection URL: '#{_url}'"
+        end
       rescue Exception => e
         _url = redirection_url
         Rails.logger.error "Problem compiling redirection URL: '#{e}'"
@@ -312,5 +314,4 @@ class CaptivePortal < ActiveRecord::Base
       online_user.destroy
     end
   end
-
 end

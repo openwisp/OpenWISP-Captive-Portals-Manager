@@ -24,6 +24,7 @@ it:
     cp_interface: "Interfaccia CP"
     wan_interface: "Interfaccia WAN"
     redirection_url: "URL Redirezione"
+    hostname_on_url: "Visualizza Hostname" 
     error_url: "URL Errore"
     local_http_port: "Port HTTP Locale"
     local_https_port: "Port HTTPS Locale"
