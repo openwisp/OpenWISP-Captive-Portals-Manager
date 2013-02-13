@@ -8,7 +8,7 @@ class ApiController < ApplicationController
     else
       load_captive_portal(params[:ip])
       if @captive_portal.nil?
-        result = { :errors => 'api.ip_address_not_associated' }
+        result = { :errors => I18n.t('api.ip_address_not_associated') }
         status = 403
       else
         @cp_session_token, @message = @captive_portal.authenticate_user(
@@ -19,10 +19,10 @@ class ApiController < ApplicationController
           params[:timeout] ? params[:timeout] : false
         )
         if !@message.nil? and @message.include?('Invalid username or password')
-          result = { :errors => 'api.invalid_username_password' }
+          result = { :errors => I18n.t('api.invalid_username_password') }
           status = 403
         else
-          result = { :detail => 'api.logged_in', :session_id => @cp_session_token }
+          result = { :detail => I18n.t('api.logged_in'), :session_id => @cp_session_token }
           status = 200
         end
       end
@@ -43,12 +43,12 @@ class ApiController < ApplicationController
     else
       load_captive_portal(params[:ip])
       if @captive_portal.nil?
-        result = { :errors => 'api.ip_address_not_associated' }
+        result = { :errors => I18n.t('api.ip_address_not_associated') }
         status = 403
       else
         user = @captive_portal.online_users.find_by_username(params[:username])
         if user.nil?
-          result = { :errors => 'api.username_not_logged_in' }
+          result = { :errors => I18n.t('api.username_not_logged_in') }
           status = 403
         else
           @captive_portal.deauthenticate_user(
@@ -56,7 +56,7 @@ class ApiController < ApplicationController
               RadiusAcctServer::SESSION_TERMINATE_CAUSE[:Explicit_logout]
           )
           user.destroy
-          result = { :errors => 'api.logged_out_successfully' }
+          result = { :errors => I18n.t('api.logged_out_successfully') }
           status = 200
         end
       end
