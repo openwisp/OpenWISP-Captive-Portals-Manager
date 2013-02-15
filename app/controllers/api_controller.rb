@@ -2,7 +2,10 @@ class ApiController < ApplicationController
   before_filter :authorize_ip, :only => [:login, :logout]
 
   def login
-    if params[:username].nil? or params[:password].nil? or params[:ip].nil?
+    if request.method != 'POST'
+      result = { :errors => I18n.t('api.method_not_allowed') }
+      status = 405
+    elsif params[:username].nil? or params[:password].nil? or params[:ip].nil?
       result = { :errors => I18n.t('api.params_missing') }
       status = 400
     else
@@ -37,7 +40,10 @@ class ApiController < ApplicationController
   end
   
   def logout
-    if params[:username].nil? or params[:ip].nil?
+    if request.method != 'POST'
+      result = { :errors => I18n.t('api.method_not_allowed') }
+      status = 405
+    elsif params[:username].nil? or params[:ip].nil?
       result = { :errors => I18n.t('api.params_missing') }
       status = 400
     else

@@ -344,3 +344,4 @@ it:
     username_not_logged_in: "l'username specificato non è loggato nel sistema"
     logged_out_successfully: "logout effettuato con successo"
     ip_address_not_allowed: "il tuo indirizzo ip non ha il permesso di effettuare quest'operazione"
+    method_not_allowed: "metodo HTTP non supportato"
