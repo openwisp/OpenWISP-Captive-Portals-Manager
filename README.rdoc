@@ -218,6 +218,57 @@ At start captive portal daemons will create the appropriate iptables rules (that
 
     exit 0
 
+== API details
+
+There are two API method available at the moment:
+
+* login
+* logout
+
+The API can respond in *json* and *xml*.
+
+Parameters must be sent in *application/x-www-form-urlencoded* format.
+
+All the methods of this API can be used only by authorized servers.
+
+The default behaviour is that only local requests are authorized.
+
+To authorize a remote server to use the API copy the file *config/config.default.yml* and rename it in *config/config.yml* then add the addreses in the right ruby syntax for arrays.
+
+=== Login
+
+POST */api/v1/account/login*
+
+Required parameters: username, password, ip
+
+Optional parameters: timeout
+
+Logs in the specified user and returns *200* plus a message if succeed.
+
+If a timeout (in seconds) is specified that value will be used as a session timeout for the user browsing session.
+
+If any of the required parameters is missing the method will return *400* HTTP response code plus an error message.
+
+If the IP address that tries to use the API is not in the *api_allowed_ips* configuration array the server will respond with a *403* HTTP response code plus an error message.
+
+If username or password are incorrect or the user is not verified it will return *403* plus an error message.
+
+If the IP specified does not result associated in the captive portal DB the method will return *403* plus an error message.
+
+=== Logout
+
+POST */api/v1/account/logout*
+
+Required parameters: username, ip
+
+Logs out the specified user and returns *200* plus a message if succeed.
+
+If any of the required parameters is missing the method will return *400* HTTP response code plus an error message.
+
+If the IP address that tries to use the API is not in the *api_allowed_ips* configuration array the server will respond with a *403* HTTP response code plus an error message.
+
+If the combination of username and or IP does not result logged in the request will fail and will return a *403* HTTP response code plus an error message.
+
 == Copyright
 
 Copyright (C) 2012 OpenWISP.org
