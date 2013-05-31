@@ -1,0 +1,12 @@
+defaults: &defaults
+  # allow following IP addresses to use the API
+  api_allowed_ips: ['127.0.0.1', '::1']
+
+production:
+  <<: *defaults
+
+development:
+  <<: *defaults
+
+test:
+  <<: *defaults
