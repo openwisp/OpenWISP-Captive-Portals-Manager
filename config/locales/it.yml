@@ -14,6 +14,7 @@ it:
     source_port: "Port Sorgente"
     destination_host: "Host Destinazione"
     destination_port: "Port Destinazione"
+    note: "Note"
     local_users: "Utenti Locali"
     allowed_traffics: "Eccezioni Firewall"
     allowed_traffic: "Eccezione Firewall"

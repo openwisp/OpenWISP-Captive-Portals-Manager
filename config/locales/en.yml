@@ -17,6 +17,7 @@ en:
     source_port: "Source Port"
     destination_host: "Destination Host"
     destination_port: "Destination Port"
+    note: "Note"
     local_users: "Local Users"
     allowed_traffics: "Firewall Rules"
     allowed_traffic: "Firewall Rule"

@@ -5,7 +5,9 @@ gem 'rails', '3.0.12'
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
-gem 'radiustar', '~> 0.0.6'
+#gem 'radiustar', '~> 0.0.6'
+#Temp radiustar repository for ipaddr version yanked
+gem 'radiustar', :git =>'git://github.com/idemarinis/radiustar.git'
 gem 'packet', '0.1.15', :git => 'git://github.com/dguerri/packet.git'
 gem 'backgroundrb-rails3', :require => 'backgroundrb'
 
