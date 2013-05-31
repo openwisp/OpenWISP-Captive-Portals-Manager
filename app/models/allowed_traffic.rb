@@ -29,7 +29,7 @@ class AllowedTraffic < ActiveRecord::Base
   validates_numericality_of :destination_port, :greater_than => 0, :less_than_or_equal_to => 65535,
                             :allow_nil => true, :allow_blank => true
 
-  attr_accessible :protocol, :source_mac_address, :source_host, :source_port, :destination_host, :destination_port
+  attr_accessible :protocol, :source_mac_address, :source_host, :source_port, :destination_host, :destination_port, :note
 
   after_create {
     worker = MiddleMan.worker(:captive_portal_worker)
