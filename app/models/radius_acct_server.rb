@@ -52,9 +52,7 @@ class RadiusAcctServer < RadiusServer
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
-    
-    # retrieve access point mac address or captive portal interface if OWMW is not configured
-    called_station = AssociatedUser.access_point_mac_address_by_user_mac_address(request[:mac]) || captive_portal.cp_interface
+    called_station_id = captive_portal.get_called_station_id(request[:mac])
 
     begin
       req = Radiustar::Request.new("#{self.host}:#{self.port}",
@@ -73,7 +71,7 @@ class RadiusAcctServer < RadiusServer
                                            'NAS-Identifier' => captive_portal.name,
                                            'Framed-IP-Address' => request[:ip],
                                            'Calling-Station-Id' => request[:mac],
-                                           'Called-Station-Id' => called_station,
+                                           'Called-Station-Id' => called_station_id,
                                            'Acct-Status-Type' => 'Start',
                                            'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local'
                                        }
@@ -99,6 +97,7 @@ class RadiusAcctServer < RadiusServer
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
+    called_station_id = captive_portal.get_called_station_id(request[:mac])
 
     begin
       req = Radiustar::Request.new("#{self.host}:#{self.port}",
@@ -117,7 +116,7 @@ class RadiusAcctServer < RadiusServer
                                             'NAS-Identifier' => captive_portal.name,
                                             'Framed-IP-Address' => request[:ip],
                                             'Calling-Station-Id' => request[:mac],
-                                            'Called-Station-Id' => captive_portal.cp_interface,
+                                            'Called-Station-Id' => called_station_id,
                                             'Acct-Status-Type' => 'Alive',
                                             'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local',
                                             'Acct-Session-Time' => request[:session_time],

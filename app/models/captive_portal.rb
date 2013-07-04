@@ -314,4 +314,16 @@ class CaptivePortal < ActiveRecord::Base
       online_user.destroy
     end
   end
+  
+  # returns <MAC_ADDRESS>:<CP_INTERFACE> or just <CP_INTERFACE> if OWMW is not configured
+  def get_called_station_id(user_mac)
+    ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(mac)
+    
+    unless ap_mac == false
+      ap_mac.gsub!(':', '-').upcase
+      called_station_id = "#{ap_mac}:#{cp_interface}"
+    else
+      return cp_interface
+    end
+  end
 end
