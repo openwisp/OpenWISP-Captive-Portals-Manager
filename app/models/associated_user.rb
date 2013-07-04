@@ -26,11 +26,22 @@ class AssociatedUser < ActiveResource::Base
   rescue
     nil
   end
+  
+  # return access point hostname from mac address of user
   def self.access_point_hostname_by_user_mac_address(mac)
     au = AssociatedUser.find(mac)
     au.access_point.name
   rescue
     nil
   end
-
+  
+  # return access point mac address from user mac address
+  # return false if OWMW is not configured
+  def self.access_point_mac_address_by_user_mac_address(mac)
+    if OWMW != {}
+      AssociatedUser.find(mac).access_point.mac_address
+    else
+      return false
+    end
+  end
 end
