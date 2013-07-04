@@ -254,7 +254,8 @@ class CaptivePortal < ActiveRecord::Base
           :idle_timeout => reply[:idle_timeout] || self.default_idle_timeout,
           :session_timeout => reply[:session_timeout] || self.default_session_timeout,
           :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
-          :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
+          :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth,
+          :called_station_id => reply[:called_station_id]
       )
       begin
         online_user.save!
@@ -317,7 +318,7 @@ class CaptivePortal < ActiveRecord::Base
   
   # returns <MAC_ADDRESS>:<CP_INTERFACE> or just <CP_INTERFACE> if OWMW is not configured
   def get_called_station_id(user_mac)
-    ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(mac)
+    ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(user_mac)
     
     unless ap_mac == false
       ap_mac.gsub!(':', '-').upcase

@@ -70,6 +70,7 @@ class RadiusAuthServer < RadiusServer
                                    }
                                )
       )
+      
     rescue Exception => e
       Rails.logger.error "Error sending RADIUS authentication request to #{host}:#{port} for user #{request[:username]} (#{e})"
       return { :authenticated => false, :message => "RADIUS internal error" }
@@ -80,7 +81,8 @@ class RadiusAuthServer < RadiusServer
       :max_upload_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Up'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Up'].value,
       :max_download_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Down'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Down'].value,
       :idle_timeout => reply['Idle-Timeout'].nil? ? nil : reply['Idle-Timeout'].value,
-      :session_timeout => reply['Session-Timeout'].nil? ? nil : reply['Session-Timeout'].value
+      :session_timeout => reply['Session-Timeout'].nil? ? nil : reply['Session-Timeout'].value,
+      :called_station_id => called_station_id
     }
   end
 end
