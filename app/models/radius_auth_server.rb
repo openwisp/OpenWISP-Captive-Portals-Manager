@@ -76,7 +76,8 @@ class RadiusAuthServer < RadiusServer
       return { :authenticated => false, :message => "RADIUS internal error" }
     end
 
-    { :authenticated => (reply[:code] == RadiusAuthServer::CODE[:Access_accept]),
+    {
+      :authenticated => (reply[:code] == RadiusAuthServer::CODE[:Access_accept]),
       :message => reply['Reply-Message'].nil? ? nil : reply['Reply-Message'].value,
       :max_upload_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Up'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Up'].value,
       :max_download_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Down'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Down'].value,

@@ -246,17 +246,20 @@ class CaptivePortal < ActiveRecord::Base
     if !reply[:authenticated].nil? and reply[:authenticated]
       # Access granted, add user to the online users
       online_user = online_users.build(
-          :username => username,
-          :password => password,
-          :radius => radius,
-          :ip_address => client_ip,
-          :mac_address => client_mac,
-          :idle_timeout => reply[:idle_timeout] || self.default_idle_timeout,
-          :session_timeout => reply[:session_timeout] || self.default_session_timeout,
-          :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
-          :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth,
-          :called_station_id => reply[:called_station_id]
+        :username => username,
+        :password => password,
+        :radius => radius,
+        :ip_address => client_ip,
+        :mac_address => client_mac,
+        :idle_timeout => reply[:idle_timeout] || self.default_idle_timeout,
+        :session_timeout => reply[:session_timeout] || self.default_session_timeout,
+        :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
+        :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
       )
+      
+      # for some reason putting this info in build() didn't work so i had to put it here
+      online_user.called_station_id = reply[:called_station_id]
+      
       begin
         online_user.save!
       rescue Exception => e
@@ -321,7 +324,7 @@ class CaptivePortal < ActiveRecord::Base
     ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(user_mac)
     
     unless ap_mac == false
-      ap_mac.gsub!(':', '-').upcase
+      ap_mac.gsub!(':', '-').upcase!
       called_station_id = "#{ap_mac}:#{cp_interface}"
     else
       return cp_interface
