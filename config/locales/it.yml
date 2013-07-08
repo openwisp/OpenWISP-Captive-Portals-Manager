@@ -58,6 +58,7 @@ it:
     idle_timeout: "Timeout inattività"
     disabled_message: "Messaggio Disabilitazione"
     allow_concurrent_login: "Login concorrenti permessi"
+    called_station_id: Called Station ID
 
   "yes": "si"
   "no": "no"

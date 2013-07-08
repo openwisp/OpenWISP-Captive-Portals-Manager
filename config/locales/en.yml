@@ -61,6 +61,7 @@ en:
     idle_timeout: "Idle Timeout"
     disabled_message: "Disabled Message"
     allow_concurrent_login: "Allow concurrent login"
+    called_station_id: Called Station ID
 
   "yes": "yes"
   "no": "no"

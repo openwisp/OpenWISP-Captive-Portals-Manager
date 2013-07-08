@@ -63,6 +63,10 @@
           <td><%=h @online_user.mac_address %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :called_station_id %></th>
+          <td><%= @online_user.called_station_id %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :session_timeout %></th>
           <td><%=h @online_user.session_timeout %></td>
         </tr>
