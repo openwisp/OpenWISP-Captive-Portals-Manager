@@ -97,7 +97,6 @@ class RadiusAcctServer < RadiusServer
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
-    called_station_id = OnlineUser.find_by_username(request[:username]).called_station_id
 
     begin
       req = Radiustar::Request.new("#{self.host}:#{self.port}",
@@ -116,7 +115,6 @@ class RadiusAcctServer < RadiusServer
                                             'NAS-Identifier' => captive_portal.name,
                                             'Framed-IP-Address' => request[:ip],
                                             'Calling-Station-Id' => request[:mac],
-                                            'Called-Station-Id' => called_station_id,
                                             'Acct-Status-Type' => 'Alive',
                                             'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local',
                                             'Acct-Session-Time' => request[:session_time],
@@ -148,7 +146,6 @@ class RadiusAcctServer < RadiusServer
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
-    called_station_id = OnlineUser.find_by_username(request[:username]).called_station_id
 
     begin
       req = Radiustar::Request.new("#{self.host}:#{self.port}",
@@ -163,19 +160,18 @@ class RadiusAcctServer < RadiusServer
                                   request[:sessionid],
                                   @@acct_custom_attr.merge(
                                       {
-                                          'NAS-IP-Address' => nas_ip_address,
-                                          'NAS-Identifier' => captive_portal.name,
-                                          'Framed-IP-Address' => request[:ip],
-                                          'Calling-Station-Id' => request[:mac],
-                                          'Called-Station-Id' => called_station_id,
-                                          'Acct-Status-Type' => 'Stop',
-                                          'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local',
-                                          'Acct-Session-Time' => request[:session_time],
-                                          'Acct-Input-Octets' => request[:session_uploaded_octets],
-                                          'Acct-Input-Packets' => request[:session_uploaded_packets],
-                                          'Acct-Output-Octets' => request[:session_downloaded_octets],
-                                          'Acct-Output-Packets' => request[:session_downloaded_packets],
-                                          'Acct-Terminate-Cause' => request[:termination_cause]
+                                        'NAS-IP-Address' => nas_ip_address,
+                                        'NAS-Identifier' => captive_portal.name,
+                                        'Framed-IP-Address' => request[:ip],
+                                        'Calling-Station-Id' => request[:mac],
+                                        'Acct-Status-Type' => 'Stop',
+                                        'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local',
+                                        'Acct-Session-Time' => request[:session_time],
+                                        'Acct-Input-Octets' => request[:session_uploaded_octets],
+                                        'Acct-Input-Packets' => request[:session_uploaded_packets],
+                                        'Acct-Output-Octets' => request[:session_downloaded_octets],
+                                        'Acct-Output-Packets' => request[:session_downloaded_packets],
+                                        'Acct-Terminate-Cause' => request[:termination_cause]
                                       }
                                   )
       )
