@@ -475,10 +475,10 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
             puts "[#{Time.now()}] Session timeout hit by '#{online_user.username}' for cp '#{cp.name}'"
           elsif online_user.RADIUS_user?
             reply = cp.radius_auth_server.authenticate(
-                :username => online_user.username,
-                :password => online_user.password,
-                :ip => online_user.ip_address,
-                :mac => online_user.mac_address
+              :username => online_user.username,
+              :password => online_user.password,
+              :ip => online_user.ip_address,
+              :mac => online_user.mac_address
             )
             to_be_disconnected = !reply[:authenticated]
             if to_be_disconnected

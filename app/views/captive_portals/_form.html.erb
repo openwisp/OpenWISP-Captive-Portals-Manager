@@ -60,6 +60,10 @@
         <%= cp_form.url_field :error_url %>
       </p>
       <p>
+        <%= cp_form.label :hostname_on_url %>
+        <%= cp_form.check_box :hostname_on_url %>
+      </p>
+      <p>
         <%= cp_form.label :local_http_port %>
         <%= cp_form.number_field :local_http_port, :in => 0...65535 %>
       </p>
