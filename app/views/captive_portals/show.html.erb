@@ -92,6 +92,10 @@
           <td><%=h @captive_portal.redirection_url %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :hostname_on_url %></th>
+          <td><%=h @captive_portal.hostname_on_url %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :error_url %></th>
           <td><%=h @captive_portal.error_url %></td>
         </tr>
