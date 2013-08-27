@@ -189,4 +189,5 @@ h2#page-notice {
 
 input[type=checkbox]{ width: auto !important }
 
-.help{ color: gray }
+.help { color: gray }
+.disabled{ background: #eeeeee }

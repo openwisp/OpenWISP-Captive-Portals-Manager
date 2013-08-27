@@ -60,6 +60,9 @@ it:
     disabled_message: "Messaggio Disabilitazione"
     allow_concurrent_login: "Login concorrenti permessi"
     called_station_id: Called Station ID
+    mac_address_auth: Autenticazione con Mac Address
+    mac_address_auth_enabled: Autenticazione con mac address abilitata
+    mac_address_auth_shared_secret: Segreto condiviso (password inviata a radius)
 
   "yes": "si"
   "no": "no"
