@@ -186,3 +186,7 @@ h2#page-notice {
 	margin:0 0 10px 0;
 	border-bottom:1px solid #ccc;
 }
+
+input[type=checkbox]{ width: auto !important }
+
+.help{ color: gray }
