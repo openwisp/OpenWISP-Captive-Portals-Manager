@@ -145,6 +145,7 @@ class OnlineUser < ActiveRecord::Base
   end
 
   protected
+  
   def octets_counters
     worker = MiddleMan.worker(:captive_portal_worker)
     worker.get_user_bytes_counters(
@@ -166,5 +167,4 @@ class OnlineUser < ActiveRecord::Base
         }
     )
   end
-
 end

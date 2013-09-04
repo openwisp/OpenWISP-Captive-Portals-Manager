@@ -60,6 +60,11 @@
         <%= cp_form.url_field :error_url %>
       </p>
       <p>
+        <%= cp_form.label :hostname_on_url %>
+        <%= cp_form.check_box :hostname_on_url %>
+        <span class="help"><%= t :hostname_on_url_help %></span>
+      </p>
+      <p>
         <%= cp_form.label :local_http_port %>
         <%= cp_form.number_field :local_http_port, :in => 0...65535 %>
       </p>
@@ -91,6 +96,32 @@
         <%= cp_form.label :total_upload_bandwidth %>
         <%= cp_form.number_field :total_upload_bandwidth, :step => 1024, :min => 0 %>
       </p>
+      <fieldset class="subform">
+        <legend><%=t :mac_address_auth %></legend>
+        <p>   
+          <%= cp_form.label :mac_address_auth_enabled %>
+          <%= cp_form.check_box :mac_address_auth, :default => false %>
+        </p>
+        <p>   
+          <%= cp_form.label :mac_address_auth_shared_secret %>
+          <%= cp_form.text_field :mac_address_auth_shared_secret, :disabled => true, :class => :disabled %>
+        </p>
+        <script type="text/javascript">
+          $(function(){
+            var mac_address_auth_checkbox = $('#captive_portal_mac_address_auth');
+            mac_address_auth_checkbox.change(function(e){
+              var shared_secret = $('#captive_portal_mac_address_auth_shared_secret');
+              if($(this).is(':checked')){
+                shared_secret.removeAttr('disabled').removeClass('disabled');
+              }
+              else{
+                shared_secret.attr('disabled', 'disabled').addClass('disabled');
+              }
+            });
+            mac_address_auth_checkbox.trigger('change');
+          });
+        </script>
+      </fieldset>
 
       <fieldset class="subform">
         <legend><%=t :radius_auth_server %></legend>

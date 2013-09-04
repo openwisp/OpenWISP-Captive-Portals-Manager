@@ -47,6 +47,7 @@ class RadiusAuthServer < RadiusServer
     request[:mac] || raise("BUG: Missing 'mac'")
 
     nas_ip_address = InetUtils.get_source_address(host)
+    called_station_id = captive_portal.get_called_station_id(request[:mac])
 
     begin
       req = Radiustar::Request.new("#{host}:#{port}",
@@ -65,21 +66,24 @@ class RadiusAuthServer < RadiusServer
                                        'NAS-Identifier' => captive_portal.name,
                                        'Framed-IP-Address' => request[:ip],
                                        'Calling-Station-Id' => request[:mac],
-                                       'Called-Station-Id' => captive_portal.cp_interface
+                                       'Called-Station-Id' => called_station_id
                                    }
                                )
       )
+      
     rescue Exception => e
       Rails.logger.error "Error sending RADIUS authentication request to #{host}:#{port} for user #{request[:username]} (#{e})"
       return { :authenticated => false, :message => "RADIUS internal error" }
     end
 
-    { :authenticated => (reply[:code] == RadiusAuthServer::CODE[:Access_accept]),
+    {
+      :authenticated => (reply[:code] == RadiusAuthServer::CODE[:Access_accept]),
       :message => reply['Reply-Message'].nil? ? nil : reply['Reply-Message'].value,
       :max_upload_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Up'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Up'].value,
       :max_download_bandwidth => reply['WISPr/WISPr-Bandwidth-Max-Down'].nil? ? nil : reply['WISPr/WISPr-Bandwidth-Max-Down'].value,
       :idle_timeout => reply['Idle-Timeout'].nil? ? nil : reply['Idle-Timeout'].value,
-      :session_timeout => reply['Session-Timeout'].nil? ? nil : reply['Session-Timeout'].value
+      :session_timeout => reply['Session-Timeout'].nil? ? nil : reply['Session-Timeout'].value,
+      :called_station_id => called_station_id
     }
   end
 end

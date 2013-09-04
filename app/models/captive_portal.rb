@@ -61,8 +61,8 @@ class CaptivePortal < ActiveRecord::Base
 
   attr_accessible :name, :cp_interface, :wan_interface, :redirection_url, :error_url, :local_http_port,
                   :local_https_port, :default_session_timeout, :default_idle_timeout, :total_download_bandwidth,
-                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth,
-                  :radius_auth_server_attributes, :radius_acct_server_attributes
+                  :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth, :hostname_on_url,
+                  :radius_auth_server_attributes, :radius_acct_server_attributes, :mac_address_auth, :mac_address_auth_shared_secret
 
   accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
                                 :reject_if => proc { |attributes| attributes[:host].blank? }
@@ -88,6 +88,11 @@ class CaptivePortal < ActiveRecord::Base
         :cp_interface => cp_interface
       }
     )
+    
+    # set default mac address shared secret if left empty
+    if self.mac_address_auth_shared_secret == ''
+      self.mac_address_auth_shared_secret = self.class.columns_hash['mac_address_auth_shared_secret'].default
+    end
   }
 
   # Called after save on create and after "before_update" on update
@@ -122,6 +127,7 @@ class CaptivePortal < ActiveRecord::Base
       # Cache miss
       begin
         if OWMW["url"].present? and options[:mac_address].present?
+             
           # If OWMW is configured, get redirection URL from it.
           if (dynamic_url = AssociatedUser.site_url_by_user_mac_address(options[:mac_address]))
             if dynamic_url.match /\Ahttps{0,1}:\/\//
@@ -138,6 +144,10 @@ class CaptivePortal < ActiveRecord::Base
           end
         else
           _url = redirection_url
+        end
+        if self.hostname_on_url and ( ap_hostname = AssociatedUser.access_point_hostname_by_user_mac_address(options[:mac_address]))
+           _url = _url + "&HOSTNAME="+ap_hostname
+           Rails.logger.error "Redirection URL: '#{_url}'"
         end
       rescue Exception => e
         _url = redirection_url
@@ -178,6 +188,11 @@ class CaptivePortal < ActiveRecord::Base
     # TO DO: Radius request offload ... (sync for auth, async for acct)
     radius = false
     reply = Hash.new
+    
+    if self.mac_address_auth and (username.nil? or username.empty?) and (password.nil? or password.empty?)
+      username = client_mac
+      password = self.mac_address_auth_shared_secret
+    end
 
     # Check if user is already auth'ed on with same mac address
     unless online_users.where(:username => username, :mac_address => client_mac).empty?
@@ -241,22 +256,27 @@ class CaptivePortal < ActiveRecord::Base
     if !reply[:authenticated].nil? and reply[:authenticated]
       # Access granted, add user to the online users
       online_user = online_users.build(
-          :username => username,
-          :password => password,
-          :radius => radius,
-          :ip_address => client_ip,
-          :mac_address => client_mac,
-          :idle_timeout => timeout || reply[:idle_timeout] || self.default_idle_timeout,
-          :session_timeout => timeout || reply[:session_timeout] || self.default_session_timeout,
-          :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
-          :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
+        :username => username,
+        :password => password,
+        :radius => radius,
+        :ip_address => client_ip,
+        :mac_address => client_mac,
+        :idle_timeout => timeout || reply[:idle_timeout] || self.default_idle_timeout,
+        :session_timeout => timeout || reply[:session_timeout] || self.default_session_timeout,
+        :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
+        :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
       )
+      
+      # for some reason putting this info in build() didn't work so i had to put it here
+      online_user.called_station_id = reply[:called_station_id]
+      
       begin
         online_user.save!
       rescue Exception => e
         return [ nil , "Cannot save user, internal error (#{e})" ]
       end
-
+      
+      # unless radius accounting server record is not configured
       unless self.radius_acct_server.nil?
         worker = MiddleMan.worker(:captive_portal_worker)
         worker.async_accounting_start(
@@ -309,5 +329,16 @@ class CaptivePortal < ActiveRecord::Base
       online_user.destroy
     end
   end
-
+  
+  # returns <MAC_ADDRESS>:<CP_INTERFACE> or just <CP_INTERFACE> if OWMW is not configured
+  def get_called_station_id(user_mac)
+    ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(user_mac)
+    
+    unless ap_mac == false
+      ap_mac.gsub!(':', '-').upcase!
+      called_station_id = "#{ap_mac}:#{cp_interface}"
+    else
+      return cp_interface
+    end
+  end
 end
