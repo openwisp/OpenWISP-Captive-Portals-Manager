@@ -79,11 +79,13 @@ module IpTablesUtils
   IPTABLES = "/sbin/iptables"
 
   def execute_actions(actions, options = {})
-    options[:blind] ||= false
+    options[:continue_on_error] ||= false
+    options[:silent] ||= false
     actions.each do |action|
-      action << " >/dev/null 2>&1" if options[:blind]
+      action << " >/dev/null 2>&1" if options[:continue_on_error]
       unless system(action)
-        raise "#{caller[2]} - problem executing action: '#{action}'" unless options[:blind]
+        warn "#{caller[2]} - problem executing action: '#{action}'" unless options[:silent]
+        raise "#{caller[2]} - problem executing action: '#{action}'" unless options[:continue_on_error]
       end
     end
   end
@@ -222,18 +224,24 @@ class OsCaptivePortal
     execute_actions(firewall_create_actions)
 
     unless @total_upload_bandwidth.blank?
+      shaping_down_cleanup_actions = [
+          # delete preexisting qdisc/classes
+      "#{TC} qdisc del dev '#{@cp_interface}' root",
+      ]
       shaping_down_create_actions = [
           # root handle and class for clients upload
       "#{TC} qdisc add dev '#{@cp_interface}' root handle 1: htb",
       "#{TC} class add dev '#{@cp_interface}' parent 1 classid 1:1 htb rate #{@total_download_bandwidth}kbit ceil #{@total_download_bandwidth}kbit",
       ]
 
+      execute_actions(shaping_down_cleanup_actions, :continue_on_error => true, :silent => true)
       execute_actions(shaping_down_create_actions)
     end
 
     unless @total_download_bandwidth.blank?
-      shaping_up_create_root_action = [
-          "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb",
+      shaping_up_cleanup_action = [
+          # delete preexisting qdisc/classes
+      "#{TC} qdisc del dev '#{@wan_interface}' root",
       ]
 
       tc_class = OsCaptivePortal::create_tc_class_for_cp(@cp_interface) ||
@@ -241,10 +249,11 @@ class OsCaptivePortal
 
       shaping_up_create_actions = [
           # root handle and class for clients download
+      "#{TC} qdisc add dev '#{@wan_interface}' root handle 1: htb",
       "#{TC} class add dev '#{@wan_interface}' parent 1 classid #{tc_class}:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit",
       ]
 
-      execute_actions(shaping_up_create_root_action, :blind => true)
+      execute_actions(shaping_up_cleanup_action, :continue_on_error => true, :silent => true)
       execute_actions(shaping_up_create_actions)
     end
 
@@ -290,27 +299,25 @@ class OsCaptivePortal
     "#{IPTABLES} -t filter -X '_FOUT_#{@cp_interface}'"
     ]
 
-    execute_actions(firewall_destroy_actions)
+    execute_actions(firewall_destroy_actions, :continue_on_error => true)
 
     unless @total_upload_bandwidth.blank?
-      tc_class = OsCaptivePortal::remove_tc_class_for_cp(@cp_interface)
 
       shaping_upload_destroy_actions = [
           # root handle and class for clients upload
-      "#{TC} class del dev '#{@wan_interface}' parent 1 classid #{tc_class}:1 htb rate #{@total_upload_bandwidth}kbit ceil #{@total_upload_bandwidth}kbit",
-#      "#{TC} qdisc del dev '#{@wan_interface}' root handle 1: htb",
+      "#{TC} qdisc del dev '#{@wan_interface}' root",
       ]
 
-      execute_actions(shaping_upload_destroy_actions)
+      execute_actions(shaping_upload_destroy_actions, :continue_on_error => true)
     end
 
     unless @total_download_bandwidth.blank?
       shaping_down_destroy_actions = [
           # root handle and class for clients download
-      "#{TC} qdisc del dev '#{@cp_interface}' root handle 1: htb",
+      "#{TC} qdisc del dev '#{@cp_interface}' root",
       ]
 
-      execute_actions(shaping_down_destroy_actions)
+      execute_actions(shaping_down_destroy_actions, :continue_on_error => true)
     end
 
   end
@@ -412,7 +419,7 @@ class OsCaptivePortal
       raise("BUG: unexpected address type '#{client_address}'")
     end
 
-    execute_actions(firewall_paranoid_remove_user_actions, :blind => true)
+    execute_actions(firewall_paranoid_remove_user_actions, :continue_on_error => true, :silent => true)
     execute_actions(firewall_add_user_actions)
 
     unless @total_upload_bandwidth.blank? or upload_bandwidth.blank?
@@ -431,7 +438,7 @@ class OsCaptivePortal
       "#{TC} filter add dev '#{@wan_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid #{tc_class}:#{mark}",
       ]
 
-      execute_actions(shaping_up_paranoid_remove_user_actions, :blind => true)
+      execute_actions(shaping_up_paranoid_remove_user_actions, :continue_on_error => true, :silent => true)
       execute_actions(shaping_up_add_user_actions)
     end
 
@@ -449,7 +456,7 @@ class OsCaptivePortal
       "#{TC} filter add dev '#{@cp_interface}' parent 1: protocol ip pref 1 handle #{mark + MARK} fw classid 1:#{mark}",
       ]
 
-      execute_actions(shaping_down_paranoid_remove_user_actions, :blind => true)
+      execute_actions(shaping_down_paranoid_remove_user_actions, :continue_on_error => true, :silent => true)
       execute_actions(shaping_down_add_user_actions)
     end
 
@@ -626,7 +633,7 @@ class OsControl
     "#{IPTABLES} -t mangle -X _POSR_MAN"
     ]
 
-    execute_actions(stop_actions)
+    execute_actions(stop_actions, :continue_on_error => true)
 
   end
 

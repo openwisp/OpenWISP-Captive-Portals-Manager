@@ -92,6 +92,10 @@
           <td><%=h @captive_portal.redirection_url %></td>
         </tr>
         <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :hostname_on_url %></th>
+          <td><%=h @captive_portal.hostname_on_url ? t(:yes) : t(:no) %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :error_url %></th>
           <td><%=h @captive_portal.error_url %></td>
         </tr>
@@ -126,6 +130,10 @@
         <tr class="<%= cycle("even", "odd") -%>">
           <th><%=t :total_download_bandwidth %></th>
           <td><%=h @captive_portal.total_download_bandwidth %></td>
+        </tr>
+        <tr class="<%= cycle("even", "odd") -%>">
+          <th><%=t :mac_address_auth_enabled %></th>
+          <td><%=h @captive_portal.mac_address_auth ? t(:yes) : t(:no) %></td>
         </tr>
         </tbody>
       </table>

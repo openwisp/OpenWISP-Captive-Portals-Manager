@@ -24,6 +24,8 @@ it:
     cp_interface: "Interfaccia CP"
     wan_interface: "Interfaccia WAN"
     redirection_url: "URL Redirezione"
+    hostname_on_url: "Visualizza Hostname"
+    hostname_on_url_help: "Passa l'hostname come parametro della querystring alla captive page."
     error_url: "URL Errore"
     local_http_port: "Port HTTP Locale"
     local_https_port: "Port HTTPS Locale"
@@ -57,6 +59,10 @@ it:
     idle_timeout: "Timeout inattività"
     disabled_message: "Messaggio Disabilitazione"
     allow_concurrent_login: "Login concorrenti permessi"
+    called_station_id: Called Station ID
+    mac_address_auth: Autenticazione con Mac Address
+    mac_address_auth_enabled: Autenticazione con mac address abilitata
+    mac_address_auth_shared_secret: Segreto condiviso (password inviata a radius)
 
   "yes": "si"
   "no": "no"
