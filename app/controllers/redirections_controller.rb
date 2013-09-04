@@ -81,9 +81,12 @@ class RedirectionsController < ApplicationController
 
     original_url = params[:original_url].nil? ? CaptivePortal::DEFAULT_URL :
         URI.unescape(params[:original_url])
-
-    if params[:username].nil? or params[:password].nil? or
-        params[:username].blank? or params[:password].blank?
+    
+    # ensure username and password are not blank unless mac address authentication is enabled
+    if !@captive_portal.mac_address_auth and (
+       params[:username].nil? or params[:password].nil? or
+       params[:username].blank? or params[:password].blank?
+    )
       redirection_url = @captive_portal.compile_redirection_url(
           :original_url => original_url,
           :mac_address => @client_mac,
