@@ -1,5 +1,6 @@
 class ApiController < ApplicationController
   before_filter :authorize_ip, :only => [:login, :logout]
+  include ActionView::Helpers::NumberHelper
 
   def login
     # only allow POST requests
@@ -77,6 +78,50 @@ class ApiController < ApplicationController
         end
       end
     end
+    respond_to do |format|
+      format.html { render :json => result, :status => status }
+      format.xml  { render :xml  => result, :status => status }
+      format.json { render :json => result, :status => status }
+      format.any  { render :text => I18n.t('api.format_not_supported'), :status => 406 }
+    end
+  end
+  
+  def status
+    # only get requests allowed
+    if request.method != 'GET'
+      result = { :errors => I18n.t('api.method_not_allowed') }
+      status = 405
+    # username must be supplied
+    elsif params[:username].nil?
+      result = { :errors => I18n.t('api.params_missing') }
+      status = 400
+    else
+      # look for user
+      user = OnlineUser.find_by_username(params[:username])
+      # if found return session info
+      if user
+        result = {
+          :username => user.username,
+          :ip_address => user.ip_address,
+          :mac_address => user.mac_address,
+          :uploaded_data => number_to_human_size(user.uploaded_octets, :precision => 3),
+          :downloaded_data => number_to_human_size(user.downloaded_octets, :precision => 3),
+          :uploaded_packets => user.uploaded_packets,
+          :downloaded_packets => user.downloaded_packets,
+          :session_started => user.created_at,
+          :last_activity => user.last_activity,
+          :session_timeout => user.session_timeout,
+          :idle_timeout => user.idle_timeout,
+          :called_station_id => user.called_station_id
+        }
+        status = 200
+      # otherwise return 404 not found
+      else
+        result = { :detail => I18n.t('api.user_not_found') }
+        status = 404
+      end
+    end
+    
     respond_to do |format|
       format.html { render :json => result, :status => status }
       format.xml  { render :xml  => result, :status => status }

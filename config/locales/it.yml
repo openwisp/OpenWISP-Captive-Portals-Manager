@@ -352,3 +352,4 @@ it:
     logged_out_successfully: "logout effettuato con successo"
     ip_address_not_allowed: "il tuo indirizzo ip non ha il permesso di effettuare quest'operazione"
     method_not_allowed: "metodo HTTP non supportato"
+    user_not_found: "utente non trovato"

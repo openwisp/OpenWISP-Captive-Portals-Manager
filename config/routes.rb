@@ -2,6 +2,7 @@ Railscp::Application.routes.draw do
 
   match 'api/v1/account/login' => "api#login", :as => :api_login
   match 'api/v1/account/logout' => "api#logout", :as => :api_logout
+  match 'api/v1/account/status' => "api#status", :as => :api_status
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

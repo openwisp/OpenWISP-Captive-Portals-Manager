@@ -163,3 +163,4 @@ en:
     logged_out_successfully: "logged out successfully"
     ip_address_not_allowed: "your ip address is not allowed to perform this operation"
     method_not_allowed: "HTTP method not allowed"
+    user_not_found: "user not found"
