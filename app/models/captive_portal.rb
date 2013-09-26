@@ -62,7 +62,7 @@ class CaptivePortal < ActiveRecord::Base
   attr_accessible :name, :cp_interface, :wan_interface, :redirection_url, :error_url, :local_http_port,
                   :local_https_port, :default_session_timeout, :default_idle_timeout, :total_download_bandwidth,
                   :total_upload_bandwidth, :default_download_bandwidth, :default_upload_bandwidth, :hostname_on_url,
-                  :radius_auth_server_attributes, :radius_acct_server_attributes
+                  :radius_auth_server_attributes, :radius_acct_server_attributes, :mac_address_auth, :mac_address_auth_shared_secret
 
   accepts_nested_attributes_for :radius_acct_server, :allow_destroy => true,
                                 :reject_if => proc { |attributes| attributes[:host].blank? }
@@ -88,6 +88,11 @@ class CaptivePortal < ActiveRecord::Base
         :cp_interface => cp_interface
       }
     )
+    
+    # set default mac address shared secret if left empty
+    if self.mac_address_auth_shared_secret == ''
+      self.mac_address_auth_shared_secret = self.class.columns_hash['mac_address_auth_shared_secret'].default
+    end
   }
 
   # Called after save on create and after "before_update" on update
@@ -183,6 +188,11 @@ class CaptivePortal < ActiveRecord::Base
     # TO DO: Radius request offload ... (sync for auth, async for acct)
     radius = false
     reply = Hash.new
+    
+    if self.mac_address_auth and (username.nil? or username.empty?) and (password.nil? or password.empty?)
+      username = client_mac
+      password = self.mac_address_auth_shared_secret
+    end
 
     # Check if user is already auth'ed on with same mac address
     unless online_users.where(:username => username, :mac_address => client_mac).empty?
@@ -265,7 +275,8 @@ class CaptivePortal < ActiveRecord::Base
       rescue Exception => e
         return [ nil , "Cannot save user, internal error (#{e})" ]
       end
-
+      
+      # unless radius accounting server record is not configured
       unless self.radius_acct_server.nil?
         worker = MiddleMan.worker(:captive_portal_worker)
         worker.async_accounting_start(
