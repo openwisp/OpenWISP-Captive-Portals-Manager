@@ -16,6 +16,12 @@ For a detailed changelog of each commits use the "git log" command.
  
 * Log
 
+November 26th, 2013 - Version 0.9.3
+
+ * [F]: Authentication JSON API
+ * [F]: Send called station id to radius
+ * [F]: Mac address faux authentication
+
 April XXX, 2012 - Version 0.8.6b
 
  * [N] Initial commit to Github
