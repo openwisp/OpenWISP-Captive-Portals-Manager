@@ -184,7 +184,7 @@ class CaptivePortal < ActiveRecord::Base
     url
   end
 
-  def authenticate_user(username, password, client_ip, client_mac)
+  def authenticate_user(username, password, client_ip, client_mac, timeout=false)
     # TO DO: Radius request offload ... (sync for auth, async for acct)
     radius = false
     reply = Hash.new
@@ -261,8 +261,8 @@ class CaptivePortal < ActiveRecord::Base
         :radius => radius,
         :ip_address => client_ip,
         :mac_address => client_mac,
-        :idle_timeout => reply[:idle_timeout] || self.default_idle_timeout,
-        :session_timeout => reply[:session_timeout] || self.default_session_timeout,
+        :idle_timeout => timeout || reply[:idle_timeout] || self.default_idle_timeout,
+        :session_timeout => timeout || reply[:session_timeout] || self.default_session_timeout,
         :max_upload_bandwidth => reply[:max_upload_bandwidth] || self.default_upload_bandwidth,
         :max_download_bandwidth => reply[:max_download_bandwidth] || self.default_download_bandwidth
       )
