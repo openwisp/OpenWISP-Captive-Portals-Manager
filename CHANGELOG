@@ -16,6 +16,10 @@ For a detailed changelog of each commits use the "git log" command.
  
 * Log
 
+December 17th, 2013 - Version 0.9.4
+
+ * [B]: Prevent deauthentication to fail if we get an exception while retrieving called-station-id
+
 November 26th, 2013 - Version 0.9.3
 
  * [F]: Authentication JSON API

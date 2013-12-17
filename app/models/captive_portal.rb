@@ -332,7 +332,12 @@ class CaptivePortal < ActiveRecord::Base
   
   # returns <MAC_ADDRESS>:<CP_INTERFACE> or just <CP_INTERFACE> if OWMW is not configured
   def get_called_station_id(user_mac)
-    ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(user_mac)
+    begin
+      ap_mac = AssociatedUser.access_point_mac_address_by_user_mac_address(user_mac)
+    rescue Exception => e
+      puts "[#{Time.now()}] Got exception while trying to retrieve called-station-id of user #{user_mac} (#{e})"
+      return cp_interface 
+    end
     
     unless ap_mac == false
       ap_mac.gsub!(':', '-').upcase!
