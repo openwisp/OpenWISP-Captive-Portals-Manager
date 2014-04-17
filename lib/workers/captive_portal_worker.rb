@@ -253,6 +253,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem adding exception for captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -274,6 +277,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem removing exception for captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -297,6 +303,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem adding user for captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -320,6 +329,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem removing user for captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -336,6 +348,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem getting user bytes counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -352,6 +367,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem getting user packets counter for '#{options[:address]}-#{options[:mac]}', captive portal on interface #{options[:cp_interface]}! (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -366,6 +384,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem getting MAC address for host '#{options[:address]}' (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -380,6 +401,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem getting interface for address '#{options[:address]}' (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   ensure
     @@sync.unlock
   end
@@ -402,6 +426,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem sending accounting start RADIUS message for '#{options[:username]}-#{options[:ip]}-#{options[:mac]}' (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   end
 
   def accounting_stop(options = {})
@@ -433,6 +460,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem sending accounting stop RADIUS message for '#{options[:username]}-#{options[:ip]}-#{options[:mac]}' (#{e})"
+    puts "[#{Time.now}] #{e.message}"  
+    puts "[#{Time.now}] #{e.backtrace.inspect}"
+    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
   end
 
 
@@ -509,7 +539,9 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
           end
         end
       rescue Exception => e
-        puts "[#{Time.now()}] Exception! (#{e})"
+        puts "[#{Time.now()}] Exception! (#{e})" 
+        puts "[#{Time.now}] #{e.backtrace.inspect}"
+        ExceptionNotifier::Notifier.background_exception_notification(e).deliver
       end
       puts "[#{Time.now()}] Done processing online users for cp '#{cp.name}'"
     end

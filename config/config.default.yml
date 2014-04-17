@@ -1,6 +1,10 @@
 defaults: &defaults
   # allow following IP addresses to use the API
   api_allowed_ips: ['127.0.0.1', '::1']
+  
+  exception_notification_sender: owcpm@localhost
+  exception_notification_prefix: "[OWCPM]"
+  exception_notification_recipients: root@localhost
 
 production:
   <<: *defaults
