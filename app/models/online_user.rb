@@ -147,14 +147,19 @@ class OnlineUser < ActiveRecord::Base
   protected
   
   def octets_counters
-    worker = MiddleMan.worker(:captive_portal_worker)
-    worker.get_user_bytes_counters(
-        :args => {
-            :cp_interface => self.captive_portal.cp_interface,
-            :address => self.ip_address,
-            :mac => self.mac_address
-        }
-    )
+    begin
+      worker = MiddleMan.worker(:captive_portal_worker)
+      worker.get_user_bytes_counters(
+          :args => {
+              :cp_interface => self.captive_portal.cp_interface,
+              :address => self.ip_address,
+              :mac => self.mac_address
+          }
+      )
+    # if something goes wrong return 0
+    rescue BackgrounDRb::RemoteWorkerError
+      return 0
+    end
   end
 
   def packets_counters
