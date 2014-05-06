@@ -196,7 +196,11 @@ class CaptivePortal < ActiveRecord::Base
 
     # Check if user is already auth'ed on with same mac address
     unless online_users.where(:username => username, :mac_address => client_mac).empty?
-      return [ nil, I18n.t(:already_logged_in) ]
+      unless self.mac_address_auth
+        return [ nil, I18n.t(:already_logged_in) ]
+      else
+        online_users.where(:username => username, :mac_address => client_mac).destroy_all
+      end
     end
     
     # First look in local user
