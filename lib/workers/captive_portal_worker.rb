@@ -320,18 +320,19 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     @@sync.lock(:EX)
 
     os_cp = @@os_firewall.get_captive_portal(options[:cp_interface])
-    os_cp.remove_user(options[:address], options[:mac],
-                      {
-                          :max_upload_bandwidth => options[:max_upload_bandwidth],
-                          :max_download_bandwidth => options[:max_download_bandwidth]
-                      }
-    )
+    os_cp.remove_user(options[:address], options[:mac], {
+      :max_upload_bandwidth => options[:max_upload_bandwidth],
+      :max_download_bandwidth => options[:max_download_bandwidth]
+    })
 
   rescue Exception => e
     puts "[#{Time.now()}] Problem removing user for captive portal on interface #{options[:cp_interface]}! (#{e})"
     puts "[#{Time.now}] #{e.message}"  
     puts "[#{Time.now}] #{e.backtrace.inspect}"
-    ExceptionNotifier::Notifier.background_exception_notification(e).deliver
+    # send exceptions via email except for "BUG: mac address not found"
+    unless e.message[0,26] == "BUG: mac address not found"
+      ExceptionNotifier::Notifier.background_exception_notification(e).deliver
+    end
   ensure
     @@sync.unlock
   end
