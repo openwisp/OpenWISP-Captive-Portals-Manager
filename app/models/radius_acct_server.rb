@@ -52,31 +52,39 @@ class RadiusAcctServer < RadiusServer
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
-    called_station_id = OnlineUser.find_by_username(request[:username]).called_station_id
+    
+    begin
+      called_station_id = OnlineUser.find_by_username(request[:username]).called_station_id
+    # OnlineUser not found
+    rescue
+      called_station_id = nil
+    end
+    
+    accounting_start_params = {
+      'NAS-IP-Address' => nas_ip_address,
+      'NAS-Identifier' => captive_portal.name,
+      'Framed-IP-Address' => request[:ip],
+      'Calling-Station-Id' => request[:mac],
+      'Acct-Status-Type' => 'Start',
+      'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local'
+    }
+    
+    # if called station id is not nil
+    unless called_station_id.nil?
+      accounting_start_params['Called-Station-Id'] = called_station_id
+    end
 
     begin
-      req = Radiustar::Request.new("#{self.host}:#{self.port}",
-                                   {
-                                       :dict => @@dictionary,
-                                       :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
-                                       :retries_number => DEFAULT_REQUEST_RETRIES
-                                   }
-      )
+      req = Radiustar::Request.new("#{self.host}:#{self.port}", {
+        :dict => @@dictionary,
+        :reply_timeout =>  DEFAULT_REQUEST_TIMEOUT,
+        :retries_number => DEFAULT_REQUEST_RETRIES
+      })
+      
       reply = req.accounting_start(request[:username],
                                    self.shared_secret,
                                    request[:sessionid],
-                                   @@acct_custom_attr.merge(
-                                       {
-                                           'NAS-IP-Address' => nas_ip_address,
-                                           'NAS-Identifier' => captive_portal.name,
-                                           'Framed-IP-Address' => request[:ip],
-                                           'Calling-Station-Id' => request[:mac],
-                                           'Called-Station-Id' => called_station_id,
-                                           'Acct-Status-Type' => 'Start',
-                                           'Acct-Authentic' => request[:radius] ? 'RADIUS' : 'Local'
-                                       }
-                                   )
-      )
+                                   @@acct_custom_attr.merge(accounting_start_params))
     rescue Exception => e
       Rails.logger.error("Failed to send RADIUS accounting stop request to #{self.host}:#{self.port} for user #{request[:username]}, sessionid #{request[:sessionid]} (#{e})")
       reply = false
