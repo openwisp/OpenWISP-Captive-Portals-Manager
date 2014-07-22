@@ -98,10 +98,10 @@ class RadiusAcctServer < RadiusServer
     request[:ip] || raise("BUG: Missing 'ip'")
     request[:mac] || raise("BUG: Missing 'mac'")
     request[:session_time] || raise("BUG: Missing 'session_time'")
-    request[:session_uploaded_octets] || raise("BUG: Missing 'session_uploaded_octets'")
-    request[:session_downloaded_octets] || raise("BUG: Missing 'session_downloaded_octets'")
-    request[:session_uploaded_packets] || raise("BUG: Missing 'session_uploaded_packets'")
-    request[:session_downloaded_packets] || raise("BUG: Missing 'session_downloaded_packets'")
+    request[:session_uploaded_octets] ||= 0
+    request[:session_downloaded_octets] ||= 0
+    request[:session_uploaded_packets] ||= 0
+    request[:session_downloaded_packets] ||= 0
     request[:radius] ||= false
 
     nas_ip_address = InetUtils.get_source_address(host)
@@ -145,11 +145,11 @@ class RadiusAcctServer < RadiusServer
     request[:sessionid] || raise("BUG: Missing 'sessionid'")
     request[:ip] || raise("BUG: Missing 'ip'")
     request[:mac] || raise("BUG: Missing 'mac'")
-    request[:session_time] || raise("BUG: Missing 'session_time'")
-    request[:session_uploaded_octets] || raise("BUG: Missing 'session_uploaded_octets'")
-    request[:session_downloaded_octets] || raise("BUG: Missing 'session_downloaded_octets'")
-    request[:session_uploaded_packets] || raise("BUG: Missing 'session_uploaded_packets'")
-    request[:session_downloaded_packets] || raise("BUG: Missing 'session_downloaded_packets'")
+    request[:session_time] ||= 0
+    request[:session_uploaded_octets] ||= 0
+    request[:session_downloaded_octets] ||= 0
+    request[:session_uploaded_packets] ||= 0
+    request[:session_downloaded_packets] ||= 0
     request[:termination_cause] ||= 'Unknown'
     request[:radius] ||= false
 
