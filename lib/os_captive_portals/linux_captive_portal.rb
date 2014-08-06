@@ -522,8 +522,10 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_IN_#{@cp_interface}' | grep '#{client_address}'])
       dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_OUT_#{@cp_interface}' | grep '#{client_address}'])
-      if !up_match[2].nil? and !dn_match[2].nil?
+      begin
         ret = [up_match[2].to_i, dn_match[2].to_i]
+      rescue NoMethodError
+        # [0, 0]
       end
     elsif is_ipv6_address?(client_address)
       #TO DO: ip6tables rules!
@@ -543,8 +545,10 @@ class OsCaptivePortal
     if is_ipv4_address?(client_address)
       up_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_IN_#{@cp_interface}' | grep '#{client_address}'])
       dn_match = /\A\s*(\d+)\s+(\d+)\s+/.match(%x[#{IPTABLES} -t mangle -vnx -L '_AUTH_OUT_#{@cp_interface}' | grep '#{client_address}'])
-      if !up_match.nil? and !up_match[1].nil? and !dn_match[1].nil?
+      begin
         ret = [up_match[1].to_i, dn_match[1].to_i]
+      rescue NoMethodError
+        # [0, 0]
       end
     elsif is_ipv6_address?(client_address)
       #TO DO: ip6tables rules!
