@@ -439,10 +439,10 @@ class CaptivePortalWorker < BackgrounDRb::MetaWorker
     options[:ip] || raise("BUG: Missing 'ip'")
     options[:mac] || raise("BUG: Missing 'mac'")
     options[:session_time] || raise("BUG: Missing 'session_time'")
-    options[:session_uploaded_octets] || raise("BUG: Missing 'session_uploaded_octets'")
-    options[:session_uploaded_packets] || raise("BUG: Missing 'session_uploaded_packets'")
-    options[:session_downloaded_octets] || raise("BUG: Missing 'session_downloaded_octets'")
-    options[:session_downloaded_packets] || raise("BUG: Missing 'session_downloaded_packets'")
+    options[:session_uploaded_octets] ||= 0
+    options[:session_uploaded_packets] ||= 0
+    options[:session_downloaded_octets] ||= 0
+    options[:session_downloaded_packets] ||= 0
 
     radius_acct_server = RadiusAcctServer.find(options[:acct_server_id])
     radius_acct_server.accounting_stop(
