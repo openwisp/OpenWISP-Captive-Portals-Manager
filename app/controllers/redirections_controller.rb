@@ -53,34 +53,34 @@ class RedirectionsController < ApplicationController
   public
 
   def redirect
-    original_url = request.url
-
-    unless @captive_portal.nil?
-      begin
+    begin
+      original_url = request.url
+  
+      unless @captive_portal.nil?
         redirection_url = @captive_portal.compile_redirection_url(
           :original_url => original_url,
           :mac_address => @client_mac,
           :ip_address => @client_ip
         )
-      rescue Exception => e
-        # send exception via mail
-        begin
-          raise e, "Problem on @captive_portal.compile_redirection_url: #{e.message}", e.backtrace
-        rescue Exception => modified_e
-          ExceptionNotifier::Notifier.background_exception_notification(modified_e).deliver
+        respond_to do |format|
+          format.html { redirect_to redirection_url, :status => 302 }
         end
-        # default to redirection_url
-        redirection_url = @captive_portal.redirection_url
-        if redirection_url.include?('?')
-          redirection_url = redirection_url.split('?')[0]
+      else
+        respond_to do |format|
+          format.html { render :action => :unimplemented }
         end
       end
-      respond_to do |format|
-        format.html { redirect_to redirection_url, :status => 302 }
+    rescue Exception => e
+      # send exception via mail
+      begin
+        raise e, "Problem on @captive_portal.compile_redirection_url: #{e.message}", e.backtrace
+      rescue Exception => modified_e
+        ExceptionNotifier::Notifier.background_exception_notification(modified_e).deliver
       end
-    else
-      respond_to do |format|
-        format.html { render :action => :unimplemented }
+      # default to redirection_url
+      redirection_url = @captive_portal.redirection_url
+      if redirection_url.include?('?')
+        redirection_url = redirection_url.split('?')[0]
       end
     end
   end
