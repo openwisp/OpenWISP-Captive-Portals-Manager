@@ -239,9 +239,13 @@ To authorize a remote server to use the API copy the file *config/config.default
 
 POST */api/v1/account/login*
 
-Required parameters: username, password, ip
+Required parameters:
+ * username
+ * password
 
-Optional parameters: timeout
+Optional parameters:
+ * **ip**: private ip address to login, if omitted the ip address of the device that makes the request is assumed
+ * **timeout**: (seconds)
 
 Logs in the specified user and returns *200* plus a message if succeed.
 
@@ -249,11 +253,11 @@ If a timeout (in seconds) is specified that value will be used as a session time
 
 If any of the required parameters is missing the method will return *400* HTTP response code plus an error message.
 
-If the IP address that tries to use the API is not in the *api_allowed_ips* configuration array the server will respond with a *403* HTTP response code plus an error message.
-
 If username or password are incorrect or the user is not verified it will return *403* plus an error message.
 
-If the IP specified does not result associated in the captive portal DB the method will return *403* plus an error message.
+If the ip param is specified, the host of the server that tries to use the API must be in the *api_allowed_ips* configuration array, otherwise the server will respond with a *403* HTTP response code plus an error message.
+
+If the ip specified (or assumed) does not result associated in the captive portal DB the method will return *403* plus an error message.
 
 === Logout
 
@@ -261,11 +265,11 @@ POST */api/v1/account/logout*
 
 Required parameters: username, ip
 
-Logs out the specified user and returns *200* plus a message if succeed.
+Logs out the specified username with the specified ip address and returns *200* plus a message if succeed.
 
 If any of the required parameters is missing the method will return *400* HTTP response code plus an error message.
 
-If the IP address that tries to use the API is not in the *api_allowed_ips* configuration array the server will respond with a *403* HTTP response code plus an error message.
+If the ip param is specified, the host of the server that tries to use the API must be in the *api_allowed_ips* configuration array, otherwise the server will respond with a *403* HTTP response code plus an error message.
 
 If the combination of username and or IP does not result logged in the request will fail and will return a *403* HTTP response code plus an error message.
 
