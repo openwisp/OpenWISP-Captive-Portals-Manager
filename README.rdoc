@@ -240,12 +240,12 @@ To authorize a remote server to use the API copy the file *config/config.default
 POST */api/v1/account/login*
 
 Required parameters:
- * username
- * password
+* username
+* password
 
 Optional parameters:
- * **ip**: private ip address to login, if omitted the ip address of the device that makes the request is assumed
- * **timeout**: (seconds)
+* *ip*: private ip address to login, if omitted the ip address of the device that makes the request is assumed
+* *timeout*: (seconds)
 
 Logs in the specified user and returns *200* plus a message if succeed.
 
