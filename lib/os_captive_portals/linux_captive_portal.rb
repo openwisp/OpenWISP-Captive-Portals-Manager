@@ -214,7 +214,9 @@ class OsCaptivePortal
     "#{IPTABLES} -t filter -A '_FINP_#{@cp_interface}' -p tcp --dport #{DNS_PORT}          -m state --state NEW,ESTABLISHED -j ACCEPT",
     "#{IPTABLES} -t filter -A '_FINP_#{@cp_interface}' -p udp --dport #{DNS_PORT}          -m state --state NEW,ESTABLISHED -j ACCEPT",
     "#{IPTABLES} -t filter -A '_FINP_#{@cp_interface}' -p udp --sport #{DHCP_SRC_PORT} --dport #{DHCP_DST_PORT} -j ACCEPT",
+    "#{IPTABLES} -t filter -A '_FINP_#{@cp_interface}' -p udp --sport bootps --dport bootps -j ACCEPT",
     "#{IPTABLES} -t filter -A '_FOUT_#{@cp_interface}' -p udp --dport #{DHCP_SRC_PORT} --sport #{DHCP_DST_PORT} -j ACCEPT",
+    "#{IPTABLES} -t filter -A '_FOUT_#{@cp_interface}' -p udp --dport bootps --sport bootps -j ACCEPT",
     "#{IPTABLES} -t filter -A '_FOUT_#{@cp_interface}' -m state --state ESTABLISHED -j ACCEPT",
     "#{IPTABLES} -t filter -A '_FOUT_#{@cp_interface}' -j DROP",
     # user_defined_nat_rules
