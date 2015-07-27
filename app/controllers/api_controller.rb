@@ -14,12 +14,10 @@ class ApiController < ApplicationController
     else
       # if no ip specified the current client ip is assumed
       load_captive_portal(params[:ip] || request.remote_ip)
-
       # no ip address associated
       if @captive_portal.nil?
         result = { :errors => I18n.t('api.ip_address_not_associated') }
         status = 403
-
       # try to login the user
       else
         @cp_session_token, @message = @captive_portal.authenticate_user(
@@ -29,10 +27,14 @@ class ApiController < ApplicationController
           @client_mac,
           params[:timeout] ? params[:timeout] : false
         )
-
         # invalid username or password
         if !@message.nil? and @message.include?('Invalid username or password')
           result = { :errors => I18n.t('api.invalid_username_password') }
+          status = 403
+        # daily quota exceeded
+        elsif !@message.nil? and (@message.include?('Your maximum daily usage time has been reached') or
+                                  @message.include?('Hai esaurito la quantità di traffico a tua disposizione per oggi'))
+          result = { :errors => I18n.t('api.quota_exceeded') }
           status = 403
         # success!
         else
@@ -85,7 +87,7 @@ class ApiController < ApplicationController
       format.any  { render :text => I18n.t('api.format_not_supported'), :status => 406 }
     end
   end
-  
+
   def status
     # only get requests allowed
     if request.method != 'GET'
@@ -121,7 +123,7 @@ class ApiController < ApplicationController
         status = 404
       end
     end
-    
+
     respond_to do |format|
       format.html { render :json => result, :status => status }
       format.xml  { render :xml  => result, :status => status }

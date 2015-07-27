@@ -353,3 +353,4 @@ it:
     ip_address_not_allowed: "il tuo indirizzo ip non ha il permesso di effettuare quest'operazione"
     method_not_allowed: "metodo HTTP non supportato"
     user_not_found: "utente non trovato"
+    quota_exceeded: "Hai esaurito la quantità di traffico a tua disposizione per oggi"
