@@ -6,12 +6,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -21,11 +21,11 @@ class AllowedTraffic < ActiveRecord::Base
 
   validates_inclusion_of :protocol, :in => %w(tcp udp), :allow_nil => true, :allow_blank => true
   validates_format_of :source_mac_address, :with => /\A([0-9a-f]{2}:){5}[0-9a-f]{2}\Z/i, :allow_nil => true, :allow_blank => true
-  validates_format_of :source_host, :with => /\A[a-zA-Z0-9:\-\.]+\Z/, :allow_nil => true, :allow_blank => true
+  validates_format_of :source_host, :with => /\A[a-zA-Z0-9:\-\.\/]+\Z/, :allow_nil => true, :allow_blank => true
   validates_numericality_of :source_port, :greater_than => 0, :less_than_or_equal_to => 65535,
                             :allow_nil => true, :allow_blank => true
 
-  validates_format_of :destination_host, :with => /\A[a-zA-Z0-9:\-\.]+\Z/, :allow_nil => true, :allow_blank => true
+  validates_format_of :destination_host, :with => /\A[a-zA-Z0-9:\-\.\/]+\Z/, :allow_nil => true, :allow_blank => true
   validates_numericality_of :destination_port, :greater_than => 0, :less_than_or_equal_to => 65535,
                             :allow_nil => true, :allow_blank => true
 
