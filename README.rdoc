@@ -2,7 +2,7 @@
 
 == Description
 
-OWCPM is a captive portal written from scratch with Ruby on Rails. 
+OWCPM is a captive portal written from scratch with Ruby on Rails.
 Main features:
 * multiple captive portal (i.e. one per physical/virtual interface)
 * RADIUS / Local authentication
@@ -49,9 +49,9 @@ the startup iptables rules might look like the following:
     -A FORWARD -i <cp2 interface> -o <wan interface> -j ACCEPT
     -A FORWARD -o <cp2 interface> -i <wan interface> -j ACCEPT
     :OUTPUT DROP [0:0]
-    -A INPUT -i lo -j ACCEPT 
-    -A INPUT -i <wan interface> -m state --state RELATED,ESTABLISHED -j ACCEPT 
-    -A OUTPUT -o lo -j ACCEPT 
+    -A INPUT -i lo -j ACCEPT
+    -A INPUT -i <wan interface> -m state --state RELATED,ESTABLISHED -j ACCEPT
+    -A OUTPUT -o lo -j ACCEPT
     -A OUTPUT -o <wan interface> -m state --state NEW,RELATED,ESTABLISHED -j ACCEPT
     COMMIT
 
@@ -76,7 +76,7 @@ For instance, if you wan't to use apache2 you'll need to configure two virtual h
 
       <Directory [your owcpm directory]/public>
         AllowOverride all
-        Options -MultiViews	
+        Options -MultiViews
         Order allow,deny
         Allow from all
       </Directory>
@@ -127,8 +127,8 @@ At start captive portal daemons will create the appropriate iptables rules (that
     #!/bin/sh
     ### BEGIN INIT INFO
     # Provides:          owcpm-daemons
-    # Required-Start:    $local_fs $network  
-    # Required-Stop:     $local_fs $network 
+    # Required-Start:    $local_fs $network
+    # Required-Stop:     $local_fs $network
     # Default-Start:     2 3 4 5
     # Default-Stop:      0 1 6
     # Short-Description: Starting owcpm-daemons
@@ -144,11 +144,11 @@ At start captive portal daemons will create the appropriate iptables rules (that
 
     # The daemon you wish to start with this script
     # (it must have already been deployed of course).
-    OPENWISP_APP="owcpm" 
+    OPENWISP_APP="owcpm"
 
     # The Rails environment in which the script must be run.
     # It will almost always be set to production.
-    RAILS_ENV="production" 
+    RAILS_ENV="production"
 
     ####################################################
 
@@ -181,14 +181,14 @@ At start captive portal daemons will create the appropriate iptables rules (that
 
     case "$1" in
       start)
-        log_daemon_msg "Starting OpenWISP daemon" "$NAME" 
+        log_daemon_msg "Starting OpenWISP daemon" "$NAME"
         openwisp_daemons_start
-        RET="$?" 
+        RET="$?"
         log_end_msg $RET
         return $RET
         ;;
       stop)
-        log_daemon_msg "Stopping OpenWISP daemon" "$NAME" 
+        log_daemon_msg "Stopping OpenWISP daemon" "$NAME"
         openwisp_daemons_stop
         if [ $? -eq 0 ]; then
           RET="1"
@@ -199,15 +199,15 @@ At start captive portal daemons will create the appropriate iptables rules (that
         return $RET
         ;;
       restart)
-        log_daemon_msg "Restarting OpenWISP daemon" "$NAME" 
+        log_daemon_msg "Restarting OpenWISP daemon" "$NAME"
         openwisp_daemons_restart
-        RET="$?" 
+        RET="$?"
         log_end_msg $RET
         return $RET
         ;;
       status)
         openwisp_daemons_status
-        RET="$?" 
+        RET="$?"
         return $RET
         ;;
       *)
@@ -255,6 +255,8 @@ If any of the required parameters is missing the method will return *400* HTTP r
 
 If username or password are incorrect or the user is not verified it will return *403* plus an error message.
 
+If daily quota limit exceeded it will return *403* plus an error message.
+
 If the ip param is specified, the host of the server that tries to use the API must be in the *api_allowed_ips* configuration array, otherwise the server will respond with a *403* HTTP response code plus an error message.
 
 If the ip specified (or assumed) does not result associated in the captive portal DB the method will return *403* plus an error message.
@@ -287,6 +289,16 @@ Returns 404 if user is not logged in.
 
 Returns 400 if username is missing
 
+== Allow traffic to routes assigned to AS number
+
+Command: **rake allow_traffic:autonomous_system[<AS_NUMBER>,<CAPTIVE_PORTAL_ID>,<PROTOCOL>,<SOURCE_MAC_ADDRESS>,<SOURCE_HOST>,<SOURCE_PORT>,<DESTINATION_PORT>,<NOTE>]**
+
+What is for: creates allowed traffic rules to routes assigned to a specific autonomous system number.
+
+**Example**, allow traffic to allow all incoming TCP traffic to facebook on port 443 through captive portal with id 1:
+
+    RAILS_ENV=production bundle exec rake allow_traffic:autonomous_system[AS32934,1,tcp,,,,443,facebook-443]
+
 == Copyright
 
 Copyright (C) 2012 OpenWISP.org
@@ -303,4 +315,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
