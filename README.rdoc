@@ -291,11 +291,13 @@ Returns 400 if username is missing
 
 == Allow traffic to routes assigned to AS number
 
-Command: **rake allow_traffic:autonomous_system[<AS_NUMBER>,<CAPTIVE_PORTAL_ID>,<PROTOCOL>,<SOURCE_MAC_ADDRESS>,<SOURCE_HOST>,<SOURCE_PORT>,<DESTINATION_PORT>,<NOTE>]**
+This command allows to create allowed traffic rules to routes assigned to a specific autonomous system number.
 
-What is for: creates allowed traffic rules to routes assigned to a specific autonomous system number.
+*Command*:
 
-**Example**, allow traffic to allow all incoming TCP traffic to facebook on port 443 through captive portal with id 1:
+    rake allow_traffic:autonomous_system[<AS_NUMBER>,<CAPTIVE_PORTAL_ID>,<PROTOCOL>,<SOURCE_MAC_ADDRESS>,<SOURCE_HOST>,<SOURCE_PORT>,<DESTINATION_PORT>,<NOTE>]
+
+*Example*, allow traffic to allow all incoming TCP traffic to facebook on port 443 through captive portal with id 1:
 
     RAILS_ENV=production bundle exec rake allow_traffic:autonomous_system[AS32934,1,tcp,,,,443,facebook-443]
 
@@ -315,3 +317,4 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
