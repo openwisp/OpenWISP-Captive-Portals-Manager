@@ -8,7 +8,7 @@ gem 'rails', :git => 'git://github.com/rails/rails.git', :branch => '3-0-stable'
 #gem 'radiustar', '~> 0.0.6'
 #Temp radiustar repository for ipaddr version yanked
 gem 'radiustar', :git =>'git://github.com/idemarinis/radiustar.git'
-gem 'packet', '0.1.15', :git => 'git://github.com/dguerri/packet.git'
+gem 'packet', '0.1.15'
 gem 'backgroundrb-rails3', :require => 'backgroundrb'
 
 gem 'authlogic', '~> 2.1.6'
@@ -45,7 +45,7 @@ group :development, :test do
   gem 'wirble'
   gem 'hirb'
   gem 'awesome_print'
-  gem 'ruby-debug'
+  gem 'debugger'
   gem 'sqlite3-ruby', :require => 'sqlite3'
 end
 
