@@ -1,3 +1,14 @@
+= Development discontinued
+
+The development of this project has been discontinued.
+
+For the captive portal part of your network we suggest using one of the following options:
+
+* PfSense
+* Coova Chilli (good for running on OpenWRT)
+* OpnSense
+* PacketFence
+
 = OpenWISP Captive Portals Manager
 
 == Description
