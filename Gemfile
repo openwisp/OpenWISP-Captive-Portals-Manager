@@ -14,7 +14,7 @@ gem 'backgroundrb-rails3', :require => 'backgroundrb'
 gem 'authlogic', '~> 2.1.6'
 gem 'rails3-generators', '~> 0.17.4'
 
-gem 'jquery-rails', '~> 0.2.6'
+gem 'jquery-rails', '~> 3.1.5'
 
 # Use unicorn as the web server
 # gem 'unicorn'
