@@ -9,6 +9,8 @@ For the captive portal part of your network we suggest using one of the followin
 * OpnSense
 * PacketFence
 
+We also recommend looking into {openwisp-wifi-login-pages}[https://github.com/openwisp/openwisp-wifi-login-pages#openwisp-wifi-login-pages] for a captive / login page which offers also features like user registration, SMS verification, social login, change/reset password, change phone number, status page with list of sessions of the logged in user and more features, it's built to work with {OpenWISP RADIUS}[https://openwisp-radius.readthedocs.io/en/latest/] and can be integrated with the captive portal solutions listed above.
+
 = OpenWISP Captive Portals Manager
 
 == Description
